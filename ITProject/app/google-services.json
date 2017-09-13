@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1001679292213",
+    "firebase_url": "https://itproject-43222.firebaseio.com",
+    "project_id": "itproject-43222",
+    "storage_bucket": "itproject-43222.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001679292213:android:ff93da2c78d66ee1",
+        "android_client_info": {
+          "package_name": "com.unimelb.comp30022.itproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1001679292213-vnu3c2siv7ekfrhci9i7cosa0ih1jc7f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.unimelb.comp30022.itproject",
+            "certificate_hash": "61e47968e360ede269efa4fa3f8aa7cea069eba6"
+          }
+        },
+        {
+          "client_id": "1001679292213-g8piup78u099iorhl4fv7qu071br83hc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoiTfWyJlOx8mozddzu2VBgLyDy-DJuD4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1001679292213-g8piup78u099iorhl4fv7qu071br83hc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
