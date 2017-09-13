@@ -3,6 +3,7 @@ package com.unimelb.comp30022.itproject;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -17,6 +18,7 @@ import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.app.Activity;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -28,9 +30,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.unimelb.testAR.UnityPlayerActivity;
+import com.unity3d.player.UnityPlayerNativeActivity;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -87,6 +93,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view) {
                 attemptLogin();
+            }
+        });
+        Button mLaunchARCamera = (Button) findViewById(R.id.launch_ar_cmaera_button);
+        mLaunchARCamera.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Launching AR Camera" , Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(LoginActivity.this, UnityPlayerActivity.class);
+                startActivity(i);
             }
         });
 
