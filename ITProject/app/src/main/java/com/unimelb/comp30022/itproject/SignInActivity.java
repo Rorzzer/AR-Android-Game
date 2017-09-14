@@ -11,9 +11,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignInActivity extends AppCompatActivity
@@ -167,12 +171,23 @@ public class SignInActivity extends AppCompatActivity
                         }
                         updateStatus();
                     }
-                });
+                })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof FirebaseAuthInvalidCredentialsException){
+                    updateStatus("Invalid Password.");
+                } else if (e instanceof FirebaseAuthInvalidUserException){
+                    updateStatus("No account with this email.");
+                } else {
+                    updateStatus(e.getLocalizedMessage());
+                }
+            }
+        });
 
     }
 
     private void signUserOut() {
-        // TODO: sign the user out
         mAuth.signOut();
         updateStatus();
     }
@@ -181,25 +196,48 @@ public class SignInActivity extends AppCompatActivity
         if (!checkFormFields())
             return;
 
+        //get the email and password strings
         String email = etEmail.getText().toString();
         String password = etPass.getText().toString();
 
-        // TODO: Create the user account
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new
-                        OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult>
-                                                   task) {
-                    if (task.isSuccessful()){
-                        Toast.makeText(SignInActivity.this, "User was created",
-                                Toast.LENGTH_SHORT).show();
+        // validate the email address
+        if (isEmailValid(email)) {
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new
+                            OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult>
+                                                               task) {
+                                    if (task.isSuccessful()){
+                                        Toast.makeText(SignInActivity.this, "User was created",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(SignInActivity.this, "Account creation failed",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (e instanceof FirebaseAuthUserCollisionException){
+                                updateStatus("Email already in use");
+                            } else {
+                                updateStatus(e.getLocalizedMessage());
+                            }
                         }
-                        else{
-                        Toast.makeText(SignInActivity.this, "Account creation failed",
-                                Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                    });
+        } else {
+            //
+            updateStatus("Must be a University of Melbourne email address");
+        }
+        updateStatus();
     }
+
+    private boolean isEmailValid(String email) {
+        // validation rules
+        return email.contains("@student.unimelb.edu.au");
+    }
+
 }

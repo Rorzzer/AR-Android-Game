@@ -31,7 +31,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="View User"
-        android:layout_below="@+id/textView"
+        android:layout_alignBaseline="@+id/btnSignInReg"
+        android:layout_alignBottom="@+id/btnSignInReg"
         android:layout_toEndOf="@+id/btnSignInReg" />
 
 </RelativeLayout>
