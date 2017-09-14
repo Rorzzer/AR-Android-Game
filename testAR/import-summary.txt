@@ -22,6 +22,7 @@ Eclipse projects. Here's how the projects were restructured:
 * libs\armeabi-v7a\libVuforia.so => app\src\main\jniLibs\armeabi-v7a\libVuforia.so
 * libs\armeabi-v7a\libVuforiaUnityPlayer.so => app\src\main\jniLibs\armeabi-v7a\libVuforiaUnityPlayer.so
 * libs\armeabi-v7a\libVuforiaWrapper.so => app\src\main\jniLibs\armeabi-v7a\libVuforiaWrapper.so
+* libs\reciever.jar => app\libs\reciever.jar
 * libs\unity-classes.jar => app\libs\unity-classes.jar
 * libs\Vuforia.jar => app\libs\Vuforia.jar
 * libs\VuforiaUnityPlayer.jar => app\libs\VuforiaUnityPlayer.jar

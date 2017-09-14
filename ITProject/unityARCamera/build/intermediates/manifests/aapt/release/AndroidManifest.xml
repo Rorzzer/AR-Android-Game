@@ -21,12 +21,12 @@
 
 
     <!--
-            To support devices using the TI S3D library for stereo mode we must 
-            add the following library.
-            Devices that require this are: ODG X6 
+          To support devices using the TI S3D library for stereo mode we must
+          add the following library.
+          Devices that require this are: ODG X6
     -->
 
 
     <!-- </application> -->
 
-</manifest> <!-- android:installLocation="preferExternal" -->
+</manifest> <!-- android:installLocation="preferExt -->

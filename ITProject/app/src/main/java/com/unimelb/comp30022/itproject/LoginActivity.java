@@ -140,7 +140,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onClick(View view) {
                 Toast.makeText(getApplicationContext(), "Launching AR Camera" , Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(LoginActivity.this, UnityPlayerActivity.class);
+                startService(new Intent( LoginActivity.this, UnityPlayerNativeActivity.class ));
                 startActivity(i);
+
             }
         });
 

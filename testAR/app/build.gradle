@@ -18,6 +18,7 @@ android {
 }
 
 dependencies {
+    compile files('libs/reciever.jar')
     compile files('libs/unity-classes.jar')
     compile files('libs/Vuforia.jar')
     compile files('libs/VuforiaUnityPlayer.jar')
