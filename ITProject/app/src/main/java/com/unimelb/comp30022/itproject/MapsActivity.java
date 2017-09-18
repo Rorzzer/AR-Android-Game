@@ -1,6 +1,5 @@
 package com.unimelb.comp30022.itproject;
 
-import android.*;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -34,19 +33,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationListener {
 
     private GoogleMap mMap;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private GoogleApiClient mGoogleApiClient;
-     LocationRequest mLocationRequest;
+
+    GoogleApiClient mGoogleApiClient;
+
+    //AAssorted Location api variables
+    LocationRequest mLocationRequest;
     Location mLastLocation;
-     Marker mCurrLocationMarker;
+    Marker mCurrLocationMarker;
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
+    //Upon map activity creation
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {    //compare SDK requirements
+            checkLocationPermission();                                      //Then check if location permission has been granted
+        }
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -65,7 +72,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
+        //Creation of mao and map type
         mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         //Initialisation of google play services, required for user location
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //Checks OS build against manifest
@@ -81,6 +91,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
+    }
+
+    //Builder method for google api client
+    protected synchronized void buildGoogleApiClient(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
     }
 
     //Upon connection to location services
@@ -136,15 +156,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //Builder method for google api client
-    protected synchronized void buildGoogleApiClient(){
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
-    }
+
 
 
 
