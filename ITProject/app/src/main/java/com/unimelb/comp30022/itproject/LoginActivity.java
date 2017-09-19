@@ -18,7 +18,6 @@ import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.app.Activity;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
@@ -42,8 +41,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.unimelb.testAR.UnityPlayerActivity;
-import com.unity3d.player.UnityPlayerNativeActivity;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -139,8 +137,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view) {
                 Toast.makeText(getApplicationContext(), "Launching AR Camera" , Toast.LENGTH_SHORT).show();
+                //create Service to broadcast data to unityPlugin
+                ServiceTools serviceTools = new ServiceTools();
+                startService(new Intent( LoginActivity.this, AndroidToUnitySender.class ));
+                serviceTools.isServiceRunning(LoginActivity.this,AndroidToUnitySender.class);
+                //launch new AR activity
                 Intent i = new Intent(LoginActivity.this, UnityPlayerActivity.class);
-                startService(new Intent( LoginActivity.this, UnityPlayerNativeActivity.class ));
                 startActivity(i);
 
             }

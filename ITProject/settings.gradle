@@ -1,1 +1,1 @@
-include ':app', ':unityARCamera'
+include ':app', ':unityPlugin'

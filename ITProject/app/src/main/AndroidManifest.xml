@@ -37,7 +37,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:label="@string/app_name" android:screenOrientation="fullSensor" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale" android:name="com.unimelb.testAR.UnityPlayerActivity">
+        <activity android:label="@string/app_name" android:screenOrientation="fullSensor" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale" android:name="com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity">
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="false" />
         </activity>
@@ -46,13 +46,14 @@
         <service android:enabled="true" android:name="com.unimelb.comp30022.itproject.AndroidToUnitySender" >
         </service>
 
-        <!--<receiver android:name="com.ITProject.sendintent.IntentToUnity">
+        <receiver android:name="com.unimelb.comp30022.receiver.UnityReceiver">
             <intent-filter>
-                <action android:name="com.ITProject.sendintent.IntentToUnity.">
+                <action android:name="com.unimelb.comp30022.ITProject.sendintent.IntentToUnity">
                 </action>
             </intent-filter>
         </receiver>
-        -->
+
+
         <uses-library android:name="com.ti.s3d" android:required="false" />
         <!--
                 To support the ODG R7 in stereo mode we must add the following library.

@@ -22,7 +22,7 @@ public class AndroidToUnitySender extends Service {
             senderIntent.setFlags(Intent.FLAG_FROM_BACKGROUND| Intent.FLAG_ACTIVITY_NO_ANIMATION|
             Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             //direct intent with string targeted by reciever and specitfy data format
-            senderIntent.setAction("com.ITProject.sendintent.IntentToUnity").putExtra(Intent.EXTRA_TEXT, "Intent "+ intentID);
+            senderIntent.setAction("com.unimelb.comp30022.ITProject.sendintent.IntentToUnity").putExtra(Intent.EXTRA_TEXT, "Intent "+ intentID);
             sendBroadcast(senderIntent);
             handler.removeCallbacks(this);
             handler.postDelayed(this,1000);

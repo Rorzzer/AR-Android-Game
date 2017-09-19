@@ -20,6 +20,5 @@ public class MovePlayers : MonoBehaviour {
 		Vector3 dir = transform.position - Camera.main.transform.position;
 		dir.Normalize();
 		transform.Translate (dir * speed * Time.deltaTime);
-		transform.Translate( Vector3.right * speed * Time.deltaTime);
 	}
 }
