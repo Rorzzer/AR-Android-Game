@@ -3,7 +3,9 @@ package com.unimelb.comp30022.itproject;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -47,6 +49,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+
     //TAG variable
     private static final String TAG = "EmailPassword";
 
@@ -87,6 +90,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(intent);
 
         //init mAuth
         mAuth = FirebaseAuth.getInstance();
@@ -134,7 +140,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
 
-
+        Button TestMapButton = (Button) findViewById(R.id.TestMapButton);
+        TestMapButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ToMaps(view);
+            }
+        });
     }
 
     //onStart code
@@ -160,6 +172,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return;
         }
 
+
+
         //showProgressDialog();
 
 
@@ -182,6 +196,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
                 });
 
+    }
+
+    //To maps function, swaps to maps activity
+    private void ToMaps(View view){
+        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+        startActivity(intent);
     }
 
     private boolean validateForm() {
@@ -458,5 +478,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
         }
     }
+
+
 }
 
