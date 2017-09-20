@@ -1,10 +1,5 @@
 package com.unimelb.comp30022.itproject;
 
-import android.net.Uri;
-
-import com.google.android.gms.maps.model.LatLng;
-
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -15,18 +10,18 @@ import java.util.ArrayList;
 public class Team {
     private Integer teamId;
     private String teamName;
-    private Long timeCreated;
+    private Long timeTeamCreated;
     private Player creator;
     private Integer maxPlayers;
     private Boolean isActive;
     private URI teamImageUri;
-    private ArrayList<Player> activePlayers;
+    private ArrayList<Player> playerArrayList;
     public  Team(Integer teamId, String teamName,Player creator){
         this.teamId = teamId;
         this.teamName = teamName;
         this.creator = creator;
-        this.activePlayers = new ArrayList<Player>();
-        this.timeCreated = System.currentTimeMillis();
+        this.playerArrayList = new ArrayList<Player>();
+        this.timeTeamCreated = System.currentTimeMillis();
     }
     public Integer getMaxPlayers() {
         return maxPlayers;
@@ -37,10 +32,10 @@ public class Team {
     }
 
     //add players if space is available
-    private boolean addPlayer(Player player){
-        if(activePlayers != null && maxPlayers!=null){
-            if(maxPlayers.compareTo(activePlayers.size())<0){
-                this.activePlayers.add(player);
+    public boolean addPlayer(Player player){
+        if(playerArrayList != null && maxPlayers != null  ){
+            if(maxPlayers>playerArrayList.size()){
+                this.playerArrayList.add(player);
                 return true;
             }
             else{
@@ -51,9 +46,9 @@ public class Team {
             return false;
         }
     }
-    private boolean removePlayer(Player player){
-        if(activePlayers != null && activePlayers.size()>0 && activePlayers.contains(player)){
-            activePlayers.remove(player);
+    public boolean removePlayer(Player player){
+        if(playerArrayList != null && playerArrayList.size()>0 && playerArrayList.contains(player)){
+            playerArrayList.remove(player);
             return true;
         }
         return false;

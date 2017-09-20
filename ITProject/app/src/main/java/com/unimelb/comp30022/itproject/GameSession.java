@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 public class GameSession {
 
-    private static int TEAMSIZE =2;
 
 
     private Integer sessionId;
@@ -27,11 +26,25 @@ public class GameSession {
     private Player creator;
     private String description;
     private URI sessionImageUri;
-    private ArrayList<Team> teams ;
-    public GameSession(Integer sessionId, Player creator){
+    private ArrayList<Team> teamArrayList ;
+    public GameSession(){
+        teamArrayList = new ArrayList<Team>();
+    }
+
+    public Integer getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(Integer sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public Player getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Player creator) {
         this.creator = creator;
-        this.teams = new ArrayList<Team>();
     }
 
     public Long getStartTime() {
@@ -121,4 +134,28 @@ public class GameSession {
     public void setSessionImageUri(URI sessionImageUri) {
         this.sessionImageUri = sessionImageUri;
     }
+
+    public boolean addTeam(Team team){
+        if(teamArrayList != null && maxTeams != null  ){
+            if(maxTeams>teamArrayList.size()){
+                this.teamArrayList.add(team);
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
+    public boolean removePlayer(Team team){
+        if(teamArrayList != null && teamArrayList.size()>0 && teamArrayList.contains(team)){
+            teamArrayList.remove(team);
+            return true;
+        }
+        return false;
+    }
+
+
 }
