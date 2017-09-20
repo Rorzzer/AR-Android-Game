@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.0"
 
     defaultConfig {
         //applicationId "com.unimelb.comp30022.itproject.arcamera"
-        minSdkVersion 14
+        minSdkVersion 15
     }
 
     buildTypes {

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.unimelb.comp30022.itproject">
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="26" />
     <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
