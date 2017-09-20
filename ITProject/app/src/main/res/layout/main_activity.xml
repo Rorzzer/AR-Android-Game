@@ -35,4 +35,12 @@
         android:layout_alignBottom="@+id/btnSignInReg"
         android:layout_toEndOf="@+id/btnSignInReg" />
 
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnSignInReg"
+        android:layout_marginTop="25dp"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

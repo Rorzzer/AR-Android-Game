@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity
     implements View.OnClickListener {
@@ -48,15 +51,26 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSignInReg:
-                Intent i = new Intent(getApplicationContext(), SignInActivity.class);
-                startActivity(i);
+                Intent signIn = new Intent(getApplicationContext(), SignInActivity.class);
+                startActivity(signIn);
                 break;
 
             case R.id.btnUser:
-
+                if (FirebaseAuth.getInstance().getCurrentUser()!= null){
+                    Intent userProf = new Intent(getApplicationContext(), UserProfActivity.class);
+                    startActivity(userProf);
+                }else{
+                    updateStatus("You must be signed in to access this feature.");
+                }
                 break;
 
         }
     }
+
+    private void updateStatus(String stat) {
+        TextView tvStat = (TextView)findViewById(R.id.tvStatus);
+        tvStat.setText(stat);
+    }
+
 }
 

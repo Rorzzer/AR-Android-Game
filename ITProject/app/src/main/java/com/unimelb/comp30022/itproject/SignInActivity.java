@@ -231,6 +231,8 @@ public class SignInActivity extends AppCompatActivity
         } else {
             //
             updateStatus("Must be a University of Melbourne email address");
+            Toast.makeText(SignInActivity.this, "Account creation failed",
+                    Toast.LENGTH_SHORT).show();
         }
         updateStatus();
     }
