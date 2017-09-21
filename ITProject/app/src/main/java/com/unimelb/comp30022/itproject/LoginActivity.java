@@ -93,8 +93,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        startActivity(intent);
+        //Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        //startActivity(intent);
 
         //init mAuth
         mAuth = FirebaseAuth.getInstance();
@@ -145,7 +145,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 //create Service to broadcast data to unityPlugin
                 ServiceTools serviceTools = new ServiceTools();
                 startService(new Intent( LoginActivity.this, AndroidToUnitySender.class ));
-                serviceTools.isServiceRunning(LoginActivity.this,AndroidToUnitySender.class);
+                //serviceTools.isServiceRunning(LoginActivity.this,AndroidToUnitySender.class);
                 //launch new AR activity
                 Intent i = new Intent(LoginActivity.this, UnityPlayerActivity.class);
                 startActivity(i);

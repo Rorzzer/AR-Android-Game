@@ -1,6 +1,5 @@
 package com.unimelb.comp30022.itproject;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +13,7 @@ public class Team {
     private Player creator;
     private Integer maxPlayers;
     private Boolean isActive;
-    private URI teamImageUri;
+    private String teamImageUri;
     private ArrayList<Player> playerArrayList;
     public  Team(Integer teamId, String teamName,Player creator){
         this.teamId = teamId;
@@ -52,6 +51,14 @@ public class Team {
             return true;
         }
         return false;
+    }
+
+    public String getTeamImageUri() {
+        return teamImageUri;
+    }
+
+    public void setTeamImageUri(String teamImageUri) {
+        this.teamImageUri = teamImageUri;
     }
 
     public Boolean getActive() {

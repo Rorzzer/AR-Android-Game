@@ -27,7 +27,6 @@ public class AndroidToUnitySender extends Service {
     private Gson gson = new Gson();
     private DataGenerator generator = new DataGenerator();
     private Type gameSessionType = new TypeToken<GameSession>(){}.getType();
-    private int intentID;
     private Runnable sendData = new Runnable() {
         public void run() {
             Intent senderIntent = new Intent();
@@ -45,6 +44,10 @@ public class AndroidToUnitySender extends Service {
     @Override
     public void onStart(Intent intent, int startid){
         gameSession = new GameSession();
+
+        Type playerType = new TypeToken<Player>(){}.getType();
+        Log.d("JSONobject", gson.toJson(generator.generateRandomPlayer(new LatLng(-37.795298, 144.961263)),playerType));
+
         handler.removeCallbacks(sendData);
         handler.postDelayed(sendData,LATENCY);
     }

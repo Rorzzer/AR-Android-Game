@@ -1,6 +1,5 @@
 package com.unimelb.comp30022.itproject;
 
-import android.net.Uri;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -18,7 +17,7 @@ public class Player  {
     private LatLng location;
     private Boolean isLoggedOn;
     private Long lastLoggedOn;
-    private URI imageUri;
+    private String imageUri;
     private Integer score;
     private String teamName;
     private Integer teamId;
@@ -79,11 +78,11 @@ public class Player  {
         this.lastLoggedOn = lastLoggedOn;
     }
 
-    public URI getImageUri() {
+    public String getImageUri() {
         return imageUri;
     }
 
-    public void setImageUri(URI imageUri) {
+    public void setImageUri(String imageUri) {
         this.imageUri = imageUri;
     }
     public Boolean hasImageUri(){

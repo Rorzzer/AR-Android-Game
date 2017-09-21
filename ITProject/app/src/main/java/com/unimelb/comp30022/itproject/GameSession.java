@@ -2,7 +2,6 @@ package com.unimelb.comp30022.itproject;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -15,7 +14,7 @@ public class GameSession {
 
     private Integer sessionId;
     private Long startTime;
-    private Long endtime;
+    private Long endTime;
     private Integer maxTeams;
     private Integer maxPlayers;
     private Long duration;
@@ -25,7 +24,7 @@ public class GameSession {
     private Integer gameRadius;
     private Player creator;
     private String description;
-    private URI sessionImageUri;
+    private String sessionImageUri;
     private ArrayList<Team> teamArrayList ;
     public GameSession(){
         teamArrayList = new ArrayList<Team>();
@@ -55,12 +54,12 @@ public class GameSession {
         this.startTime = startTime;
     }
 
-    public Long getEndtime() {
-        return endtime;
+    public Long getEndTime() {
+        return endTime;
     }
 
-    public void setEndtime(Long endtime) {
-        this.endtime = endtime;
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
     }
 
     public Integer getMaxTeams() {
@@ -127,11 +126,11 @@ public class GameSession {
         this.description = description;
     }
 
-    public URI getSessionImageUri() {
+    public String getSessionImageUri() {
         return sessionImageUri;
     }
 
-    public void setSessionImageUri(URI sessionImageUri) {
+    public void setSessionImageUri(String sessionImageUri) {
         this.sessionImageUri = sessionImageUri;
     }
 
