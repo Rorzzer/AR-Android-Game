@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,6 +18,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 
@@ -71,7 +73,7 @@ public class UserProfActivity extends AppCompatActivity
         // Write a message to the database
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
+        mDatabase = database.getReference("users");
         FirebaseUser fUser = mAuth.getCurrentUser();
         uID = fUser.getUid();
 
@@ -165,70 +167,74 @@ public class UserProfActivity extends AppCompatActivity
                 lastName = etLastname.getText().toString();
                 username = etUsername.getText().toString();
 
-                writeNewUser(uID, username, firstName, lastName, email);
+                if (validateEmail(email) && validateName(firstName) && validateName(lastName)){
+                    writeNewUser(uID, username, firstName, lastName, email);
+                } else
+
+
+
 
                 break;
             case R.id.btnCancel:
-                //Log.d(TAG, "uID: \n" + ds.getChildrenCount());
-
                 Log.d(TAG, "btnCancel");
                 break;
         }
     }
 
     private boolean validateUsername(String username){
-        return username.length() > 4;
+        return username.length() < 4;
     }
 
     private boolean validateName(String name){
-        return name.length() > 3;
+
+        if (name.length() > 3) {
+            return true;
+        } else {
+            Toast.makeText(UserProfActivity.this, "Names must be at least 3 characters long", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
     private boolean validateEmail(String email){
-        return email.contains("@student.unimelb.edu.au");
+
+        if (email.contains("@") && email.endsWith("unimelb.edu.au")) {
+            return true;
+        } else {
+            Toast.makeText(UserProfActivity.this, "Must be a Unimelb Email", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
     // Add new user method
     private void writeNewUser(String userId, String etUsername, String etFirstname, String etLastname, String etEmail) {
 
-        String username = "default";
-        String firstName = "default";
-        String lastName = "default";
-        String email = "default@student.unimelb.edu.au";
+        final String username = etUsername;
+        final String firstName = etFirstname;
+        final String lastName = etLastname;
+        final String email = etEmail;
 
-        //userInfo = ds.child("users").child(uID).getValue(User.class);
+        Query usernameQuery = mDatabase.orderByChild("username").equalTo(username);
+        usernameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
+                    Toast.makeText(UserProfActivity.this, "Username already in use.", Toast.LENGTH_LONG).show();
+                } else if (validateUsername(username)){
+                    Toast.makeText(UserProfActivity.this, "Username must be at least 4 characters.", Toast.LENGTH_SHORT).show();
+                } else {
+                    User user = new User(username, firstName, lastName, email);
+                    mDatabase.child(uID).setValue(user);
+                    Toast.makeText(UserProfActivity.this, "Details updated", Toast.LENGTH_LONG).show();
+                }
+            }
 
-        if (validateUsername(etUsername)){
-            username = etUsername;
-            } else if (userInfo.getUsername() != null) {
-            // access database and place the previous value for field in variable
-            username = userInfo.getUsername();
-        }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-        if (validateName(etFirstname)){
-            firstName = etFirstname;
-            } else if (userInfo.getFirstname() != null) {
-            // access database and place the previous value for field in variable
-            firstName = userInfo.getFirstname();
-        }
+            }
+        });
 
-        if (validateName(etLastname)){
-            lastName = etLastname;
-            } else if (userInfo.getLastname() != null) {
-            // access database and place the previous value for field in variable
-            lastName = userInfo.getLastname();
-        }
 
-        if (validateEmail(etEmail)){
-            email = etEmail;
-        } else if (userInfo.getEmail() != null) {
-            // access database and place the previous value for field in variable
-            email = userInfo.getEmail();
-        }
-
-        User user = new User(username, firstName, lastName, email);
-
-        mDatabase.child(userId).setValue(user);
     }
 
 

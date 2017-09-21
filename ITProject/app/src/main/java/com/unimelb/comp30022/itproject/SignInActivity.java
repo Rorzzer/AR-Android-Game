@@ -57,7 +57,7 @@ public class SignInActivity extends AppCompatActivity
         // TODO: Get a reference to the Firebase auth object
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
+        mDatabase = database.getReference("users");
 
         // TODO: Attach a new AuthListener to detect sign in and out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -139,7 +139,7 @@ public class SignInActivity extends AppCompatActivity
 
     private void updateStatus() {
         TextView tvStat = (TextView)findViewById(R.id.tvSignInStatus);
-        // TODO: get the current user
+
         FirebaseUser user = mAuth.getCurrentUser();
 
         if (user != null) {
@@ -219,15 +219,14 @@ public class SignInActivity extends AppCompatActivity
                                 public void onComplete(@NonNull Task<AuthResult>
                                                                task) {
                                     if (task.isSuccessful()){
-
                                         //write blank user data to database
                                         User newUser = new User(EMPTY, EMPTY, EMPTY, user.getEmail());
                                         mDatabase.child(user.getUid()).setValue(newUser);
 
                                         Toast.makeText(SignInActivity.this, "User was created",
                                                 Toast.LENGTH_SHORT).show();
-                                    }
-                                    else{
+                                        updateStatus("User created, now login");
+                                    }else{
                                         Toast.makeText(SignInActivity.this, "Account creation failed",
                                                 Toast.LENGTH_SHORT).show();
                                     }
@@ -245,16 +244,15 @@ public class SignInActivity extends AppCompatActivity
                     });
         } else {
             //
-            updateStatus("Must be a University of Melbourne email address");
+            updateStatus("Must be a valid University of Melbourne email address");
             Toast.makeText(SignInActivity.this, "Account creation failed",
                     Toast.LENGTH_SHORT).show();
         }
-        updateStatus();
     }
 
     private boolean isEmailValid(String email) {
         // validation rules
-        return email.contains("@student.unimelb.edu.au");
+        return (email.contains("@") && email.endsWith("unimelb.edu.au"));
     }
 
 }
