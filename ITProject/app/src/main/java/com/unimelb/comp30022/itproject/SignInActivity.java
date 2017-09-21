@@ -19,15 +19,21 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignInActivity extends AppCompatActivity
     implements View.OnClickListener{
     private final String TAG = "FB_SIGNIN";
+    private final String EMPTY = "Empty";
 
     // TODO: Add Auth members
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
+    private FirebaseDatabase database;
 
+    private FirebaseUser user = null;
 
     private EditText etPass;
     private EditText etEmail;
@@ -49,13 +55,15 @@ public class SignInActivity extends AppCompatActivity
         etPass = (EditText)findViewById(R.id.etPassword);
 
         // TODO: Get a reference to the Firebase auth object
-    mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        mDatabase = database.getReference();
 
         // TODO: Attach a new AuthListener to detect sign in and out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     Log.d(TAG, "Signed in: " + user.getUid());
                 }
@@ -64,6 +72,8 @@ public class SignInActivity extends AppCompatActivity
                 }
             }
         };
+
+
 
         updateStatus();
     }
@@ -209,6 +219,11 @@ public class SignInActivity extends AppCompatActivity
                                 public void onComplete(@NonNull Task<AuthResult>
                                                                task) {
                                     if (task.isSuccessful()){
+
+                                        //write blank user data to database
+                                        User newUser = new User(EMPTY, EMPTY, EMPTY, user.getEmail());
+                                        mDatabase.child(user.getUid()).setValue(newUser);
+
                                         Toast.makeText(SignInActivity.this, "User was created",
                                                 Toast.LENGTH_SHORT).show();
                                     }

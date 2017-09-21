@@ -1,6 +1,7 @@
 package com.unimelb.comp30022.itproject;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,10 @@ public class UserProfActivity extends AppCompatActivity
         implements View.OnClickListener{
 
     private final String TAG = UserProfActivity.class.getName();
+    private final String EMPTYFIRST = "Enter First name";
+    private final String EMPTYLAST = "Enter Last name";
+    private final String EMPTYUSERNAME = "Entre Username";
+    private final String EMPTYEMAIL = "Enter Email";
     private String username;
     private String firstName;
     private String lastName;
@@ -34,13 +39,14 @@ public class UserProfActivity extends AppCompatActivity
     private EditText etLastname;
     private EditText etEmail;
 
-    private FirebaseUser fUser;
+    //private FirebaseUser fUser;
 
-    private User userInfo;
+    private User userInfo = null;
 
     private DatabaseReference mDatabase;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private DataSnapshot ds;
 
 
@@ -55,37 +61,61 @@ public class UserProfActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //get a reference to the database
-        // Write a message to the database
-        mAuth = FirebaseAuth.getInstance();
-        fUser = mAuth.getCurrentUser();
-        uID = fUser.getUid();
-
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-
         //etEmail = (EditText)findViewById(R.id.etEmail);
         etFirstname = (EditText)findViewById(R.id.etFirst);
         etLastname = (EditText)findViewById(R.id.etLast);
         etUsername = (EditText)findViewById(R.id.etUsername);
         etEmail = (EditText)findViewById(R.id.etEmail);
 
+        //get a reference to the database
+        // Write a message to the database
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        mDatabase = database.getReference();
+        FirebaseUser fUser = mAuth.getCurrentUser();
+        uID = fUser.getUid();
+
 
         //myRef.setValue("Hello, World!");
 
+
+        mAuthListener = new FirebaseAuth.AuthStateListener(){
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+                FirebaseUser fUser = firebaseAuth.getCurrentUser();
+                if (fUser != null){
+
+                }else{
+
+                }
+            }
+        };
 
         // Read from the database
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //private DataSnapshot dataSnapshot;
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                userInfo = dataSnapshot.child("users").child(uID).getValue(User.class);
-                //ds.child("users").child(uID).getValue(User.class).getUsername()
-                //ds = dataSnapshot;
-                Log.d(TAG, "Value is: " + uID);
+                if (dataSnapshot.exists()) {
+                    //private DataSnapshot dataSnapshot;
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+
+                    Log.d(TAG, "datasnapshot exists");
+
+                    userInfo = dataSnapshot.child(uID).getValue(User.class);
+
+                    if(userInfo != null) {
+                        loadUserData();
+                    } else {
+                        userInfo = new User(EMPTYUSERNAME, EMPTYFIRST, EMPTYLAST, EMPTYEMAIL);
+                    }
+                    Log.d(TAG, "Value is: " + uID);
+                } else {
+                    Log.d(TAG, "datasnapshot does not exist");
+                }
             }
+
+
 
             @Override
             public void onCancelled(DatabaseError error) {
@@ -93,6 +123,8 @@ public class UserProfActivity extends AppCompatActivity
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+
+        //loadUserData();
 
         //userInfo = ds.child("users").child(uID).getValue(User.class);
         //dataSnapshot.get
@@ -108,6 +140,18 @@ public class UserProfActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+
+        mAuth.addAuthStateListener(mAuthListener);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null){
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+
 
     }
 
@@ -125,8 +169,8 @@ public class UserProfActivity extends AppCompatActivity
 
                 break;
             case R.id.btnCancel:
+                //Log.d(TAG, "uID: \n" + ds.getChildrenCount());
 
-                etUsername.setText("test");
                 Log.d(TAG, "btnCancel");
                 break;
         }
@@ -187,5 +231,17 @@ public class UserProfActivity extends AppCompatActivity
         mDatabase.child(userId).setValue(user);
     }
 
+
+    private void loadUserData(){
+
+
+
+        etUsername.setText(userInfo.getUsername());
+        etFirstname.setText(userInfo.getFirstname());
+        etLastname.setText(userInfo.getLastname());
+        etEmail.setText(userInfo.getEmail());
+
+
+    }
 
 }
