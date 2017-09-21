@@ -15,5 +15,10 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+<<<<<<< HEAD
     <string name="title_activity_user_prof">UserProfActivity</string>
+=======
+    <string name="title_activity_map">MapActivity</string>
+    <string name="title_activity_maps">Map</string>
+>>>>>>> master
 </resources>
