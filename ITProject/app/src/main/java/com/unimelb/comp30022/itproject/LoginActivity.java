@@ -42,6 +42,8 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
@@ -91,8 +93,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        startActivity(intent);
+        //Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        //startActivity(intent);
 
         //init mAuth
         mAuth = FirebaseAuth.getInstance();
@@ -133,6 +135,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view) {
                 attemptLogin();
+            }
+        });
+        Button mLaunchARCamera = (Button) findViewById(R.id.launch_ar_cmaera_button);
+        mLaunchARCamera.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Launching AR Camera" , Toast.LENGTH_SHORT).show();
+                //create Service to broadcast data to unityPlugin
+                ServiceTools serviceTools = new ServiceTools();
+                startService(new Intent( LoginActivity.this, AndroidToUnitySender.class ));
+                //serviceTools.isServiceRunning(LoginActivity.this,AndroidToUnitySender.class);
+                //launch new AR activity
+                Intent i = new Intent(LoginActivity.this, UnityPlayerActivity.class);
+                startActivity(i);
+
             }
         });
 
