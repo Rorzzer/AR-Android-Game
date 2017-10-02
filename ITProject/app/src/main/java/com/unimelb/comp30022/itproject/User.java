@@ -6,10 +6,10 @@ package com.unimelb.comp30022.itproject;
 
 public class User {
 
-    private String username = "";
-    private String firstname = "";
-    private String lastname = "";
-    private String email = "";
+    private String username;
+    private String firstname;
+    private String lastname;
+    private String email;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
