@@ -1,5 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -45,7 +47,8 @@ public class SignInActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-
+        Context context = getApplicationContext();
+        FirebaseApp.initializeApp(context);
         // Set up click handlers and view item references
         findViewById(R.id.btnCreate).setOnClickListener(this);
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
