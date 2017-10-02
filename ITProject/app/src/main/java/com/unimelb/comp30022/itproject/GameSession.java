@@ -135,20 +135,15 @@ public class GameSession {
     }
 
     public boolean addTeam(Team team){
-        if(teamArrayList != null && maxTeams != null  ){
-            if(maxTeams>teamArrayList.size()){
-                this.teamArrayList.add(team);
-                return true;
-            }
-            else{
-                return false;
-            }
+        if(teamArrayList != null && maxTeams != null  && maxTeams>teamArrayList.size()){
+            this.teamArrayList.add(team);
+            return true;
         }
         else{
             return false;
         }
     }
-    public boolean removePlayer(Team team){
+    public boolean removeTeam(Team team){
         if(teamArrayList != null && teamArrayList.size()>0 && teamArrayList.contains(team)){
             teamArrayList.remove(team);
             return true;
@@ -156,5 +151,38 @@ public class GameSession {
         return false;
     }
 
+    public ArrayList<Team> getTeamArrayList() {
+        return teamArrayList;
+    }
+
+
+    public void updateRelativeLocations(LatLng originPlayerLocation){
+        //assuming the player_location is the origin
+        RelLocation origin = convertToCartesian(originPlayerLocation);
+        for(Team team : teamArrayList){
+            for(Player player: team.getPlayerArrayList()){
+
+                //generate relative coordinate from origin
+                RelLocation relPlayerLocation =   convertToCartesian(player.getAbsLocation());
+                player.setRelLocation(relPlayerLocation.diff(origin));
+            }
+        }
+    }
+    public void clearRelativeLocations(){
+        for(Team team : teamArrayList){
+            for(Player player: team.getPlayerArrayList()){
+                player.setRelLocation(null);
+            }
+        }
+    }
+    //converts LatLng to x,y,z positions for use in generation of relative positions and vectors
+    public RelLocation convertToCartesian(LatLng location){
+        double radius = 6378137.0;// equitorial radius for ellipsoidal model
+        RelLocation relLocation = new RelLocation();
+        relLocation.setX(radius*Math.cos(location.latitude)*Math.cos(location.longitude)) ;
+        relLocation.setY(radius*Math.cos(location.latitude)*Math.sin(location.longitude));
+        relLocation.setZ(radius*Math.sin(location.latitude)*(1.0-1.0/298.257223563));
+        return relLocation;
+    }
 
 }
