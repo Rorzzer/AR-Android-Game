@@ -59,12 +59,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name="android.support.multidex.MultiDexApplication"
-        tools:replace="android:icon,launcher:theme">
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/app_name">
+        android:theme="@style/AppTheme">
+        <!-- OR Other activities like this And  intent filter is not necessary in other activites -->
+        <activity android:name=".SignInActivity"></activity>
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -95,17 +93,22 @@
              Note that the API key is linked to the encryption key used to sign the APK.
              You need a different API key for each encryption key, including the release key that is used to
              sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <!-- Activity for maps activity -->
+        <!--Activity for maps activity -->
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps">
 
+        </activity>
+        <activity
+            android:name=".UserProfActivity"
+            android:label="@string/title_activity_user_prof"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <service
             android:name=".AndroidToUnitySender"
             android:enabled="true"></service>
@@ -123,7 +126,6 @@
         <uses-library
             android:name="com.osterhoutgroup.api.ext"
             android:required="false" />
-
     </application>
 
 </manifest>
