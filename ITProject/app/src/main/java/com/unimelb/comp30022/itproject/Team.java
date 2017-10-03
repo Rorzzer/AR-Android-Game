@@ -68,4 +68,8 @@ public class Team {
     public void setActive(Boolean active) {
         isActive = active;
     }
+
+    public ArrayList<Player> getPlayerArrayList() {
+        return playerArrayList;
+    }
 }

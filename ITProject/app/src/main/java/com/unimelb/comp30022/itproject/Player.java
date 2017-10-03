@@ -14,7 +14,8 @@ import java.net.URI;
 public class Player  {
     private Integer  playerId;
     private String displayName;
-    private LatLng location;
+    private LatLng absLocation;
+    private RelLocation relLocation;
     private Boolean isLoggedOn;
     private Long lastLoggedOn;
     private String imageUri;
@@ -54,12 +55,20 @@ public class Player  {
         this.displayName = displayName;
     }
 
-    public LatLng getLocation() {
-        return location;
+    public LatLng getAbsLocation() {
+        return absLocation;
     }
 
-    public void setLocation(LatLng location) {
-        this.location = location;
+    public void setAbsLocation(LatLng absLocation) {
+        this.absLocation = absLocation;
+    }
+
+    public RelLocation getRelLocation() {
+        return relLocation;
+    }
+
+    public void setRelLocation(RelLocation relLocation) {
+        this.relLocation = relLocation;
     }
 
     public Boolean getLoggedOn() {
@@ -154,4 +163,5 @@ public class Player  {
     public int hashCode() {
         return 0;
     }
+
 }

@@ -2,6 +2,7 @@ package com.unimelb.comp30022.itproject;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.util.List;
@@ -25,6 +26,15 @@ public class ServiceTools {
         }
         return false;
     }
+    public static boolean startNewService(Context context, Class<?> serviceClass){
+        Intent i = new Intent(context, serviceClass);
+        context.startService(i);
+        return false;
+    }
 
+    public static boolean stopRunningService(Context context, Class<?> serviceClass){
+        context.stopService(new Intent(context,serviceClass));
+        return false;
+    }
 
 }
