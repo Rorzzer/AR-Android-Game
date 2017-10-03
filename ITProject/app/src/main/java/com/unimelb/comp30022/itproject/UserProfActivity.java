@@ -42,16 +42,14 @@ public class UserProfActivity extends AppCompatActivity
     private EditText etLastname;
     private EditText etEmail;
 
-    //private FirebaseUser fUser;
-
     private User userInfo = null;
+
+    private FirebaseUser fUser;
 
     private DatabaseReference mDatabase;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private DataSnapshot ds;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +58,6 @@ public class UserProfActivity extends AppCompatActivity
         setContentView(R.layout.activity_user_prof);
         findViewById(R.id.btnEnter).setOnClickListener(this);
         findViewById(R.id.btnCancel).setOnClickListener(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         //etEmail = (EditText)findViewById(R.id.etEmail);
         etFirstname = (EditText)findViewById(R.id.etFirst);
@@ -75,22 +70,14 @@ public class UserProfActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference("users");
-        FirebaseUser fUser = mAuth.getCurrentUser();
-        uID = fUser.getUid();
 
-
-        //myRef.setValue("Hello, World!");
-
+        updateFirebaseUser(mAuth);
 
         mAuthListener = new FirebaseAuth.AuthStateListener(){
             @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
-                FirebaseUser fUser = firebaseAuth.getCurrentUser();
-                if (fUser != null){
-
-                }else{
-
-                }
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                // update the fUser Firebase auth
+                updateFirebaseUser(firebaseAuth);
             }
         };
 
@@ -103,9 +90,15 @@ public class UserProfActivity extends AppCompatActivity
                     // This method is called once with the initial value and again
                     // whenever data at this location is updated.
 
-                    Log.d(TAG, "datasnapshot exists");
+                    Log.d(TAG, "Datasnapshot exists");
 
-                    userInfo = dataSnapshot.child(uID).getValue(User.class);
+                    if (fUser != null) {
+                        userInfo = dataSnapshot.child(uID).getValue(User.class);
+                    } else {
+                        Log.d(TAG, "fUser is null");
+                        updateFirebaseUser(mAuth);
+                    }
+
 
                     if(userInfo != null) {
                         loadUserData();
@@ -126,14 +119,18 @@ public class UserProfActivity extends AppCompatActivity
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+    }
 
-        //loadUserData();
+    private void updateFirebaseUser(FirebaseAuth firebaseAuth) {
+        fUser = firebaseAuth.getCurrentUser();
+        if (fUser != null) {
+            uID = fUser.getUid();
+            Log.d(TAG, "Signed in: " + fUser.getUid());
+        }
+        else{
+            Log.d(TAG, "Currently Signed Out");
 
-        //userInfo = ds.child("users").child(uID).getValue(User.class);
-        //dataSnapshot.get
-
-        //etEmail.setText("rorororo");
-        //etLastname.setText(userInfo.getLastName());
+        }
     }
 
     /**
@@ -143,9 +140,7 @@ public class UserProfActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-
         mAuth.addAuthStateListener(mAuthListener);
-
     }
 
     @Override
@@ -170,12 +165,9 @@ public class UserProfActivity extends AppCompatActivity
 
                 if (validateEmail(email) && validateName(firstName) && validateName(lastName)){
                     writeNewUser(uID, username, firstName, lastName, email);
-                } else
-
-
-
-
+                }
                 break;
+
             case R.id.btnCancel:
                 Log.d(TAG, "btnCancel");
                 break;
@@ -183,15 +175,24 @@ public class UserProfActivity extends AppCompatActivity
     }
 
     private boolean validateUsername(String username){
-        return username.length() < 4;
+        // if the username is more than 4 letters it is considered valid
+        if (username.length() > 3) {
+            return true;
+        } else {
+            Toast.makeText(UserProfActivity.this, "Username must be at least 4 characters", Toast.LENGTH_SHORT).show();
+            etUsername.setText(userInfo.getUsername());
+            return false;
+        }
     }
 
     private boolean validateName(String name){
 
-        if (name.length() > 3) {
+        if (name.length() > 2) {
             return true;
         } else {
             Toast.makeText(UserProfActivity.this, "Names must be at least 3 characters long", Toast.LENGTH_SHORT).show();
+            etFirstname.setText(userInfo.getFirstname());
+            etLastname.setText(userInfo.getLastname());
             return false;
         }
     }
@@ -202,6 +203,7 @@ public class UserProfActivity extends AppCompatActivity
             return true;
         } else {
             Toast.makeText(UserProfActivity.this, "Must be a Unimelb Email", Toast.LENGTH_SHORT).show();
+            etEmail.setText(userInfo.getEmail());
             return false;
         }
     }
@@ -220,9 +222,9 @@ public class UserProfActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
                     Toast.makeText(UserProfActivity.this, "Username already in use.", Toast.LENGTH_LONG).show();
+                    loadUserData();
                 } else if (validateUsername(username)){
-                    Toast.makeText(UserProfActivity.this, "Username must be at least 4 characters.", Toast.LENGTH_SHORT).show();
-                } else {
+                    // commit the information to the database
                     User user = new User(username, firstName, lastName, email);
                     mDatabase.child(uID).setValue(user);
                     Toast.makeText(UserProfActivity.this, "Details updated", Toast.LENGTH_LONG).show();
@@ -234,15 +236,12 @@ public class UserProfActivity extends AppCompatActivity
 
             }
         });
-
-
     }
 
 
     private void loadUserData(){
 
-
-
+        //Fill the edit texts with the users information.
         etUsername.setText(userInfo.getUsername());
         etFirstname.setText(userInfo.getFirstname());
         etLastname.setText(userInfo.getLastname());
