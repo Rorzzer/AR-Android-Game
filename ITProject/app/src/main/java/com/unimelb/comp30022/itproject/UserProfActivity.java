@@ -2,15 +2,11 @@ package com.unimelb.comp30022.itproject;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +25,7 @@ public class UserProfActivity extends AppCompatActivity
     private final String TAG = UserProfActivity.class.getName();
     private final String EMPTYFIRST = "Enter First name";
     private final String EMPTYLAST = "Enter Last name";
-    private final String EMPTYUSERNAME = "Entre Username";
+    private final String EMPTYUSERNAME = "Enter Username";
     private final String EMPTYEMAIL = "Enter Email";
     private String username;
     private String firstName;

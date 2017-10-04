@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity
         // Set up click handlers and view item references
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnUser).setOnClickListener(this);
+        findViewById(R.id.btnMap).setOnClickListener(this);
     }
 
     /**
@@ -64,6 +65,14 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
 
+            case R.id.btnMap:
+                if (FirebaseAuth.getInstance().getCurrentUser()!= null) {
+                    Intent MapsAct = new Intent(getApplicationContext(), MapsActivity.class);
+                    startActivity(MapsAct);
+                }
+                else{
+                    updateStatus("You must be signed in to access this feature.");
+                }
         }
     }
 
