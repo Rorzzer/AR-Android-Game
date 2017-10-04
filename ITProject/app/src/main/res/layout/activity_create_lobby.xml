@@ -6,7 +6,7 @@
     android:fillViewport="true"
     tools:context="com.unimelb.comp30022.itproject.CreateLobbyActivity">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
 
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,31 +42,12 @@
             android:layout_below="@+id/tvName"
             android:ems="10"
             android:inputType="textPersonName" />
-
-        <TextView
-            android:id="@+id/tvImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/etLobbyName"
-            android:text="Session Image:"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <EditText
-            android:id="@+id/etImageUri"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/tvImage"
-            android:ems="10"
-            android:inputType="textPersonName" />
-
         <TextView
             android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/etImageUri"
+            android:layout_below="@+id/etLobbyName"
             android:text="Description:"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -80,13 +61,28 @@
             android:inputType="textMultiLine"
             android:selectAllOnFocus="false"
             android:singleLine="false" />
+        <TextView
+            android:id="@+id/tvImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/etDescription"
+            android:text="Session Image:"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-
+        <EditText
+            android:id="@+id/etImageUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tvImage"
+            android:ems="10"
+            android:inputType="textPersonName" />
         <LinearLayout
             android:id="@+id/timePickerLabels"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/etDescription"
+            android:layout_below="@id/etImageUri"
             android:orientation="horizontal"
             android:weightSum="1">
 

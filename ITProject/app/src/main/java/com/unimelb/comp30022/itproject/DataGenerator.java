@@ -4,8 +4,6 @@ package com.unimelb.comp30022.itproject;
  * Created by Kiptenai on 21/09/2017.
  */
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.Random;
 
 /**

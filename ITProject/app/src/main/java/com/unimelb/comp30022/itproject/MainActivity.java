@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity
     implements View.OnClickListener {
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnFindLobby:
                 if (FirebaseAuth.getInstance().getCurrentUser()!= null){
-                    Intent jonLobby = new Intent(getApplicationContext(), JoinLobbyActivity.class);
+                    Intent jonLobby = new Intent(getApplicationContext(), FindLobbyActivity.class);
                     startActivity(jonLobby);
                 }else{
                     updateStatus("You must be signed in to access this feature.");

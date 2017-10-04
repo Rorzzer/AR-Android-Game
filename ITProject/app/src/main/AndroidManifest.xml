@@ -74,7 +74,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.unimelb.comp30022.itproject.CreateLobbyActivity"></activity>
-        <activity android:name="com.unimelb.comp30022.itproject.JoinLobbyActivity"></activity>
+        <activity android:name="com.unimelb.comp30022.itproject.FindLobbyActivity"></activity>
         <activity android:name="com.unimelb.comp30022.itproject.SessionInformationActivity"></activity>
         <!--
         <activity

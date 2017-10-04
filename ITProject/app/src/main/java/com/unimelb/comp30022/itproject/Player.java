@@ -1,8 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
 
-import com.google.android.gms.maps.model.LatLng;
-
 /**
  * Created by Kiptenai on 20/09/2017.
  */
@@ -28,7 +26,7 @@ public class Player  {
         this.displayName = displayName;
     }
 
-
+    public Player(){}
     public String getDisplayName() {
         return displayName;
     }

@@ -1,11 +1,8 @@
 package com.unimelb.comp30022.itproject;
 
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInstaller;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +16,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,10 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class CreateLobbyActivity extends AppCompatActivity
@@ -53,7 +46,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     private FirebaseUser fbuser ;
 
     private User currentUserInfo;
-    private String userId;
+    private String userId = null;
     private String userName;
     private String description;
     private LatLng location;
@@ -67,11 +60,12 @@ public class CreateLobbyActivity extends AppCompatActivity
     private Integer gameRadius;
     private Integer maxTeamSize;
     private String sessionName;
-    private String gameSessionId;
+    private String gameSessionId = null;
     private GameSession gameSession;
     private int maxSeekBar;
     private int minSeekBar;
     private double seekBarUnit;
+    private boolean inEditMode;
 
     private EditText etSessionName;
     private EditText etImageUri;
@@ -82,6 +76,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     private TextView tvDurationMinutes;
     private TextView tvMaxTeamSize;
     private RadioButton radioButtonPublicAccess;
+    private RadioButton radiobuttonPrivateAccess;
     private ListView  listView;
     private ArrayList list = new ArrayList();
     private ArrayAdapter adapter;
@@ -111,12 +106,12 @@ public class CreateLobbyActivity extends AppCompatActivity
         durationSeekBar = (SeekBar)findViewById(R.id.durationSlider);
         maxTeamSizeSeekbar = (SeekBar)findViewById(R.id.teamSizeSlider);
         radioButtonPublicAccess = (RadioButton)findViewById(R.id.btnPublic);
-
+        radiobuttonPrivateAccess = (RadioButton)findViewById(R.id.btnPrivate);
         radioButtonPublicAccess.setChecked(true);
         maxSeekBar = durationSeekBar.getMax();
         durationSeekBar.setProgress(maxSeekBar/2);
 
-        //Seek bar listeners
+        //slider bar listeners
         durationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean b) {
@@ -163,13 +158,6 @@ public class CreateLobbyActivity extends AppCompatActivity
                 }
             }
         });
-
-        //fetch game SessionID if already created
-        String activityImports = getIntent().getStringExtra("gameSessionId");
-        if(getIntent().getStringExtra("gameSessionId")!=null){
-            //opening from another activity
-            gameSessionId = activityImports;
-        }
         /**
          * get AuthListener to fetch logged in user
          * */
@@ -185,6 +173,7 @@ public class CreateLobbyActivity extends AppCompatActivity
                 }
             }
         };
+
 
         /**
          * Fetch current user details
@@ -206,6 +195,17 @@ public class CreateLobbyActivity extends AppCompatActivity
             }
         });
 
+        //fetch game SessionID if already created
+        String activityImports = getIntent().getStringExtra("gameSessionId");
+        if(activityImports != null){
+            inEditMode = true;
+            //opening from another activity
+            gameSessionId = activityImports;
+            Log.d(LOG_TAG,gameSessionId);
+            getServerGameSessionObj(gameSessionId);
+        }
+
+
         if(getAddressList() == null){
             list.add("No Contacts");
         }
@@ -214,7 +214,6 @@ public class CreateLobbyActivity extends AppCompatActivity
                 list.add(address);
             }
         }
-
         adapter = new ArrayAdapter(CreateLobbyActivity.this,android.R.layout.simple_list_item_1,list);
         listView.setAdapter(adapter);
     }
@@ -336,7 +335,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     /**
      * Fetch game sesion object if it already exists on the server
      * */
-    private GameSession getSeverGameSessionObj(final String gameSessionId){
+    private GameSession getServerGameSessionObj(final String gameSessionId){
         GameSession fetchedGameSession = null ;
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSessionId);
         gameSessionIdQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -345,6 +344,7 @@ public class CreateLobbyActivity extends AppCompatActivity
                 if (dataSnapshot.getChildrenCount() > 0){
                     //assign fetched value
                     gameSession = dataSnapshot.child(gameSessionId).getValue(GameSession.class);
+                    loadDataToForm(gameSession);
                     Log.d(LOG_TAG," Successfully Fetched Game Session");
                 }
                 else{
@@ -364,16 +364,14 @@ public class CreateLobbyActivity extends AppCompatActivity
      * */
     private boolean createNewLobby(User userId){
         //create new lobby on server with creator on team 1
-        loadFormData();
         gameSession = createMyNewGameSession(currentUserInfo);
+        loadDataFromForm();
         //notify individuals on invite list
         if(getAddressList() != null){
             inviteSelectedMembers(getAddressList());
         }
         //launch gamesession on server
-        Gson gson = new Gson();
-        Type gameSessionType = new TypeToken<GameSession>(){}.getType();
-        //Log.d(LOG_TAG, gson.toJson(gameSession,gameSessionType));
+
         updateServerGameSession(gameSession);
         return false;
     }
@@ -404,22 +402,27 @@ public class CreateLobbyActivity extends AppCompatActivity
         return false;
     }
 
-    public void LoadDataToForm(String gameSessionId){
-        gameSession = getSeverGameSessionObj(gameSessionId);
-
+    public void loadDataToForm(GameSession gameSession){
+        etSessionName.setText(gameSession.getSessionName());
+        durationSeekBar.setProgress(gameSession.getDuration().intValue()/durationSeekBar.getMax());
+        etDescription.setText(gameSession.getDescription());
+        if(gameSession.getPublicAccess() == true){
+            radioButtonPublicAccess.setChecked(true);
+        }
+        else{
+            radiobuttonPrivateAccess.setChecked(true);
+        }
     }
 
     /***
      * updates information from entered fields
      */
-    public void loadFormData(){
-        sessionName = etSessionName.getText().toString();
-        Address = "getAddressFromLocation(Location)";
+    public void loadDataFromForm(){
+        gameSession.setSessionName(etSessionName.getText().toString()); ;
         //startTime = Long.parseLong(etStartTime.getText().toString());
-        //endTime = Long.parseLong(etStartTime.getText().toString()) + durationInMillis ;
-        gameRadius= new Integer(MAX_GAME_RADIUS);
-        maxTeamSize = new Integer(10);
-        description = etDescription.getText().toString();
+        //gameSession.get = Long.parseLong(etStartTime.getText().toString()) + durationInMillis.longValue() ;
+        gameSession.setGameRadius(new Integer(MAX_GAME_RADIUS));
+        gameSession.setDescription(etDescription.getText().toString());
     }
     /*
     * allows for faster invites of players for private sessions
@@ -444,9 +447,10 @@ public class CreateLobbyActivity extends AppCompatActivity
     private GameSession createMyNewGameSession(User user){
         gameSession = new GameSession();
         gameSessionId = gameSessionDbReference.push().getKey();
+        Log.d(LOG_TAG,user.getEmail());
         Player creator = new Player(user.getEmail());
         gameSession.setCreator(creator);
-        gameSession.setMaxPlayers(maxTeamSize*gameSession.getMaxTeams());
+        gameSession.setMaxPlayers(MAX_TEAM_SIZE*gameSession.MAX_TEAMS_2);
         gameSession.add2Teams(gameSession.getSessionId(),creator);
         for(Team team : gameSession.getTeamArrayList()){
             team.setMaxPlayers(maxTeamSize);
@@ -457,7 +461,7 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.setStartTime(new Long(2334324));
         //-->fetch
         gameSession.setDuration(new Long(2334324));
-        gameSession.setEndTime(gameSession.getStartTime()+gameSession.getDuration());
+        gameSession.setEndTime(new Long(gameSession.getStartTime().longValue() + gameSession.getDuration().longValue()));
         gameSession.setGameRadius(gameRadius);
         return gameSession;
     }

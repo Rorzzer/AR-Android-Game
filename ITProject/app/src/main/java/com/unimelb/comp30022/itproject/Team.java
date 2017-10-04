@@ -25,6 +25,22 @@ public class Team {
         this.isActive = true;
         this.isCapturing = isCapturing;
     }
+    public Team (){
+
+    }
+
+    public String getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(String teamId) {
+        this.teamId = teamId;
+    }
+
+    public void setCreator(Player creator) {
+        this.creator = creator;
+    }
+
     public Integer getMaxPlayers() {
         return maxPlayers;
     }

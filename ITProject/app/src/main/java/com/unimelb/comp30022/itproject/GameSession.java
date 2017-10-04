@@ -1,7 +1,5 @@
 package com.unimelb.comp30022.itproject;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.ArrayList;
 
 /**
@@ -21,6 +19,7 @@ public class GameSession {
     private Long duration;
     private Boolean gameStarted;
     private Boolean gameCompleted;
+    private Boolean isPublicAccess;
     private LatLng location;
     private Integer gameRadius;
     private Long timeSessionCreated;
@@ -75,10 +74,6 @@ public class GameSession {
         this.timeSessionCreated = timeSessionCreated;
     }
 
-    public Integer getMaxTeams() {
-        return MAX_TEAMS_2;
-    }
-
     public Integer getMaxPlayers() {
         return maxPlayers;
     }
@@ -109,6 +104,14 @@ public class GameSession {
 
     public void setGameCompleted(Boolean gameCompleted) {
         this.gameCompleted = gameCompleted;
+    }
+
+    public Boolean getPublicAccess() {
+        return isPublicAccess;
+    }
+
+    public void setPublicAccess(Boolean publicAccess) {
+        isPublicAccess = publicAccess;
     }
 
     public LatLng getLocation() {
@@ -160,7 +163,7 @@ public class GameSession {
     }
 
     public boolean addTeam(Team team){
-        if(teamArrayList != null   && this.getMaxTeams() >teamArrayList.size()){
+        if(teamArrayList != null   && MAX_TEAMS_2 >teamArrayList.size()){
             this.teamArrayList.add(team);
             return true;
         }

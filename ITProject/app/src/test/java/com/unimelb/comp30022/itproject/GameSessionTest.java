@@ -1,6 +1,5 @@
 package com.unimelb.comp30022.itproject;
 
-import com.google.android.gms.maps.model.LatLng;
 
 import org.junit.After;
 import org.junit.Before;
