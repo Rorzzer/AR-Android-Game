@@ -220,7 +220,7 @@ public class UserProfActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
                     Toast.makeText(UserProfActivity.this, "Username already in use.", Toast.LENGTH_LONG).show();
-                } else if (validateUsername(username)){
+                } else if (!validateUsername(username)){
                     Toast.makeText(UserProfActivity.this, "Username must be at least 4 characters.", Toast.LENGTH_SHORT).show();
                 } else {
                     User user = new User(username, firstName, lastName, email);

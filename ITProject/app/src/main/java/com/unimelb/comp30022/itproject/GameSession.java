@@ -11,30 +11,35 @@ import java.util.ArrayList;
 public class GameSession {
 
 
-
-    private Integer sessionId;
+    private static final double EARTH_RADIUS_M = 6372797.560;
+    private static final double RAD_IN_DEGREE = 0.017453292519943295769236907684886;
+    public static final Integer MAX_TEAMS_2 = 2;
+    private String sessionId;
     private Long startTime;
     private Long endTime;
-    private Integer maxTeams;
     private Integer maxPlayers;
     private Long duration;
     private Boolean gameStarted;
     private Boolean gameCompleted;
     private LatLng location;
     private Integer gameRadius;
+    private Long timeSessionCreated;
     private Player creator;
+    private String sessionName;
     private String description;
     private String sessionImageUri;
     private ArrayList<Team> teamArrayList ;
-    public GameSession(){
-        teamArrayList = new ArrayList<Team>();
+    public GameSession()
+    {
+        this.timeSessionCreated = System.currentTimeMillis();
+        this.teamArrayList = new ArrayList<Team>();
     }
 
-    public Integer getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(Integer sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
@@ -62,12 +67,16 @@ public class GameSession {
         this.endTime = endTime;
     }
 
-    public Integer getMaxTeams() {
-        return maxTeams;
+    public Long getTimeSessionCreated() {
+        return timeSessionCreated;
     }
 
-    public void setMaxTeams(Integer maxTeams) {
-        this.maxTeams = maxTeams;
+    public void setTimeSessionCreated(Long timeSessionCreated) {
+        this.timeSessionCreated = timeSessionCreated;
+    }
+
+    public Integer getMaxTeams() {
+        return MAX_TEAMS_2;
     }
 
     public Integer getMaxPlayers() {
@@ -134,8 +143,24 @@ public class GameSession {
         this.sessionImageUri = sessionImageUri;
     }
 
+    public void setTeamArrayList(ArrayList<Team> teamArrayList) {
+        this.teamArrayList = teamArrayList;
+    }
+
+    public String getSessionName() {
+        return sessionName;
+    }
+
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
+
+    public ArrayList<Team> getTeamArrayList() {
+        return teamArrayList;
+    }
+
     public boolean addTeam(Team team){
-        if(teamArrayList != null && maxTeams != null  && maxTeams>teamArrayList.size()){
+        if(teamArrayList != null   && this.getMaxTeams() >teamArrayList.size()){
             this.teamArrayList.add(team);
             return true;
         }
@@ -151,38 +176,51 @@ public class GameSession {
         return false;
     }
 
-    public ArrayList<Team> getTeamArrayList() {
-        return teamArrayList;
+    public void add2Teams(String gameSessionId, Player player){
+        for(int i = 0;i<MAX_TEAMS_2;i++){
+            //create 2 opposign teams
+            this.addTeam(new Team(gameSessionId+"team_1"+new Integer(i).toString(),
+                                        "team_"+new Integer(i).toString(), new Boolean(i==0),player));
+
+        }
     }
+
 
 
     public void updateRelativeLocations(LatLng originPlayerLocation){
         //assuming the player_location is the origin
-        RelLocation origin = convertToCartesian(originPlayerLocation);
         for(Team team : teamArrayList){
-            for(Player player: team.getPlayerArrayList()){
-
+            for(Player player: team.getPlayerArrayList()) {
                 //generate relative coordinate from origin
-                RelLocation relPlayerLocation =   convertToCartesian(player.getAbsLocation());
-                player.setRelLocation(relPlayerLocation.diff(origin));
+                player.setCoordinateLocation(convertToCartesian(originPlayerLocation, player.getAbsLocation()));
             }
         }
     }
+
     public void clearRelativeLocations(){
         for(Team team : teamArrayList){
             for(Player player: team.getPlayerArrayList()){
-                player.setRelLocation(null);
+                player.setCoordinateLocation(null);
             }
         }
     }
     //converts LatLng to x,y,z positions for use in generation of relative positions and vectors
-    public RelLocation convertToCartesian(LatLng location){
-        double radius = 6378137.0;// equitorial radius for ellipsoidal model
-        RelLocation relLocation = new RelLocation();
-        relLocation.setX(radius*Math.cos(location.latitude)*Math.cos(location.longitude)) ;
-        relLocation.setY(radius*Math.cos(location.latitude)*Math.sin(location.longitude));
-        relLocation.setZ(radius*Math.sin(location.latitude)*(1.0-1.0/298.257223563));
-        return relLocation;
+    public CoordinateLocation convertToCartesian(LatLng origin, LatLng dest){
+        //havesine formula from http://www.movable-type.co.uk/scripts/latlong.html
+        ///calculate distance
+        double latDiff = (dest.latitude-origin.latitude)*RAD_IN_DEGREE;
+        double lonDiff = (dest.longitude-origin.longitude)*RAD_IN_DEGREE;
+        double latL = Math.sin(latDiff * 0.5)*Math.sin(latDiff * 0.5);
+        double longL = Math.sin(lonDiff * 0.5)*Math.sin(lonDiff * 0.5);
+        double tmp = Math.cos(dest.latitude*RAD_IN_DEGREE) *
+                Math.cos(origin.latitude*RAD_IN_DEGREE);
+        double dist = EARTH_RADIUS_M* 2.0 * Math.asin(Math.sqrt(latL + tmp*longL));
+        double xComponent = dest.latitude-origin.latitude;
+        double zComponent = dest.longitude-origin.longitude;
+        double magnitude = Math.sqrt(xComponent*xComponent + zComponent*zComponent);
+        CoordinateLocation relativeLoc = new CoordinateLocation(dist*(xComponent/magnitude),0.0,dist*(zComponent/magnitude));
+        return relativeLoc;
+
     }
 
 }

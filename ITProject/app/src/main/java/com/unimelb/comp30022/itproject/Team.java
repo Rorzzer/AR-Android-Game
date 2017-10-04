@@ -7,20 +7,23 @@ import java.util.ArrayList;
  */
 
 public class Team {
-    private Integer teamId;
+    private String teamId;
     private String teamName;
     private Long timeTeamCreated;
     private Player creator;
     private Integer maxPlayers;
     private Boolean isActive;
+    private Boolean isCapturing;
     private String teamImageUri;
     private ArrayList<Player> playerArrayList;
-    public  Team(Integer teamId, String teamName,Player creator){
+    public  Team(String teamId, String teamName,Boolean isCapturing ,Player creator){
         this.teamId = teamId;
         this.teamName = teamName;
         this.creator = creator;
         this.playerArrayList = new ArrayList<Player>();
         this.timeTeamCreated = System.currentTimeMillis();
+        this.isActive = true;
+        this.isCapturing = isCapturing;
     }
     public Integer getMaxPlayers() {
         return maxPlayers;
@@ -32,25 +35,36 @@ public class Team {
 
     //add players if space is available
     public boolean addPlayer(Player player){
-        if(playerArrayList != null && maxPlayers != null  ){
-            if(maxPlayers>playerArrayList.size()){
-                this.playerArrayList.add(player);
-                return true;
-            }
-            else{
-                return false;
-            }
+        if( maxPlayers != null && maxPlayers > playerArrayList.size() ){
+            this.playerArrayList.add(player);
+            return true;
         }
         else{
             return false;
         }
     }
     public boolean removePlayer(Player player){
-        if(playerArrayList != null && playerArrayList.size()>0 && playerArrayList.contains(player)){
+        if(playerArrayList.size() > 0 && playerArrayList.contains(player)){
             playerArrayList.remove(player);
             return true;
         }
         return false;
+    }
+
+    public String getTeamName() {
+        return teamName;
+    }
+
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
+    }
+
+    public Long getTimeTeamCreated() {
+        return timeTeamCreated;
+    }
+
+    public void setTimeTeamCreated(Long timeTeamCreated) {
+        this.timeTeamCreated = timeTeamCreated;
     }
 
     public String getTeamImageUri() {
@@ -72,4 +86,21 @@ public class Team {
     public ArrayList<Player> getPlayerArrayList() {
         return playerArrayList;
     }
+
+    public void setPlayerArrayList(ArrayList<Player> playerArrayList) {
+        this.playerArrayList = playerArrayList;
+    }
+
+    public Player getCreator() {
+        return creator;
+    }
+
+    public Boolean getCapturing() {
+        return isCapturing;
+    }
+
+    public void setCapturing(Boolean capturing) {
+        isCapturing = capturing;
+    }
+
 }

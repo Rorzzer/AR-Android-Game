@@ -3,8 +3,6 @@ package com.unimelb.comp30022.itproject;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.net.URI;
-
 /**
  * Created by Kiptenai on 20/09/2017.
  */
@@ -12,10 +10,9 @@ import java.net.URI;
  * Class to mediate player interactions and data
  * */
 public class Player  {
-    private Integer  playerId;
     private String displayName;
     private LatLng absLocation;
-    private RelLocation relLocation;
+    private CoordinateLocation coordinateLocation;
     private Boolean isLoggedOn;
     private Long lastLoggedOn;
     private String imageUri;
@@ -25,27 +22,12 @@ public class Player  {
     private Long lastPing;
     private Integer skillLevel;
     private Boolean isActive;
+    private Boolean isCapturing;
     //mutator & acessor methods
-    public Player(Integer playerId , String displayName){
-        this.playerId = playerId;
+    public Player( String displayName){
         this.displayName = displayName;
     }
 
-    //mutators and getters to determine player information
-    public Boolean isLoggedOn(){
-        if(isLoggedOn!= null){
-            return isLoggedOn;
-        }
-        return false;
-    }
-
-    public Integer getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(Integer playerId) {
-        this.playerId = playerId;
-    }
 
     public String getDisplayName() {
         return displayName;
@@ -63,14 +45,13 @@ public class Player  {
         this.absLocation = absLocation;
     }
 
-    public RelLocation getRelLocation() {
-        return relLocation;
+    public CoordinateLocation getCoordinateLocation() {
+        return coordinateLocation;
     }
 
-    public void setRelLocation(RelLocation relLocation) {
-        this.relLocation = relLocation;
+    public void setCoordinateLocation(CoordinateLocation coordinateLocation) {
+        this.coordinateLocation = coordinateLocation;
     }
-
     public Boolean getLoggedOn() {
         return isLoggedOn;
     }
@@ -148,6 +129,14 @@ public class Player  {
         isActive = active;
     }
 
+    public Boolean getCapturing() {
+        return isCapturing;
+    }
+
+    public void setCapturing(Boolean capturing) {
+        isCapturing = capturing;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -155,7 +144,7 @@ public class Player  {
 
         Player player = (Player) o;
 
-        return getPlayerId().equals(player.getPlayerId());
+        return displayName.equals(player.getDisplayName());
 
     }
 
@@ -163,5 +152,7 @@ public class Player  {
     public int hashCode() {
         return 0;
     }
+
+
 
 }

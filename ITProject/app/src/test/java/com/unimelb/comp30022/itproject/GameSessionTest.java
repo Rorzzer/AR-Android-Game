@@ -79,9 +79,9 @@ public class GameSessionTest {
         latLng = dataGenerator.generateRandomLocation();
         gameSession = dataGenerator.generateRandomGameSession(latLng);
         player = gameSession.getTeamArrayList().get(0).getPlayerArrayList().get(0);
-        assertEquals("Expected Null", null, player.getRelLocation());
+        assertEquals("Expected Null", null, player.getCoordinateLocation());
         gameSession.updateRelativeLocations(player.getAbsLocation());
-        assertEquals("Expected True",true, (player.getRelLocation()!=null) );
+        assertEquals("Expected True",true, (player.getCoordinateLocation()!=null) );
     }
 
     @Test
@@ -90,25 +90,31 @@ public class GameSessionTest {
         gameSession = dataGenerator.generateRandomGameSession(latLng);
         player = gameSession.getTeamArrayList().get(0).getPlayerArrayList().get(0);
         gameSession.updateRelativeLocations(player.getAbsLocation());
-        assertEquals("Expected True",true, (player.getRelLocation()!=null) );
+        assertEquals("Expected True",true, (player.getCoordinateLocation()!=null) );
         gameSession.clearRelativeLocations();
-        assertEquals("Expected Null", null, player.getRelLocation());
+        assertEquals("Expected Null", null, player.getCoordinateLocation());
     }
 
     @Test
     public void convertToCartesianSamePoint() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
         gameSession = new GameSession();
-        assertEquals("Expected true",true,gameSession.convertToCartesian(latLng).equals(gameSession.convertToCartesian(latLng)) );
+        assertEquals("Expected true",true,gameSession.convertToCartesian(latLng,latLng).equals(gameSession.convertToCartesian(latLng,latLng)));
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getX(),0.0,0.1);
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getY(),0.0,0.1);
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
     }
     @Test
     public void convertToCartesianDifferentPoints() throws Exception {
         gameSession = new GameSession();
-        LatLng loc1 = new LatLng(13.3,34.2);
-        LatLng loc2 = new LatLng(4.2,3.5);
+        LatLng loc1 = new LatLng(13.3,144.343);
+        LatLng loc2 = new LatLng(14.2,90.34);
         assertEquals("Expected False", false,
-                gameSession.convertToCartesian(loc1)
-                        .equals(gameSession.convertToCartesian(loc2)));
+                gameSession.convertToCartesian(loc1,loc2)
+                        .equals(gameSession.convertToCartesian(loc2,loc2)));
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
+
 
     }
 

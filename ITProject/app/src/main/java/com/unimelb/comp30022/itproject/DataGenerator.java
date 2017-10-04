@@ -22,30 +22,29 @@ public class DataGenerator {
     public DataGenerator(){
        this.random = new Random();
     }
-    public GameSession generateRandomGameSession(LatLng latLng,int maxMembers, boolean isCapturing){
+    public GameSession generateRandomGameSession(LatLng latLng,int maxTeamMembers){
         GameSession gameSession = new GameSession();
         gameSession.setCreator(generateRandomPlayer(latLng));
-        gameSession.setMaxPlayers(maxMembers *MAX_TEAMS);
-        gameSession.setMaxTeams(MAX_TEAMS);
+        gameSession.setMaxPlayers(maxTeamMembers *gameSession.MAX_TEAMS_2);
         gameSession.setLocation(latLng);
-        gameSession.setSessionId(random.nextInt());
+        gameSession.setSessionId(new Integer(random.nextInt()).toString());
         gameSession.setStartTime(random.nextLong());
         gameSession.setDuration(random.nextLong());
         gameSession.setEndTime(gameSession.getStartTime()+gameSession.getDuration());
         gameSession.setGameRadius(random.nextInt());
-        for(int i = 0;i<MAX_TEAMS;i++){
-           gameSession.addTeam(generateRandomTeam(latLng,maxMembers,isCapturing));
+        for(int i = 0;i<gameSession.MAX_TEAMS_2;i++){
+           gameSession.addTeam(generateRandomTeam(latLng,maxTeamMembers,false));
         }
         return gameSession;
 
     }
 
     public GameSession generateRandomGameSession(LatLng latLng){
-        return generateRandomGameSession(latLng,MAX_TEAM_CAP, true);
+        return generateRandomGameSession(latLng,MAX_TEAM_CAP);
     }
 
     public Team generateRandomTeam(LatLng latLng, int maxMembers, boolean isCapturing){
-        Team team = new Team(random.nextInt(),"team"+random.nextInt(), generateRandomPlayer(latLng));
+        Team team = new Team(new Integer(random.nextInt()).toString(),"team"+random.nextInt(),true, generateRandomPlayer(latLng));
         team.setMaxPlayers(MAX_TEAM_CAP);
         team.setTeamImageUri("www.team"+random.nextInt()+".com");
         for(int i = 0; i< MAX_TEAM_CAP; i++){
@@ -55,7 +54,7 @@ public class DataGenerator {
         return team;
     }
     public Player generateRandomPlayer(LatLng latLng){
-        Player player = new Player(random.nextInt(),"player"+random.nextInt());
+        Player player = new Player("player"+random.nextInt());
         player.setActive(random.nextBoolean());
         player.setLastLoggedOn(random.nextLong());
         LatLng nLatLng = new LatLng(latLng.latitude+((int)random.nextDouble())%MAX_TEAM_CAP,

@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity
     implements View.OnClickListener {
@@ -14,14 +16,19 @@ public class MainActivity extends AppCompatActivity
     /**
      * Standard Activity lifecycle methods
      */
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
         // Set up click handlers and view item references
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnUser).setOnClickListener(this);
+        findViewById(R.id.btnCreateLobby).setOnClickListener(this);
+        findViewById(R.id.btnFindLobby).setOnClickListener(this);
+
+
     }
 
     /**
@@ -35,7 +42,25 @@ public class MainActivity extends AppCompatActivity
         // mAuth.addAuthStateListener(mAuthListener);
 
     }
+    /**
+     * When the Activity resumes, the application should check authentication
+     *
+     */
+    @Override
+    public void onResume(){
+        super.onResume();
+        Button btnCreateLobby = (Button)findViewById(R.id.btnCreateLobby);
+        Button btnFindLobby = (Button)findViewById(R.id.btnFindLobby);
+        if (FirebaseAuth.getInstance().getCurrentUser()!= null){
+            btnCreateLobby.setVisibility(View.VISIBLE);
+            btnFindLobby.setVisibility(View.VISIBLE);
 
+        }else{
+            btnCreateLobby.setVisibility(View.GONE);
+            btnFindLobby.setVisibility(View.GONE);
+        }
+
+    }
     @Override
     public void onStop() {
         super.onStop();
@@ -63,7 +88,22 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
-
+            case R.id.btnCreateLobby:
+                if (FirebaseAuth.getInstance().getCurrentUser()!= null){
+                    Intent createLobby = new Intent(getApplicationContext(), CreateLobbyActivity.class);
+                    startActivity(createLobby);
+                }else{
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
+            case R.id.btnFindLobby:
+                if (FirebaseAuth.getInstance().getCurrentUser()!= null){
+                    Intent jonLobby = new Intent(getApplicationContext(), JoinLobbyActivity.class);
+                    startActivity(jonLobby);
+                }else{
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
         }
     }
 

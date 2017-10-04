@@ -41,6 +41,9 @@
         android:name="android.hardware.camera.front"
         android:required="false" />
     <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
     <uses-feature
@@ -70,6 +73,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.unimelb.comp30022.itproject.CreateLobbyActivity"></activity>
+        <activity android:name="com.unimelb.comp30022.itproject.JoinLobbyActivity"></activity>
+        <activity android:name="com.unimelb.comp30022.itproject.SessionInformationActivity"></activity>
+        <!--
         <activity
             android:name="com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
@@ -88,6 +95,9 @@
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen"
             android:label="@string/app_name"
             android:screenOrientation="portrait"></activity>
+
+            -->
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -110,6 +120,7 @@
             android:name="com.unimelb.comp30022.itproject.UserProfActivity"
             android:label="@string/title_activity_user_prof"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <!--
         <service
             android:name="com.unimelb.comp30022.itproject.AndroidToUnitySender"
             android:enabled="true"></service>
@@ -119,6 +130,8 @@
                 <action android:name="com.unimelb.comp30022.ITProject.sendintent.IntentToUnity"></action>
             </intent-filter>
         </receiver>
+
+        -->
 
         <uses-library
             android:name="com.ti.s3d"

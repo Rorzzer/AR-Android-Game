@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    tools:context="com.unimelb.comp30022.itproject.CreateLobbyActivity">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="Enter Lobby Details:"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tvTitle"
+            android:text="Name:"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/etLobbyName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tvName"
+            android:ems="10"
+            android:inputType="textPersonName" />
+
+        <TextView
+            android:id="@+id/tvImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/etLobbyName"
+            android:text="Session Image:"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/etImageUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tvImage"
+            android:ems="10"
+            android:inputType="textPersonName" />
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/etImageUri"
+            android:text="Description:"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/etDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tvDescription"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:selectAllOnFocus="false"
+            android:singleLine="false" />
+
+
+        <LinearLayout
+            android:id="@+id/timePickerLabels"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etDescription"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/tvStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Start Time"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <EditText
+                android:id="@+id/etStartTime"
+                android:layout_width="147dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/tvStartTime"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="40dp"
+                android:layout_weight="0.19"
+                android:ems="10"
+                android:inputType="text"
+                android:selectAllOnFocus="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setDurationSliderGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/timePickerLabels"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvDurationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set Game Duration"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <SeekBar
+                android:id="@+id/durationSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:max="10"
+                android:min="1"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/viewDurationGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/setDurationSliderGroup"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvViewDurationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duration(mins)"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:id="@+id/tvViewDurationContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/setMaxTeamSizeSliderGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewDurationGroup"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTeamSizeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set Largest Team"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <SeekBar
+                android:id="@+id/teamSizeSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:max="10"
+                android:min="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/viewMaxTeamSizeGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/setMaxTeamSizeSliderGroup"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvViewMaxTeamSizeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Largest Team size"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:id="@+id/tvViewMaxTeamSizeContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/accessGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewMaxTeamSizeGroup"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvAccessAvailiability"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Start Time"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <RadioGroup
+                android:id="@+id/rgAvailabilityGroup"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvAccessAvailiability"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <RadioButton
+                    android:id="@+id/btnPublic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onRadioButtonClicked"
+                    android:text="Public"
+                    android:layout_weight="1.15" />
+
+                <RadioButton
+                    android:id="@+id/btnPrivate"
+                    android:layout_width="131dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onRadioButtonClicked"
+                    android:text="Private" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/invitesGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/accessGroup"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvJoinedMembers"
+                android:layout_width="167dp"
+                android:layout_height="39dp"
+                android:layout_alignParentStart="true"
+                android:text="Invite Players :"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <ListView
+                android:id="@+id/lvPlayerListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvJoinedMembers" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/saveCancelButtonGroup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/invitesGroup"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnCreateLobby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Game" />
+
+            <Button
+                android:id="@+id/btnDeleteLobby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Game" />
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>
+
+
