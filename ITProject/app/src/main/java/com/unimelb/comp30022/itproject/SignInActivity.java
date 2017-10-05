@@ -2,9 +2,9 @@ package com.unimelb.comp30022.itproject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -54,8 +54,8 @@ public class SignInActivity extends AppCompatActivity
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnSignOut).setOnClickListener(this);
 
-        etEmail = (EditText)findViewById(R.id.etEmailAddr);
-        etPass = (EditText)findViewById(R.id.etPassword);
+        etEmail = findViewById(R.id.etEmailAddr);
+        etPass = findViewById(R.id.etPassword);
 
         // TODO: Get a reference to the Firebase auth object
         mAuth = FirebaseAuth.getInstance();
@@ -141,7 +141,7 @@ public class SignInActivity extends AppCompatActivity
     }
 
     private void updateStatus() {
-        TextView tvStat = (TextView)findViewById(R.id.tvSignInStatus);
+        TextView tvStat = findViewById(R.id.tvSignInStatus);
 
         FirebaseUser user = mAuth.getCurrentUser();
 
@@ -155,7 +155,7 @@ public class SignInActivity extends AppCompatActivity
     }
 
     private void updateStatus(String stat) {
-        TextView tvStat = (TextView)findViewById(R.id.tvSignInStatus);
+        TextView tvStat = findViewById(R.id.tvSignInStatus);
         tvStat.setText(stat);
     }
 

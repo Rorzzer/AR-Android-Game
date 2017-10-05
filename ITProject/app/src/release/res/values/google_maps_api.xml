@@ -1,6 +1,6 @@
 <resources>
     //Google maps APi key
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
-        AIzaSyCOB5Tv6ipzKLfkU4xkVxlG0cuUXJZflGk
+        AIzaSyAQuJ0AH84_FArv_evSMgJtZCdlRrN1a6M
     </string>
 </resources>
