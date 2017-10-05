@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -26,13 +28,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -41,18 +46,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
+    private static final GeoLocation QUERY_CENTER = new GeoLocation(-37.778569, 145.0315955);
 
     private GoogleMap mMap;
+    private Map<String, Marker> markers;
 
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location mLastLocation;
-    Marker mCurrLocationMarker;
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
 
-    //GeoFire variables
-
+    //GeoFire database connection
+    DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
+    GeoFire geoFire = new GeoFire(GeoRef);
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
@@ -60,17 +67,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        //GeoFire database connection
-        DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
-        final GeoFire geoFire = new GeoFire(GeoRef);
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mLocationCallback = new LocationCallback() {    //Call back loop
             public void onLocationResult(LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
 
-                    //Setting users location in geofire database, using UserData as key
-                    geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
 
                     onLocationChanged(location);
                 }
@@ -89,21 +92,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        //hashmap for key location pairs
+        markers = new HashMap<String, Marker>();
+
+        //Geo query for other players and relevant listeners
+        GeoQuery geoQuery = geoFire.queryAtLocation(QUERY_CENTER, 2);
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)));
+                markers.put(key, marker);
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+                Marker marker = markers.get(key);
+                marker.remove();
+                markers.remove(key);
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+                Marker marker = markers.get(key);
+                if (marker != null) {
+                    marker.setPosition(new LatLng(location.latitude, location.longitude));
+                }
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        //Creation of mao and map type
+        //Creation of map and map type
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
@@ -120,6 +153,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
+
 
     }
 
@@ -148,6 +182,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
         }
 
+
     }
 
     @Override
@@ -163,18 +198,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Function for changing user location, essentially updating
     @Override
     public void onLocationChanged(Location location) {
+
+        //Setting users location in geofire database, using UserData as key
+        geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
+
         mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
 
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -199,10 +230,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Asking user if explanation is needed
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
 
                 //Prompt the user once explanation has been shown
                 ActivityCompat.requestPermissions(this,
@@ -251,10 +278,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
 
-            // other 'case' lines to check for other permissions this app might request.
-            //You can add here other case statements according to your requirement.
         }
     }
 
+    //on pause method, removes user from geofirebase
+    @Override
+    public void onPause() {
+        super.onPause();
+        geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
+    }
+
+
 }
+
+
 

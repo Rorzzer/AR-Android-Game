@@ -3,8 +3,6 @@ package com.unimelb.comp30022.itproject;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.net.URI;
-
 /**
  * Created by Kiptenai on 20/09/2017.
  */
@@ -95,10 +93,7 @@ public class Player  {
         this.imageUri = imageUri;
     }
     public Boolean hasImageUri(){
-        if(imageUri != null){
-            return true;
-        }
-        return false;
+        return imageUri != null;
     }
     public Integer getScore() {
         return score;

@@ -56,10 +56,10 @@ public class UserProfActivity extends AppCompatActivity
         findViewById(R.id.btnCancel).setOnClickListener(this);
 
         //etEmail = (EditText)findViewById(R.id.etEmail);
-        etFirstname = (EditText)findViewById(R.id.etFirst);
-        etLastname = (EditText)findViewById(R.id.etLast);
-        etUsername = (EditText)findViewById(R.id.etUsername);
-        etEmail = (EditText)findViewById(R.id.etEmail);
+        etFirstname = findViewById(R.id.etFirst);
+        etLastname = findViewById(R.id.etLast);
+        etUsername = findViewById(R.id.etUsername);
+        etEmail = findViewById(R.id.etEmail);
 
         //get a reference to the database
         // Write a message to the database

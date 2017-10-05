@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateStatus(String stat) {
-        TextView tvStat = (TextView)findViewById(R.id.tvStatus);
+        TextView tvStat = findViewById(R.id.tvStatus);
         tvStat.setText(stat);
     }
 
