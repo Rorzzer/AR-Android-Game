@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnFindLobby:
                 if (FirebaseAuth.getInstance().getCurrentUser()!= null){
-                    Intent jonLobby = new Intent(getApplicationContext(), FindLobbyActivity.class);
-                    startActivity(jonLobby);
+                    Intent findLobby = new Intent(getApplicationContext(), FindLobbyActivity.class);
+                    startActivity(findLobby);
                 }else{
                     updateStatus("You must be signed in to access this feature.");
                 }
