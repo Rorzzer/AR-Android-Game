@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Kiptenai on 19/09/2017.
@@ -26,8 +29,16 @@ public class ServiceTools {
         }
         return false;
     }
-    public static boolean startNewService(Context context, Class<?> serviceClass){
+
+    public static boolean startNewService(Context context, Class<?> serviceClass,
+                                          HashMap<String, String> list) {
         Intent i = new Intent(context, serviceClass);
+        Set set = list.entrySet();
+        Iterator iterator = set.iterator();
+        if (iterator.hasNext()) {
+            Map.Entry ent = (Map.Entry) iterator.next();
+            i.putExtra(ent.getKey().toString(), ent.getKey().toString());
+        }
         context.startService(i);
         return false;
     }
