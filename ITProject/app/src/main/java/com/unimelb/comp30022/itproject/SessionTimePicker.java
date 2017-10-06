@@ -5,9 +5,7 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
@@ -28,8 +26,7 @@ public class SessionTimePicker extends DialogFragment
     }
     public void onTimeSet(TimePicker view, int hour, int minute){
         //configure view
-        //EditText startTime = getActivity().findViewById(R.id.tvStartTime);
-        //startTime.setText(new Integer(hour).toString() + ":"+ new Integer(minute).toString());
-        Log.d("SessionTimePicker ",new Integer(hour).toString() + ":"+ new Integer(minute).toString());
+        TextView tvSelectedStartTime = getActivity().findViewById(R.id.tvSelectedStartTime);
+        tvSelectedStartTime.setText(String.valueOf(hour) + " : " + String.valueOf(minute));
     }
 }

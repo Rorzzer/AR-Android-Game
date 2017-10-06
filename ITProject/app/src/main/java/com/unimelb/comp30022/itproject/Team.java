@@ -12,20 +12,21 @@ public class Team {
     private Long timeTeamCreated;
     private Player creator;
     private Integer maxPlayers;
+    private Integer numPlayers;
     private Boolean isActive;
     private Boolean isCapturing;
     private String teamImageUri;
-    private ArrayList<Player> playerArrayList;
+    private ArrayList<Player> playerArrayList = new ArrayList<Player>();
     public  Team(String teamId, String teamName,Boolean isCapturing ,Player creator){
         this.teamId = teamId;
         this.teamName = teamName;
         this.creator = creator;
-        this.playerArrayList = new ArrayList<Player>();
         this.timeTeamCreated = System.currentTimeMillis();
         this.isActive = true;
         this.isCapturing = isCapturing;
     }
     public Team (){
+        this.timeTeamCreated = System.currentTimeMillis();
 
     }
 
@@ -35,10 +36,6 @@ public class Team {
 
     public void setTeamId(String teamId) {
         this.teamId = teamId;
-    }
-
-    public void setCreator(Player creator) {
-        this.creator = creator;
     }
 
     public Integer getMaxPlayers() {
@@ -52,19 +49,29 @@ public class Team {
     //add players if space is available
     public boolean addPlayer(Player player){
         if( maxPlayers != null && maxPlayers > playerArrayList.size() ){
+            if (playerArrayList == null) {
+                this.playerArrayList = new ArrayList<Player>();
+            }
             this.playerArrayList.add(player);
+            this.numPlayers = new Integer(this.playerArrayList.size());
             return true;
         }
         else{
             return false;
         }
     }
+
     public boolean removePlayer(Player player){
-        if(playerArrayList.size() > 0 && playerArrayList.contains(player)){
-            playerArrayList.remove(player);
+        if (this.playerArrayList != null && this.playerArrayList.size() > 0 && this.playerArrayList.contains(player)) {
+            this.playerArrayList.remove(player);
+            this.numPlayers = new Integer(this.playerArrayList.size());
             return true;
         }
         return false;
+    }
+
+    public boolean containsPlayer(Player player) {
+        return playerArrayList.contains(player);
     }
 
     public String getTeamName() {
@@ -109,6 +116,10 @@ public class Team {
 
     public Player getCreator() {
         return creator;
+    }
+
+    public void setCreator(Player creator) {
+        this.creator = creator;
     }
 
     public Boolean getCapturing() {

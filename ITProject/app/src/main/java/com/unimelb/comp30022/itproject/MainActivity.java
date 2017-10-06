@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
         // Set up click handlers and view item references
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnUser).setOnClickListener(this);
-        findViewById(R.id.btnCreateLobby).setOnClickListener(this);
+        findViewById(R.id.btnCreateOrEditLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
 
 
@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume(){
         super.onResume();
-        Button btnCreateLobby = (Button)findViewById(R.id.btnCreateLobby);
-        Button btnFindLobby = (Button)findViewById(R.id.btnFindLobby);
+        Button btnCreateLobby = findViewById(R.id.btnCreateOrEditLobby);
+        Button btnFindLobby = findViewById(R.id.btnFindLobby);
         if (FirebaseAuth.getInstance().getCurrentUser()!= null){
             btnCreateLobby.setVisibility(View.VISIBLE);
             btnFindLobby.setVisibility(View.VISIBLE);
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
-            case R.id.btnCreateLobby:
+            case R.id.btnCreateOrEditLobby:
                 if (FirebaseAuth.getInstance().getCurrentUser()!= null){
                     Intent createLobby = new Intent(getApplicationContext(), CreateLobbyActivity.class);
                     startActivity(createLobby);
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateStatus(String stat) {
-        TextView tvStat = (TextView)findViewById(R.id.tvStatus);
+        TextView tvStat = findViewById(R.id.tvStatus);
         tvStat.setText(stat);
     }
 

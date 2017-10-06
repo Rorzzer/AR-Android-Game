@@ -8,10 +8,11 @@ import java.util.ArrayList;
 
 public class GameSession {
 
-
+    public static final Integer MAX_TEAMS_2 = 2;
+    public static final Integer TEAM_CAPTURING = 0;
+    public static final Integer TEAM_ESCAPING = 1;
     private static final double EARTH_RADIUS_M = 6372797.560;
     private static final double RAD_IN_DEGREE = 0.017453292519943295769236907684886;
-    public static final Integer MAX_TEAMS_2 = 2;
     private String sessionId;
     private Long startTime;
     private Long endTime;
@@ -32,6 +33,19 @@ public class GameSession {
     {
         this.timeSessionCreated = System.currentTimeMillis();
         this.teamArrayList = new ArrayList<Team>();
+    }
+
+    public static double distanceBetweenPoints(LatLng origin, LatLng dest) {
+        //havesine formula from http://www.movable-type.co.uk/scripts/latlong.html
+        ///calculate distance
+        double dLat = (dest.latitude - origin.latitude) * RAD_IN_DEGREE;
+        double dLong = (dest.longitude - origin.longitude) * RAD_IN_DEGREE;
+        double latL = Math.sin(dLat * 0.5) * Math.sin(dLat * 0.5);
+        double longL = Math.sin(dLong * 0.5) * Math.sin(dLong * 0.5);
+        double tmp = Math.cos(dest.latitude * RAD_IN_DEGREE) *
+                Math.cos(origin.latitude * RAD_IN_DEGREE);
+        double dist = EARTH_RADIUS_M * 2.0 * Math.asin(Math.sqrt(latL + tmp * longL));
+        return dist;
     }
 
     public String getSessionId() {
@@ -146,10 +160,6 @@ public class GameSession {
         this.sessionImageUri = sessionImageUri;
     }
 
-    public void setTeamArrayList(ArrayList<Team> teamArrayList) {
-        this.teamArrayList = teamArrayList;
-    }
-
     public String getSessionName() {
         return sessionName;
     }
@@ -158,12 +168,17 @@ public class GameSession {
         this.sessionName = sessionName;
     }
 
+
     public ArrayList<Team> getTeamArrayList() {
         return teamArrayList;
     }
 
-    public boolean addTeam(Team team){
-        if(teamArrayList != null   && MAX_TEAMS_2 >teamArrayList.size()){
+    public void setTeamArrayList(ArrayList<Team> teamArrayList) {
+        this.teamArrayList = teamArrayList;
+    }
+
+    private boolean addTeam(Team team) {
+        if (MAX_TEAMS_2 > teamArrayList.size()) {
             this.teamArrayList.add(team);
             return true;
         }
@@ -171,8 +186,9 @@ public class GameSession {
             return false;
         }
     }
+
     public boolean removeTeam(Team team){
-        if(teamArrayList != null && teamArrayList.size()>0 && teamArrayList.contains(team)){
+        if (teamArrayList != null && teamArrayList.size() > 0 && teamArrayList.contains(team)) {
             teamArrayList.remove(team);
             return true;
         }
@@ -182,13 +198,26 @@ public class GameSession {
     public void add2Teams(String gameSessionId, Player player){
         for(int i = 0;i<MAX_TEAMS_2;i++){
             //create 2 opposign teams
-            this.addTeam(new Team(gameSessionId+"team_1"+new Integer(i).toString(),
-                                        "team_"+new Integer(i).toString(), new Boolean(i==0),player));
-
+            this.addTeam(new Team(gameSessionId + "team_" + String.valueOf(i),
+                    "team_" + new Integer(i).toString(), new Boolean(i == TEAM_CAPTURING), player));
         }
     }
 
+    public void addPlayerToCapturingTeam(Player player) {
+        this.teamArrayList.get(TEAM_CAPTURING).addPlayer(player);
+    }
 
+    public void addPlayerToEscapingTeam(Player player) {
+        this.teamArrayList.get(TEAM_ESCAPING).addPlayer(player);
+    }
+
+    public void removePlayerFromCapturingTeam(Player player) {
+        this.teamArrayList.get(TEAM_CAPTURING).removePlayer(player);
+    }
+
+    public void removePlayerFromEscapingTeam(Player player) {
+        this.teamArrayList.get(TEAM_ESCAPING).removePlayer(player);
+    }
 
     public void updateRelativeLocations(LatLng originPlayerLocation){
         //assuming the player_location is the origin
@@ -207,17 +236,10 @@ public class GameSession {
             }
         }
     }
+
     //converts LatLng to x,y,z positions for use in generation of relative positions and vectors
     public CoordinateLocation convertToCartesian(LatLng origin, LatLng dest){
-        //havesine formula from http://www.movable-type.co.uk/scripts/latlong.html
-        ///calculate distance
-        double latDiff = (dest.latitude-origin.latitude)*RAD_IN_DEGREE;
-        double lonDiff = (dest.longitude-origin.longitude)*RAD_IN_DEGREE;
-        double latL = Math.sin(latDiff * 0.5)*Math.sin(latDiff * 0.5);
-        double longL = Math.sin(lonDiff * 0.5)*Math.sin(lonDiff * 0.5);
-        double tmp = Math.cos(dest.latitude*RAD_IN_DEGREE) *
-                Math.cos(origin.latitude*RAD_IN_DEGREE);
-        double dist = EARTH_RADIUS_M* 2.0 * Math.asin(Math.sqrt(latL + tmp*longL));
+        double dist = distanceBetweenPoints(origin, dest);
         double xComponent = dest.latitude-origin.latitude;
         double zComponent = dest.longitude-origin.longitude;
         double magnitude = Math.sqrt(xComponent*xComponent + zComponent*zComponent);
@@ -225,5 +247,6 @@ public class GameSession {
         return relativeLoc;
 
     }
+
 
 }

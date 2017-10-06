@@ -22,17 +22,16 @@ public class DataGenerator {
     }
     public GameSession generateRandomGameSession(LatLng latLng,int maxTeamMembers){
         GameSession gameSession = new GameSession();
-        gameSession.setCreator(generateRandomPlayer(latLng));
-        gameSession.setMaxPlayers(maxTeamMembers *gameSession.MAX_TEAMS_2);
+        Player creator = generateRandomPlayer(latLng);
+        gameSession.setCreator(creator);
+        gameSession.setMaxPlayers(maxTeamMembers * GameSession.MAX_TEAMS_2);
         gameSession.setLocation(latLng);
         gameSession.setSessionId(new Integer(random.nextInt()).toString());
         gameSession.setStartTime(random.nextLong());
         gameSession.setDuration(random.nextLong());
         gameSession.setEndTime(gameSession.getStartTime()+gameSession.getDuration());
         gameSession.setGameRadius(random.nextInt());
-        for(int i = 0;i<gameSession.MAX_TEAMS_2;i++){
-           gameSession.addTeam(generateRandomTeam(latLng,maxTeamMembers,false));
-        }
+        gameSession.add2Teams("testid", creator);
         return gameSession;
 
     }

@@ -61,50 +61,37 @@
             android:inputType="textMultiLine"
             android:selectAllOnFocus="false"
             android:singleLine="false" />
-        <TextView
-            android:id="@+id/tvImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/etDescription"
-            android:text="Session Image:"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <EditText
-            android:id="@+id/etImageUri"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/tvImage"
-            android:ems="10"
-            android:inputType="textPersonName" />
         <LinearLayout
-            android:id="@+id/timePickerLabels"
+            android:id="@+id/timePickerGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/etImageUri"
+            android:layout_below="@id/etDescription"
             android:orientation="horizontal"
             android:weightSum="1">
 
             <TextView
-                android:id="@+id/tvStartTime"
+                android:id="@+id/tvStartTimeLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:text="Start Time"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <EditText
-                android:id="@+id/etStartTime"
-                android:layout_width="147dp"
+            <Button
+                android:id="@+id/btnSelectStartTime"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/tvStartTime"
-                android:layout_alignParentStart="true"
-                android:layout_marginLeft="40dp"
-                android:layout_weight="0.19"
-                android:ems="10"
-                android:inputType="text"
-                android:selectAllOnFocus="false" />
+                android:layout_weight="0.37"
+                android:text="set time" />
+
+            <TextView
+                android:id="@+id/tvSelectedStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="TextView" />
 
         </LinearLayout>
 
@@ -112,91 +99,67 @@
             android:id="@+id/setDurationSliderGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/timePickerLabels"
+            android:layout_below="@id/timePickerGroup"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvDurationLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Set Game Duration"
+                android:text="Game Duration"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <SeekBar
                 android:id="@+id/durationSlider"
-                android:layout_width="match_parent"
+                android:layout_width="142dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:max="10"
                 android:min="1"/>
+
+            <TextView
+                android:id="@+id/tvSelectedDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TextView" />
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/viewDurationGroup"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/setDurationSliderGroup"
-            android:orientation="horizontal">
-            <TextView
-                android:id="@+id/tvViewDurationLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Duration(mins)"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-            <TextView
-                android:id="@+id/tvViewDurationContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-            </LinearLayout>
+
         <LinearLayout
             android:id="@+id/setMaxTeamSizeSliderGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/viewDurationGroup"
+            android:layout_below="@id/setDurationSliderGroup"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvTeamSizeLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Set Largest Team"
+                android:text="Max Team Size"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <SeekBar
                 android:id="@+id/teamSizeSlider"
-                android:layout_width="match_parent"
+                android:layout_width="119dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:max="10"
-                android:min="1"/>
-        </LinearLayout>
+                android:min="1" />
 
-        <LinearLayout
-            android:id="@+id/viewMaxTeamSizeGroup"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/setMaxTeamSizeSliderGroup"
-            android:orientation="horizontal">
             <TextView
-                android:id="@+id/tvViewMaxTeamSizeLabel"
+                android:id="@+id/tvSelectedMaxSize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Largest Team size"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-            <TextView
-                android:id="@+id/tvViewMaxTeamSizeContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_weight="1"
+                android:text="TextView" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/accessGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/viewMaxTeamSizeGroup"
+            android:layout_below="@id/setMaxTeamSizeSliderGroup"
             android:orientation="horizontal">
 
             <TextView
@@ -204,7 +167,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:text="Start Time"
+                android:text="Accessibility"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <RadioGroup
@@ -219,9 +182,9 @@
                     android:id="@+id/btnPublic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1.15"
                     android:onClick="onRadioButtonClicked"
-                    android:text="Public"
-                    android:layout_weight="1.15" />
+                    android:text="Public" />
 
                 <RadioButton
                     android:id="@+id/btnPrivate"
@@ -242,7 +205,7 @@
             <TextView
                 android:id="@+id/tvJoinedMembers"
                 android:layout_width="167dp"
-                android:layout_height="39dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:text="Invite Players :"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -255,23 +218,21 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/saveCancelButtonGroup"
+            android:id="@+id/joinLeaveButtonGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/invitesGroup"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnCreateLobby"
+                android:id="@+id/btnCreateOrEditLobby"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start Game" />
+                android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/btnDeleteLobby"
+                android:id="@+id/btnDeleteOrCancelLobby"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete Game" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </RelativeLayout>
 </ScrollView>

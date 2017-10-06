@@ -25,6 +25,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold" />
 
+
         <LinearLayout
             android:id="@+id/nameLabelGroup"
             android:layout_width="fill_parent"
@@ -121,41 +122,70 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/lvPlayerListView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/addressLabelGroup" />
 
         <LinearLayout
-            android:id="@+id/saveCancelButtonGroup"
-            android:layout_width="fill_parent"
+            android:id="@+id/joinedPlayersGroup"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/lvPlayerListView"
+            android:layout_below="@+id/addressLabelGroup"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btnJoinLobby"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvJoinedPlayers"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Join Lobby" />
+                android:text="Joined Players" />
 
-            <Button
-                android:id="@+id/btnEditActiveLobby"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete Lobby"
-                android:visibility="gone" />
+            <ListView
+                android:id="@+id/lvPlayerListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnStartGameSession"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/joinLeaveButtonGroup"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/saveCancelButtonGroup"
+            android:layout_below="@id/joinedPlayersGroup"
+            android:orientation="horizontal">
 
-            android:text="Start Game"
-            android:visibility="gone" />
+            <Button
+                android:id="@+id/btnJoinLeaveLobby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Join Game" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/editDeleteButtonGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/joinLeaveButtonGroup"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEditLobby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit " />
+
+            <Button
+                android:id="@+id/btnDeleteLobby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete" />
+
+            <Button
+                android:id="@+id/btnStartGame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editDeleteButtonGroup"
+                android:layout_weight="1"
+                android:text="Start Game" />
+
+        </LinearLayout>
+
 
     </RelativeLayout>
 </ScrollView>

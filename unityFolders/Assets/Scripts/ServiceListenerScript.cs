@@ -13,7 +13,7 @@ public class ServiceListenerScript : MonoBehaviour {
 		javaClass = new AndroidJavaClass("com.unimelb.comp30022.receiver.UnityReceiver");
 		javaClass.CallStatic ("createInstance");
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		receiverMessage = javaClass.GetStatic<string>("text");
