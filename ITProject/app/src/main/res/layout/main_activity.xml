@@ -55,4 +55,12 @@
         android:layout_below="@+id/btnCreateOrEditLobby"
         android:text="Find Game" />
 
+    <Button
+        android:id="@+id/btnMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/textView"
+        android:text="Map" />
+
 </RelativeLayout>
