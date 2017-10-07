@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnUser).setOnClickListener(this);
         findViewById(R.id.btnMap).setOnClickListener(this);
+        findViewById(R.id.btnCreateOrEditLobby).setOnClickListener(this);
+        findViewById(R.id.btnFindLobby).setOnClickListener(this);
     }
 
     /**
@@ -84,7 +86,6 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
-
             case R.id.btnMap:
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Intent MapsAct = new Intent(getApplicationContext(), MapsActivity.class);

@@ -5,7 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * unit testing framework for gamesession class
@@ -25,36 +25,19 @@ public class GameSessionTest {
     public void tearDown() throws Exception {
     }
 
-    @Test
-    public void addTeamWithVaccancy() throws Exception{
-        latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
-        gameSession = dataGenerator.generateRandomGameSession(latLng);
-        gameSession.removeTeam(gameSession.getTeamArrayList().get(0));
-        assertEquals("Expected true",true,gameSession.addTeam(team));
-    }
-
-    @Test
-    public void addTeamWithoutVaccancy() throws Exception {
-        latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
-        gameSession = dataGenerator.generateRandomGameSession(latLng);
-        assertEquals("Expected false",false, gameSession.addTeam(team));
-    }
 
     @Test
     public void removeTeamWithTeamsExist() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
+        player = dataGenerator.generateRandomPlayer(latLng);
         gameSession = new GameSession();
-        gameSession.addTeam(team);
+        gameSession.add2Teams("Sessionid", player);
         assertEquals("Expected false", false, gameSession.removeTeam(team));
     }
 
     @Test
     public void removeTeamWithTeamsDontExist() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
         gameSession = new GameSession();
         assertEquals("Expected false", false, gameSession.removeTeam(team));
     }
