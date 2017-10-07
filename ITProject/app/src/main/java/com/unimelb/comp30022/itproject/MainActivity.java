@@ -86,18 +86,34 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.btnMap:
-                if (FirebaseAuth.getInstance().getCurrentUser()!= null) {
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Intent MapsAct = new Intent(getApplicationContext(), MapsActivity.class);
                     startActivity(MapsAct);
-                }
-                else{
+                } else {
                     updateStatus("You must be signed in to access this feature.");
                 }
+                break;
+            case R.id.btnCreateOrEditLobby:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Intent createLobby = new Intent(getApplicationContext(), CreateLobbyActivity.class);
+                    startActivity(createLobby);
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
+            case R.id.btnFindLobby:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Intent findLobby = new Intent(getApplicationContext(), FindLobbyActivity.class);
+                    startActivity(findLobby);
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
         }
     }
 
     private void updateStatus(String stat) {
-        TextView tvStat = (TextView)findViewById(R.id.tvStatus);
+        TextView tvStat = findViewById(R.id.tvStatus);
         tvStat.setText(stat);
     }
 
