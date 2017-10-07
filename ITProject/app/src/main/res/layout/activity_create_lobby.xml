@@ -203,7 +203,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvJoinedMembers"
+                android:id="@+id/tvActiveLobbies"
                 android:layout_width="167dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
@@ -214,7 +214,7 @@
                 android:id="@+id/lvPlayerListView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tvJoinedMembers" />
+                android:layout_below="@+id/tvActiveLobbies" />
         </LinearLayout>
 
         <LinearLayout
@@ -225,7 +225,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnCreateOrEditLobby"
+                android:id="@+id/btnCreateOrUpdateLobby"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 

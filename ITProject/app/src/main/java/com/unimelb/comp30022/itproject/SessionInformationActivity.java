@@ -23,21 +23,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class SessionInformationActivity extends AppCompatActivity
                                         implements View.OnClickListener {
     private static String  LOG_TAG = SessionInformationActivity.class.getName();
+    private static String joinText = "Join";
+    private static String leaveText = "Leave";
     ArrayList<Player> playerArrayList;
     ArrayList<Team> teamArrayList;
     ArrayList<String> joinedPlayers = new ArrayList<String>();
-    HashMap<String, String> serviceInputList = new HashMap<String, String>();
+    HashMap<String, String> gameInputHashmap = new HashMap<String, String>();
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference userDbReference;
@@ -145,10 +143,23 @@ public class SessionInformationActivity extends AppCompatActivity
             case R.id.btnJoinLeaveLobby:
                 Log.d(LOG_TAG, "Pressing Join/Leave Lobby");
                 if(currentUserInfo != null){
-                    fetchAvailableLobbyInformation();
+                    generateAvailableLobbyInformation();
                     Log.d(LOG_TAG, "Spaces avaialble " + spacesAvailable + ":" + "isvalid game :" + isValidGame);
-                    addCurrentPlayerToGameSession();
-
+                    if (isPlayerJoinedCurrentSession(getCurrentPlayerInfo())) {
+                        //remove player from session
+                        removePlayerFromGameSession(getCurrentPlayerInfo());
+                        updateServerGameSession(publicGameSession);
+                        loadDataToForm();
+                        adapter.notifyDataSetChanged();
+                        btnJoinGame.setText(joinText);
+                    } else {
+                        //add player to session
+                        addCurrentPlayerToGameSession();
+                        updateServerGameSession(publicGameSession);
+                        loadDataToForm();
+                        adapter.notifyDataSetChanged();
+                        btnJoinGame.setText(leaveText);
+                    }
                 }
                 else{
                     Log.d(LOG_TAG, "User not authenticated");
@@ -169,6 +180,8 @@ public class SessionInformationActivity extends AppCompatActivity
                 Log.d(LOG_TAG, "Pressing Delete Lobby");
                 if (currentUserInfo != null) {
                     deleteServerGameSessionObj(publicGameSession);
+                    inactivatePage();
+                    Toast.makeText(SessionInformationActivity.this, " Game Deleted!", Toast.LENGTH_LONG).show();
                 } else {
                     Log.d(LOG_TAG, "User not authenticated");
                 }
@@ -179,14 +192,12 @@ public class SessionInformationActivity extends AppCompatActivity
                     startGameSession();
                 }
                 break;
-
-
         }
     }
     /***
      * method that gets the game details for use in joining teams and launching gamesession
      */
-    public void fetchAvailableLobbyInformation() {
+    public void generateAvailableLobbyInformation() {
         //fetch data about the game session using the information from the intent
         if(publicGameSession != null){
             sumActivePlayers = 0;
@@ -213,6 +224,7 @@ public class SessionInformationActivity extends AppCompatActivity
             return;
         }
         else{
+            Log.d(LOG_TAG, "Fetching available Lobby Info: public game session is null");
             isValidGame = false;
             return;
         }
@@ -222,7 +234,7 @@ public class SessionInformationActivity extends AppCompatActivity
      * */
     public void startGameSession(){
         //ensure players have been added to the session on the server
-        fetchAvailableLobbyInformation();
+        generateAvailableLobbyInformation();
         if(!isValidGame){
             Toast.makeText(SessionInformationActivity.this,"Too few Members to Start Game",Toast.LENGTH_LONG).show();
         }
@@ -231,21 +243,19 @@ public class SessionInformationActivity extends AppCompatActivity
             publicGameSession.setGameStarted(true);
             updateServerGameSession(publicGameSession);
             Toast.makeText(getApplicationContext(), "Launching AR Camera" , Toast.LENGTH_SHORT).show();
-             Gson gson = new Gson();
-            DataGenerator dataGenerator = new DataGenerator();
-             Type gameSessionType = new TypeToken<GameSession>(){}.getType();
-            String gameSessionString =
-                    gson.toJson(dataGenerator.generateRandomGameSession(publicGameSession.getLocation()), gameSessionType);
-            serviceInputList.put("gameSession", gameSessionString);
-             ServiceTools serviceTools = new ServiceTools();
-            ServiceTools.startNewService(SessionInformationActivity.this, AndroidToUnitySender.class, serviceInputList);
-            ServiceTools.isServiceRunning(SessionInformationActivity.this, AndroidToUnitySender.class);
-            Log.d(SessionInformationActivity.class.getName(), gameSessionString);
+            gameInputHashmap.put(ServiceTools.GAME_SESSION_KEY, gameSessionId);
+            ServiceTools serviceTools = new ServiceTools();
+            boolean isServiceRunning;
+            ServiceTools.startNewService(SessionInformationActivity.this, AndroidToUnitySender.class, gameInputHashmap);
+            isServiceRunning = ServiceTools.isServiceRunning(SessionInformationActivity.this, AndroidToUnitySender.class);
+            Log.d(LOG_TAG, "After initiation ofthe service is it running?" + isServiceRunning);
+            isServiceRunning = ServiceTools.stopRunningService(SessionInformationActivity.this, AndroidToUnitySender.class);
+            Log.d(LOG_TAG, "After termination of the service is it running ?" + isServiceRunning);
+
             //Intent i = new Intent(SessionInformationActivity.this, UnityPlayerActivity.class);
             //startActivity(i);
         }
     }
-
     /**
      * Fetch game sesion object if it already exists on the server
      * */
@@ -265,9 +275,13 @@ public class SessionInformationActivity extends AppCompatActivity
                     } else {
                         btnJoinGame.setVisibility(View.VISIBLE);
                     }
-                    fetchAvailableLobbyInformation();
+                    if (isPlayerJoinedCurrentSession(getCurrentPlayerInfo())) {
+                        btnJoinGame.setText(leaveText);
+                    }
+                    generateAvailableLobbyInformation();
                     loadDataToForm();
-                    //listenToServerForChanges();
+                    adapter.notifyDataSetChanged();
+                    listenToServerForGameSessionChanges();
                     Log.d(LOG_TAG," Successfully Fetched Game Session");
                 }
                 else{
@@ -304,13 +318,6 @@ public class SessionInformationActivity extends AppCompatActivity
                     Log.d(LOG_TAG, " Successfully Updated Game Session");
                 }
                 gameSessionDbReference.child(gameSessionId).setValue(gameSession);
-                Gson gson = new Gson();
-                Type gameSessionType = new TypeToken<GameSession>() {
-                }.getType();
-                String gameSessionString =
-                        gson.toJson(publicGameSession, gameSessionType);
-                Log.d(LOG_TAG, gameSessionString);
-
             }
 
             @Override
@@ -320,7 +327,7 @@ public class SessionInformationActivity extends AppCompatActivity
         });
     }
 
-    public void listenToServerForChanges() {
+    public void listenToServerForGameSessionChanges() {
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSessionId);
         gameSessionIdQuery.addChildEventListener(new ChildEventListener() {
             @Override
@@ -330,15 +337,15 @@ public class SessionInformationActivity extends AppCompatActivity
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 publicGameSession = dataSnapshot.getValue(GameSession.class);
-                fetchAvailableLobbyInformation();
+                generateAvailableLobbyInformation();
                 loadDataToForm();
-                Toast.makeText(SessionInformationActivity.this, "Game details have Changed", Toast.LENGTH_LONG).show();
+                adapter.notifyDataSetChanged();
 
             }
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Toast.makeText(SessionInformationActivity.this, "The Session Was Deleted, Joining is not allowed", Toast.LENGTH_LONG).show();
-                btnJoinGame.setVisibility(View.GONE);
+                inactivatePage();
             }
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
@@ -347,7 +354,6 @@ public class SessionInformationActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-
     }
 
     /**
@@ -385,65 +391,91 @@ public class SessionInformationActivity extends AppCompatActivity
         tvCreator.setText(publicGameSession.getCreator().getDisplayName());
         tvLocation.setText(publicGameSession.getLocation().toString());
         tvAddress.setText("Generated from location");
-
-        for (int i = 0; i < GameSession.MAX_TEAMS_2; i++) {
-            playerArrayList = publicGameSession.getTeamArrayList().get(i).getPlayerArrayList();
-            if(playerArrayList != null){
-                for(int j= 0;j < playerArrayList.size();j++){
-                    String displayName = playerArrayList.get(j).getDisplayName();
-                    if (!joinedPlayers.contains(displayName)) {
-                        joinedPlayers.add(displayName);
-                    }
-                }
-            }
-        }
+        refreshPlayerList(joinedPlayers);
 
     }
 
-    public String[] convertListToArray(List<String> list) {
-        String[] array = new String[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            array[i] = list.get(i);
-        }
-        return array;
-    }
 
     public boolean addCurrentPlayerToGameSession() {
         if (spacesAvailable > 0) {
             boolean success = false;
             //create Player and join
-            int capturingPlayers = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING).getPlayerArrayList().size();
-            int escapingPlayers = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING).getPlayerArrayList().size();
-            Log.d(LOG_TAG, "capturing players:" + capturingPlayers + " Escaping players:" + escapingPlayers);
-            if (capturingPlayers
-                    < publicGameSession.getMaxPlayers() / 2) {
-                success = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING).addPlayer(getCurrentPlayer());
-            } else if (escapingPlayers < publicGameSession.getMaxPlayers() / 2) {
-                success = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING).addPlayer(getCurrentPlayer());
+            Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
+            Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
+            if (capturingTeam.getPlayerArrayList().contains(getCurrentPlayerInfo())
+                    || escapingTeam.getPlayerArrayList().contains(getCurrentPlayerInfo())) {
+                //player already joined unable to join
+                Toast.makeText(SessionInformationActivity.this, "Already Joined Session",
+                        Toast.LENGTH_LONG).show();
+                return false;
+            } else if (capturingTeam.getPlayerArrayList().size()
+                    < publicGameSession.getMaxPlayers() / 2 && escapingTeam.getPlayerArrayList().size() >=
+                    capturingTeam.getPlayerArrayList().size()) {
+                capturingTeam.addPlayer(getCurrentPlayerInfo());
+            }
+            //add to escapping team if it has space or is smaller than the capturing team
+            else if (escapingTeam.getPlayerArrayList().size() < publicGameSession.getMaxPlayers() / 2 &&
+                    capturingTeam.getPlayerArrayList().size() >= escapingTeam.getPlayerArrayList().size()) {
+                escapingTeam.addPlayer(getCurrentPlayerInfo());
             }
             Log.d(LOG_TAG, "updating the player list with " + currentUserInfo.getEmail());
-            if (success) {
-                if (!joinedPlayers.contains(currentUserInfo.getEmail())) {
-                    joinedPlayers.add(currentUserInfo.getEmail());
-                } else {
-                    Toast.makeText(SessionInformationActivity.this, "Already Joined Session", Toast.LENGTH_LONG).show();
-                }
-                adapter.notifyDataSetChanged();
-                updateServerGameSession(publicGameSession);
-                return true;
-            } else {
-                return false;
-            }
+            //update the player list
+            loadDataToForm();
+            adapter.notifyDataSetChanged();
+            return true;
+        } else {
+            return false;
         }
-        return false;
+
     }
 
+    public void removePlayerFromGameSession(Player player) {
+        if (isPlayerJoinedCurrentSession(player)) {
+            Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
+            Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
+            if (capturingTeam.containsPlayer(player)) {
+                capturingTeam.removePlayer(player);
+            } else if (escapingTeam.containsPlayer(player)) {
+                escapingTeam.removePlayer(player);
+            }
+        }
+    }
+
+    public boolean isPlayerJoinedCurrentSession(Player player) {
+        Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
+        Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
+        return capturingTeam.getPlayerArrayList().contains(player) ||
+                escapingTeam.getPlayerArrayList().contains(player);
+    }
     /*
     * Acquire the player's key information for use in the game session
     * **/
-    public Player getCurrentPlayer() {
+    public Player getCurrentPlayerInfo() {
         Player player = new Player(currentUserInfo.getEmail());
         return player;
+    }
+
+    //loads data into an arraylist for listview purposes, requries a Gamesession object declared in the scope
+    public void refreshPlayerList(ArrayList<String> list) {
+        list.clear();
+        for (int i = 0; i < GameSession.MAX_TEAMS_2; i++) {
+            playerArrayList = publicGameSession.getTeamArrayList().get(i).getPlayerArrayList();
+            if (playerArrayList != null) {
+                for (int j = 0; j < playerArrayList.size(); j++) {
+                    String displayName = playerArrayList.get(j).getDisplayName();
+                    if (!list.contains(displayName)) {
+                        list.add(displayName);
+                    }
+                }
+            }
+        }
+    }
+
+    public void inactivatePage() {
+        btnJoinGame.setClickable(false);
+        btnStartGame.setClickable(false);
+        btnDeleteGame.setClickable(false);
+        btnEditGame.setClickable(false);
     }
 
 

@@ -43,7 +43,7 @@
         android:layout_below="@+id/btnSignInReg"
         android:layout_marginTop="25dp" />
     <Button
-        android:id="@+id/btnCreateOrEditLobby"
+        android:id="@+id/btnCreateOrUpdateLobby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btnSignInReg"
@@ -52,14 +52,13 @@
         android:id="@+id/btnFindLobby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnCreateOrEditLobby"
+        android:layout_below="@+id/btnCreateOrUpdateLobby"
         android:text="Find Game" />
 
     <Button
         android:id="@+id/btnMap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_below="@+id/btnFindLobby"
         android:text="Map" />
 

@@ -177,6 +177,22 @@ public class GameSession {
         this.teamArrayList = teamArrayList;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GameSession)) return false;
+
+        GameSession that = (GameSession) o;
+
+        return getSessionId().equals(that.getSessionId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getSessionId().hashCode();
+    }
+
     private boolean addTeam(Team team) {
         if (MAX_TEAMS_2 > teamArrayList.size()) {
             this.teamArrayList.add(team);
@@ -202,7 +218,6 @@ public class GameSession {
                     "team_" + new Integer(i).toString(), new Boolean(i == TEAM_CAPTURING), player));
         }
     }
-
     public void addPlayerToCapturingTeam(Player player) {
         this.teamArrayList.get(TEAM_CAPTURING).addPlayer(player);
     }

@@ -46,5 +46,16 @@ public class LatLng {
         double var3 = this.longitude;
         return (new StringBuilder(60)).append("lat/lng: (").append(var1).append(",").append(var3).append(")").toString();
     }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(getLatitude());
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(getLongitude());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }
 

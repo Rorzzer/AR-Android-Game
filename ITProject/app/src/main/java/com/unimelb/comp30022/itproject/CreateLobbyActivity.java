@@ -102,7 +102,7 @@ public class CreateLobbyActivity extends AppCompatActivity
         listView = findViewById(R.id.lvPlayerListView);
         tvDurationMinutes = findViewById(R.id.tvSelectedDuration);
         tvMaxTeamSize = findViewById(R.id.tvSelectedMaxSize);
-        btnCreateOrEdit = findViewById(R.id.btnCreateOrEditLobby);
+        btnCreateOrEdit = findViewById(R.id.btnCreateOrUpdateLobby);
         btnDeleteOrCancel = findViewById(R.id.btnDeleteOrCancelLobby);
         btnCreateOrEdit.setOnClickListener(this);
         btnDeleteOrCancel.setOnClickListener(this);
@@ -244,7 +244,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnCreateOrEditLobby:
+            case R.id.btnCreateOrUpdateLobby:
                 if(currentUserInfo != null){
                     if (!gameStarted) {
                         createNewLobby(currentUserInfo);
@@ -322,12 +322,12 @@ public class CreateLobbyActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0){
-                    //update values
+                    //update values game already exists
                     Log.d(LOG_TAG," Successfully Updated Game Session");
                 }
                 else{
-                    //create new value
-                    gameSession.setSessionId(gameSessionId);
+                    //create new value game does not exist
+                    gameSessionId = gameSessionDbReference.push().getKey();
                     Log.d(LOG_TAG," Successfully Updated Game Session");
                 }
                 gameSessionDbReference.child(gameSessionId).setValue(gameSession);
@@ -346,7 +346,7 @@ public class CreateLobbyActivity extends AppCompatActivity
      * */
     private void deleteServerGameSessionObj(final GameSession gameSession){
         if(gameSession== null || gameSession.getSessionId() == null){
-            Log.d(LOG_TAG," Game session not instantiated");
+            Log.d(LOG_TAG, " Game session not instantiated unable to delete");
             return;
         }
         final String key = gameSession.getSessionId();
@@ -510,7 +510,6 @@ public class CreateLobbyActivity extends AppCompatActivity
      * */
     private GameSession createMyNewGameSession(User user){
         gameSession = new GameSession();
-        gameSessionId = gameSessionDbReference.push().getKey();
         gameSession.setGameStarted(false);
         gameSession.setGameCompleted(false);
         Player creator = new Player(user.getEmail());

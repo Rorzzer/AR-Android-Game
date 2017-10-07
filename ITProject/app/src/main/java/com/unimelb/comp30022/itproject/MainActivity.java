@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnUser).setOnClickListener(this);
         findViewById(R.id.btnMap).setOnClickListener(this);
-        findViewById(R.id.btnCreateOrEditLobby).setOnClickListener(this);
+        findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
     }
 
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume(){
         super.onResume();
-        Button btnCreateLobby = findViewById(R.id.btnCreateOrEditLobby);
+        Button btnCreateLobby = findViewById(R.id.btnCreateOrUpdateLobby);
         Button btnFindLobby = findViewById(R.id.btnFindLobby);
         if (FirebaseAuth.getInstance().getCurrentUser()!= null){
             btnCreateLobby.setVisibility(View.VISIBLE);
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
-            case R.id.btnCreateOrEditLobby:
+            case R.id.btnCreateOrUpdateLobby:
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Intent createLobby = new Intent(getApplicationContext(), CreateLobbyActivity.class);
                     startActivity(createLobby);

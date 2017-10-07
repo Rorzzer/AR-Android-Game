@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FindLobbyActivity extends AppCompatActivity {
-
+    private static int ZERO = 0;
     private static String  LOG_TAG = FindLobbyActivity.class.getName();
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -36,6 +37,7 @@ public class FindLobbyActivity extends AppCompatActivity {
     private DataSnapshot snapshot;
     private FirebaseUser fbuser ;
 
+    private boolean listEmpty = false;
     private User currentUserInfo;
     private String userId;
     private String gameSessionId;
@@ -44,25 +46,24 @@ public class FindLobbyActivity extends AppCompatActivity {
     private ArrayList<String> availableGames = new ArrayList();
     private ArrayAdapter<String> adapter;
     private ListView activeGamesList;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_lobby);
         activeGamesList = findViewById(R.id.lvAvailableLobbies);
+        progressBar = findViewById(R.id.loadingProgressBar);
 
         Context context = getApplicationContext();
         FirebaseApp.initializeApp(context);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         gameSessionDbReference = firebaseDatabase.getReference("gameSessions");
-        //gameSessionDbReference = firebaseDatabase.getReference().child("gameSessions");
         fbuser = firebaseAuth.getCurrentUser();
         userId = fbuser.getUid();
         adapter = new ArrayAdapter<String>(FindLobbyActivity.this, android.R.layout.simple_list_item_1, availableGames);
         activeGamesList.setAdapter(adapter);
-
-
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -75,34 +76,19 @@ public class FindLobbyActivity extends AppCompatActivity {
                 }
             }
         };
-        gameSessionDbReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(LOG_TAG, "changed data added");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        progressStarted();
         getActiveGameSessions();
         updateSubsequentActiveGameSessions();
         activeGamesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent viewGameSession = new Intent(FindLobbyActivity.this,SessionInformationActivity.class);
-                viewGameSession.putExtra("gameSessionId",gameSessionList.get(i).getSessionId());
-                startActivity(viewGameSession);
+                if (gameSessionList.size() > ZERO) {
+                    Intent viewGameSession = new Intent(FindLobbyActivity.this, SessionInformationActivity.class);
+                    viewGameSession.putExtra("gameSessionId", gameSessionList.get(i).getSessionId());
+                    startActivity(viewGameSession);
+                }
             }
         });
-    }
-    public String[] convertListToArray(List<String> list){
-        String[] array = new String[list.size()];
-        for(int i =0; i<list.size();i++){
-            array[i] = list.get(i);
-        }
-        return  array;
     }
     /***
      * Searches sever for available lobbies that meet criteria
@@ -116,37 +102,47 @@ public class FindLobbyActivity extends AppCompatActivity {
         gameSessionIdQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getChildrenCount() > 0) {
+                if (dataSnapshot.getChildrenCount() > ZERO) {
                     for (DataSnapshot snap : dataSnapshot.getChildren()) {
                         GameSession gameSession = snap.getValue(GameSession.class);
                         gameSessionList.add(gameSession);
                         availableGames.add(gameSession.getSessionName());
-                        adapter.notifyDataSetChanged();
+                        Log.d(LOG_TAG, "Adding to gamesesion list" + gameSession.getSessionName());
                     }
+                    adapter.notifyDataSetChanged();
+                    for (String s : availableGames) {
+                        Log.d(LOG_TAG, "availableGames has:" + s);
+                    }
+
                 } else {
-                    //return null value
-                    Log.d(LOG_TAG, "Game Session does not exist");
+                    listEmpty = true;
+                    availableGames.add("No Games Found");
+                    adapter.notifyDataSetChanged();
+
                 }
-                //updateSubsequentActiveGameSessions();
+                progressCompleted();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG, "Game Session - Read Error");
+                Log.d(LOG_TAG, "Game Session - Read Error" + databaseError.getMessage());
             }
         });
     }
-
     private void updateSubsequentActiveGameSessions() {
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("gameCompleted").equalTo(false);
         gameSessionIdQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 GameSession gameSession = dataSnapshot.getValue(GameSession.class);
+                if (listEmpty) {
+                    availableGames.clear();
+                }
                 if (!gameSessionList.contains(gameSession)) {
                     gameSessionList.add(gameSession);
-                    adapter.notifyDataSetChanged();
+                    availableGames.add(gameSession.getSessionName());
                 }
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -158,8 +154,13 @@ public class FindLobbyActivity extends AppCompatActivity {
                 GameSession gameSession = dataSnapshot.getValue(GameSession.class);
                 if (gameSessionList.contains(gameSession)) {
                     gameSessionList.remove(gameSession);
-                    adapter.notifyDataSetChanged();
+                    availableGames.remove(gameSession.getSessionName());
                 }
+                if (gameSessionList.size() == ZERO) {
+                    availableGames.add("No Games Found");
+                    listEmpty = true;
+                }
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -173,6 +174,12 @@ public class FindLobbyActivity extends AppCompatActivity {
 
     }
 
+    public void progressStarted() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
 
+    public void progressCompleted() {
+        progressBar.setVisibility(View.GONE);
+    }
 
 }
