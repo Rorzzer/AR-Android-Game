@@ -56,10 +56,10 @@ public class UserProfActivity extends AppCompatActivity
         findViewById(R.id.btnCancel).setOnClickListener(this);
 
         //etEmail = (EditText)findViewById(R.id.etEmail);
-        etFirstname = (EditText)findViewById(R.id.etFirst);
-        etLastname = (EditText)findViewById(R.id.etLast);
-        etUsername = (EditText)findViewById(R.id.etUsername);
-        etEmail = (EditText)findViewById(R.id.etEmail);
+        etFirstname = findViewById(R.id.etFirst);
+        etLastname = findViewById(R.id.etLast);
+        etUsername = findViewById(R.id.etUsername);
+        etEmail = findViewById(R.id.etEmail);
 
         //get a reference to the database
         // Write a message to the database
@@ -122,10 +122,8 @@ public class UserProfActivity extends AppCompatActivity
         if (fUser != null) {
             uID = fUser.getUid();
             Log.d(TAG, "Signed in: " + fUser.getUid());
-        }
-        else{
+        } else {
             Log.d(TAG, "Currently Signed Out");
-
         }
     }
 
@@ -219,7 +217,7 @@ public class UserProfActivity extends AppCompatActivity
                 if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
                     Toast.makeText(UserProfActivity.this, "Username already in use.", Toast.LENGTH_LONG).show();
                     loadUserData();
-                } else if (validateUsername(username)){
+                } else if (validateUsername(username)) {
                     // commit the information to the database
                     User user = new User(username, firstName, lastName, email);
                     mDatabase.child(uID).setValue(user);

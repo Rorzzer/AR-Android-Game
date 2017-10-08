@@ -5,9 +5,9 @@ using GameDataTypes;
 namespace GameEntities{
 	
 	public class PlayerClass : MonoBehaviour {
-		public int  playerId;
 		public string displayName;
-		public LatLngClass location;
+		public LatLngClass abslocation;
+		public CoordinateLocation coordinateLocation;
 		public bool isLoggedOn;
 		public long lastLoggedOn;
 		public string imageUri;
@@ -17,6 +17,8 @@ namespace GameEntities{
 		public long lastPing;
 		public int skillLevel;
 		public bool isActive;
+		public bool isCapturing;
+
 		// Use this for initialization
 		void Start () {
 			

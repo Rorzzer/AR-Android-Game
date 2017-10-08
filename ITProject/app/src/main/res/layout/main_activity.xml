@@ -30,25 +30,36 @@
         android:id="@+id/btnUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View User"
         android:layout_alignBaseline="@+id/btnSignInReg"
         android:layout_alignBottom="@+id/btnSignInReg"
-        android:layout_toEndOf="@+id/btnSignInReg" />
+        android:layout_toEndOf="@+id/btnSignInReg"
+        android:text="View User" />
 
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/btnSignInReg"
-        android:layout_marginTop="25dp"
-        android:layout_alignParentStart="true" />
+        android:layout_marginTop="25dp" />
+    <Button
+        android:id="@+id/btnCreateOrUpdateLobby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnSignInReg"
+        android:text="Create Game" />
+    <Button
+        android:id="@+id/btnFindLobby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnCreateOrUpdateLobby"
+        android:text="Find Game" />
 
     <Button
         android:id="@+id/btnMap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Map"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/btnFindLobby"
+        android:text="Map" />
 
 </RelativeLayout>

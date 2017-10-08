@@ -34,8 +34,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private GoogleMap mMap;
-
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     GoogleApiClient mGoogleApiClient;
 
     //AAssorted Location api variables
@@ -44,9 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker mCurrLocationMarker;
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
-
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private GoogleMap mMap;
 
     //Upon map activity creation
     @Override

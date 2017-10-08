@@ -1,12 +1,11 @@
 package com.unimelb.comp30022.itproject;
 
-import com.google.android.gms.maps.model.LatLng;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * unit testing framework for gamesession class
@@ -26,36 +25,19 @@ public class GameSessionTest {
     public void tearDown() throws Exception {
     }
 
-    @Test
-    public void addTeamWithVaccancy() throws Exception{
-        latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
-        gameSession = dataGenerator.generateRandomGameSession(latLng);
-        gameSession.removeTeam(gameSession.getTeamArrayList().get(0));
-        assertEquals("Expected true",true,gameSession.addTeam(team));
-    }
-
-    @Test
-    public void addTeamWithoutVaccancy() throws Exception {
-        latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
-        gameSession = dataGenerator.generateRandomGameSession(latLng);
-        assertEquals("Expected false",false, gameSession.addTeam(team));
-    }
 
     @Test
     public void removeTeamWithTeamsExist() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
+        player = dataGenerator.generateRandomPlayer(latLng);
         gameSession = new GameSession();
-        gameSession.addTeam(team);
+        gameSession.add2Teams("Sessionid", player);
         assertEquals("Expected false", false, gameSession.removeTeam(team));
     }
 
     @Test
     public void removeTeamWithTeamsDontExist() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
-        team = dataGenerator.generateRandomTeam(latLng,10,true);
         gameSession = new GameSession();
         assertEquals("Expected false", false, gameSession.removeTeam(team));
     }
@@ -79,9 +61,9 @@ public class GameSessionTest {
         latLng = dataGenerator.generateRandomLocation();
         gameSession = dataGenerator.generateRandomGameSession(latLng);
         player = gameSession.getTeamArrayList().get(0).getPlayerArrayList().get(0);
-        assertEquals("Expected Null", null, player.getRelLocation());
+        assertEquals("Expected Null", null, player.getCoordinateLocation());
         gameSession.updateRelativeLocations(player.getAbsLocation());
-        assertEquals("Expected True",true, (player.getRelLocation()!=null) );
+        assertEquals("Expected True",true, (player.getCoordinateLocation()!=null) );
     }
 
     @Test
@@ -90,25 +72,31 @@ public class GameSessionTest {
         gameSession = dataGenerator.generateRandomGameSession(latLng);
         player = gameSession.getTeamArrayList().get(0).getPlayerArrayList().get(0);
         gameSession.updateRelativeLocations(player.getAbsLocation());
-        assertEquals("Expected True",true, (player.getRelLocation()!=null) );
+        assertEquals("Expected True",true, (player.getCoordinateLocation()!=null) );
         gameSession.clearRelativeLocations();
-        assertEquals("Expected Null", null, player.getRelLocation());
+        assertEquals("Expected Null", null, player.getCoordinateLocation());
     }
 
     @Test
     public void convertToCartesianSamePoint() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
         gameSession = new GameSession();
-        assertEquals("Expected true",true,gameSession.convertToCartesian(latLng).equals(gameSession.convertToCartesian(latLng)) );
+        assertEquals("Expected true",true,gameSession.convertToCartesian(latLng,latLng).equals(gameSession.convertToCartesian(latLng,latLng)));
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getX(),0.0,0.1);
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getY(),0.0,0.1);
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
     }
     @Test
     public void convertToCartesianDifferentPoints() throws Exception {
         gameSession = new GameSession();
-        LatLng loc1 = new LatLng(13.3,34.2);
-        LatLng loc2 = new LatLng(4.2,3.5);
+        LatLng loc1 = new LatLng(13.3,144.343);
+        LatLng loc2 = new LatLng(14.2,90.34);
         assertEquals("Expected False", false,
-                gameSession.convertToCartesian(loc1)
-                        .equals(gameSession.convertToCartesian(loc2)));
+                gameSession.convertToCartesian(loc1,loc2)
+                        .equals(gameSession.convertToCartesian(loc2,loc2)));
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
+        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
+
 
     }
 

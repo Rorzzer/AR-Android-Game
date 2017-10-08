@@ -4,11 +4,18 @@ package com.unimelb.comp30022.itproject;
  * Created by Kiptenai on 1/10/2017.
  */
 
-public class RelLocation{
+public class CoordinateLocation {
     private double x;
     private double y;
     private double z;
+    public CoordinateLocation(double x, double y , double z){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    public CoordinateLocation(){
 
+    }
     public double getX() {
         return x;
     }
@@ -32,8 +39,8 @@ public class RelLocation{
     public void setZ(double z) {
         this.z = z;
     }
-    public RelLocation diff(RelLocation location){
-        RelLocation result = new RelLocation();
+    public CoordinateLocation diff(CoordinateLocation location){
+        CoordinateLocation result = new CoordinateLocation();
         result.setX(this.x-location.getX());
         result.setY(this.y-location.getY());
         result.setZ(this.z-location.getZ());
@@ -50,11 +57,11 @@ public class RelLocation{
             //same obj
             return true;
         }
-        else if(!(location instanceof RelLocation)){
+        else if(!(location instanceof CoordinateLocation)){
             return false;
         }
         else{
-            RelLocation location1 = (RelLocation)location;
+            CoordinateLocation location1 = (CoordinateLocation)location;
             return Double.doubleToLongBits(this.x) == Double.doubleToLongBits(location1.x) &&
                     Double.doubleToLongBits(this.y) == Double.doubleToLongBits(location1.y) &&
                     Double.doubleToLongBits(this.z) == Double.doubleToLongBits(location1.z);
