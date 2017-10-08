@@ -4,15 +4,18 @@ using UnityEngine;
 using GameEntities;
 
 namespace GameEntities{
-	public class TeamClass : MonoBehaviour {
+	[System.Serializable]
+	public class TeamClass {
 		public int teamId;
 		public string teamName;
 		public long timeTeamCreated;
 		public PlayerClass creator;
 		public int maxPlayers;
+		public int numPlayers;
 		public bool isActive;
+		private bool isCapturing;
 		public string teamImageUri;
-		public  ArrayList playerArraylist  = new ArrayList();
+		public  List<PlayerClass> playerArraylist  = new List<PlayerClass>();
 		// Use this for initialization
 		void Start () {
 

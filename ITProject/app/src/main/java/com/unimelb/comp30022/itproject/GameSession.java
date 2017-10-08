@@ -1,5 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
+
 import java.util.ArrayList;
 
 /**
@@ -28,11 +29,24 @@ public class GameSession {
     private String sessionName;
     private String description;
     private String sessionImageUri;
+    private Float bearing;
     private ArrayList<Team> teamArrayList ;
     public GameSession()
     {
         this.timeSessionCreated = System.currentTimeMillis();
         this.teamArrayList = new ArrayList<Team>();
+        this.gameStarted = false;
+        this.gameCompleted = false;
+        this.isPublicAccess = true;
+    }
+
+    public static boolean containsPlayer(GameSession gameSession, Player player) {
+        for (int i = 0; i < MAX_TEAMS_2; i++) {
+            if (gameSession.getTeamArrayList().get(i).getPlayerArrayList().contains(player)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static double distanceBetweenPoints(LatLng origin, LatLng dest) {
@@ -46,6 +60,55 @@ public class GameSession {
                 Math.cos(origin.latitude * RAD_IN_DEGREE);
         double dist = EARTH_RADIUS_M * 2.0 * Math.asin(Math.sqrt(latL + tmp * longL));
         return dist;
+    }
+
+    //converts LatLng to x,y,z positions for use in generation of relative positions and vectors
+    public static CoordinateLocation convertToCartesian(LatLng origin, LatLng dest) {
+        if (origin == null || dest == null) {
+            return null;
+        }
+        double dist = distanceBetweenPoints(origin, dest);
+        double xComponent = dest.latitude - origin.latitude;
+        double zComponent = dest.longitude - origin.longitude;
+        double magnitude = Math.sqrt(xComponent * xComponent + zComponent * zComponent);
+        CoordinateLocation relativeLoc = new CoordinateLocation(dist * (xComponent / magnitude), 0.0, dist * (zComponent / magnitude));
+        return relativeLoc;
+
+    }
+
+    public static double distanceBetweenTwoPlayers(Player player1, Player player2) {
+        double dist = distanceBetweenPoints(player1.getAbsLocation(), player2.getAbsLocation());
+        return dist;
+    }
+
+    public static ArrayList<Player> getPlayersWithinDistance(GameSession gameSession, Player player, Double distance) {
+        ArrayList<Player> closePlayers = new ArrayList<Player>();
+        for (Team team : gameSession.getTeamArrayList()) {
+            for (Player p : team.getPlayerArrayList()) {
+                double dist = distanceBetweenTwoPlayers(player, p);
+                if (dist < distance) {
+                    closePlayers.add(p);
+                }
+            }
+        }
+        return closePlayers;
+    }
+
+    public static boolean canCapturePlayer(Player chaser, Player unknown) {
+        //valid capturing individual
+        if (chaser.getLoggedOn() && chaser.getActive() && chaser.getCapturing()) {
+            if (unknown.getLoggedOn() && unknown.getActive() && !chaser.getCapturing()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void capturePlayer(Player chaser, Player escaper, int capturePoint) {
+        escaper.setCapturing(true);
+        escaper.setCapturedBy(chaser.getDisplayName());
+        chaser.getCapturedList().add(escaper);
+
     }
 
     public String getSessionId() {
@@ -168,6 +231,13 @@ public class GameSession {
         this.sessionName = sessionName;
     }
 
+    public Float getBearing() {
+        return bearing;
+    }
+
+    public void setBearing(Float bearing) {
+        this.bearing = bearing;
+    }
 
     public ArrayList<Team> getTeamArrayList() {
         return teamArrayList;
@@ -179,6 +249,9 @@ public class GameSession {
 
     @Override
     public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
         if (this == o) return true;
         if (!(o instanceof GameSession)) return false;
 
@@ -218,6 +291,7 @@ public class GameSession {
                     "team_" + new Integer(i).toString(), new Boolean(i == TEAM_CAPTURING), player));
         }
     }
+
     public void addPlayerToCapturingTeam(Player player) {
         this.teamArrayList.get(TEAM_CAPTURING).addPlayer(player);
     }
@@ -234,12 +308,19 @@ public class GameSession {
         this.teamArrayList.get(TEAM_ESCAPING).removePlayer(player);
     }
 
+    public void catpturePlayer(Player capturing, Player captured) {
+        capturing.getCapturedList().add(captured);
+        captured.setCapturedBy(capturing.getDisplayName());
+        captured.setCapturing(true);
+    }
+
     public void updateRelativeLocations(LatLng originPlayerLocation){
         //assuming the player_location is the origin
         for(Team team : teamArrayList){
             for(Player player: team.getPlayerArrayList()) {
                 //generate relative coordinate from origin
                 player.setCoordinateLocation(convertToCartesian(originPlayerLocation, player.getAbsLocation()));
+
             }
         }
     }
@@ -252,14 +333,26 @@ public class GameSession {
         }
     }
 
-    //converts LatLng to x,y,z positions for use in generation of relative positions and vectors
-    public CoordinateLocation convertToCartesian(LatLng origin, LatLng dest){
-        double dist = distanceBetweenPoints(origin, dest);
-        double xComponent = dest.latitude-origin.latitude;
-        double zComponent = dest.longitude-origin.longitude;
-        double magnitude = Math.sqrt(xComponent*xComponent + zComponent*zComponent);
-        CoordinateLocation relativeLoc = new CoordinateLocation(dist*(xComponent/magnitude),0.0,dist*(zComponent/magnitude));
-        return relativeLoc;
+    public void updatePlayerLocation(Player player, LatLng latLng) {
+        if (player == null | latLng == null) {
+            return;
+        }
+        for (int i = 0; i < MAX_TEAMS_2; i++) {
+            int pos;
+            Team team = teamArrayList.get(i);
+            if (team.containsPlayer(player)) {
+                pos = team.getPlayerArrayList().indexOf(player);
+                team.getPlayerArrayList().get(pos).setAbsLocation(latLng);
+            }
+        }
+    }
+
+    public void updatePaths(int maxSteps) {
+        for (Team team : this.teamArrayList) {
+            for (Player player : team.getPlayerArrayList()) {
+                updatePaths(maxSteps);
+            }
+        }
 
     }
 

@@ -13,8 +13,6 @@ import java.util.HashMap;
 
 public class ServiceTools {
 
-    public static String PASSING_INFO_LABEL = "gameInformation";
-    public static String GAME_SESSION_KEY = "gameSession";
     public static boolean isServiceRunning(Context context, Class<?> serviceClass){
 
         final ActivityManager manager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -31,9 +29,7 @@ public class ServiceTools {
 
     public static boolean startNewService(Context context, Class<?> serviceClass,
                                           HashMap<String, String> list) {
-        Intent intent = new Intent(context, serviceClass);
-        intent.putExtra(PASSING_INFO_LABEL, list);
-        context.startService(intent);
+
         return false;
     }
 

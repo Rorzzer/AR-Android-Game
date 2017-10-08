@@ -3,9 +3,9 @@ package com.unimelb.comp30022.itproject;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -31,7 +31,11 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 /**
@@ -57,22 +61,45 @@ public class RunningGameActivity extends AppCompatActivity implements
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
-    public static String GAME_SESSION_KEY = "gameSession";
     public static int PERMISSION_CODE = 99;
     private static String TAG = RunningGameActivity.class.getName();
+    //intent filter information for communicating between activity and service
+    private final String FILTER_GAME_SESSIONID_RTA = "com.unimelb.comp30022.ITProject.sendintent.GameSessionIdToAndroidToUnitySender";
+    private final String FILTER_LOCATION_RTA = "com.unimelb.comp30022.ITProject.sendintent.LatLngToAndroidToUnitySender";
+    private final String FILTER_GAME_SESSION_ATR = "com.unimelb.comp30022.ITProject.sendintent.GameSessionToRunningGameActivity";
+    private final String KEY_LOCATION_DATA = "location";
+    private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
+    private final String KEY_GAMESESSION_DATA = "gameSession";
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     TextView textView;
     HashMap<String, String> gameInputHashmap = new HashMap<String, String>();
     private boolean hasFineLocationPermission;
     private Boolean canFetchLocations;
-    private BroadcastReceiver locationReciever;
+    private BroadcastReceiver currentGameReciever;
     private String gameSessionId;
     private LocationRequest locationRequest;
     private GoogleApiClient googleApiClient;
-    private LatLng currentLocation = new LatLng();
+    private Gson gson = new Gson();
+    private Type locationtype = new TypeToken<Location>() {
+    }.getType();
+    private float currentBearing;
     private String lastUpdateTime;
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
@@ -111,20 +138,6 @@ public class RunningGameActivity extends AppCompatActivity implements
             hide();
         }
     };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,31 +164,39 @@ public class RunningGameActivity extends AppCompatActivity implements
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
         //run the request location information to launch the game session
-        if (getIntent().hasExtra(GAME_SESSION_KEY)) {
-            gameSessionId = getIntent().getStringExtra(GAME_SESSION_KEY);
+        if (getIntent().hasExtra(KEY_GAMESESSIONID_DATA)) {
+            gameSessionId = getIntent().getStringExtra(KEY_GAMESESSIONID_DATA);
+            gameInputHashmap.put(KEY_GAMESESSIONID_DATA, gameSessionId);
+        } else {
+            Log.d(TAG, "GameSession id was not recived by the Activity");
+            finish();
         }
-        gameInputHashmap.put(GAME_SESSION_KEY, gameSessionId);
+
         //Verify that location settings are enabled before start game
         getCurrentPermissions();
         if (!hasGooglePlay()) {
             Toast.makeText(RunningGameActivity.this, "Google play Unavailable", Toast.LENGTH_LONG).show();
             finish();
         } else {
-            if (!shouldRequestPermissions()) {
+            if (hasFineLocationPermission) {
                 Log.d(TAG, "Has Google play installed ");
                 createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
                 googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
-                Log.d(TAG, String.valueOf(hasFineLocationPermission) + "fine " + String.valueOf(Build.VERSION.SDK_INT) + "build version");
                 boolean isServiceRunning;
                 textView = findViewById(R.id.fullscreen_content);
-                ServiceTools.startNewService(RunningGameActivity.this, AndroidToUnitySender.class, gameInputHashmap);
-                isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySender.class);
+                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameInputHashmap);
+                startService(intent);
+                isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+                Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+                startActivity(ar);
+            } else {
+                shouldRequestPermissions();
             }
-        }
 
+        }
 
     }
 
@@ -213,7 +234,9 @@ public class RunningGameActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        googleApiClient.disconnect();
+        if (googleApiClient != null) {
+            googleApiClient.disconnect();
+        }
     }
 
     @Override
@@ -290,13 +313,10 @@ public class RunningGameActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        if (currentLocation != null) {
-            currentLocation.setLongitude(location.getLongitude());
-            currentLocation.setLatitude(location.getLatitude());
-        } else {
-            currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        }
-
+        Intent intent = new Intent(FILTER_LOCATION_RTA);
+        intent.putExtra(KEY_LOCATION_DATA, gson.toJson(location, locationtype));
+        sendBroadcast(intent);
+        Log.d(TAG, "nw location " + location.toString());
     }
 
     @Override
@@ -347,8 +367,7 @@ public class RunningGameActivity extends AppCompatActivity implements
         if (requestCode == PERMISSION_CODE) {
             if (grantResults.length <= 0) {
                 //failed permissions request
-            }
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 canFetchLocations = true;
             } else {
                 //notify why permissions are being requested
@@ -393,7 +412,9 @@ public class RunningGameActivity extends AppCompatActivity implements
     }
 
     private void stopLocationUpdate() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        if (googleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        }
     }
 
     private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {

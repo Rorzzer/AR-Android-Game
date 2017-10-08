@@ -25,17 +25,18 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class SessionInformationActivity extends AppCompatActivity
                                         implements View.OnClickListener {
-    private static String  LOG_TAG = SessionInformationActivity.class.getName();
+    private static String TAG = SessionInformationActivity.class.getName();
     private static String joinText = "Join";
     private static String leaveText = "Leave";
+    private final String KEY_LOCATION_DATA = "location";
+    private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
+    private final String KEY_GAMESESSION_DATA = "gameSession";
     ArrayList<Player> playerArrayList;
     ArrayList<Team> teamArrayList;
     ArrayList<String> joinedPlayers = new ArrayList<String>();
-    HashMap<String, String> gameInputHashmap = new HashMap<String, String>();
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference userDbReference;
@@ -51,6 +52,7 @@ public class SessionInformationActivity extends AppCompatActivity
     private int sumActivePlayers = 0;
     private boolean isValidGame = false;
     private boolean isInitialising = true;
+
     private ArrayAdapter<String> adapter;
     private TextView tvSessionName;
     private TextView tvCreator;
@@ -100,17 +102,17 @@ public class SessionInformationActivity extends AppCompatActivity
 
         //update data from calling activity
         gameSessionId = getIntent().getStringExtra("gameSessionId");
-        Log.d(LOG_TAG,gameSessionId);
+        Log.d(TAG, gameSessionId);
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 fbuser = firebaseAuth.getCurrentUser();
                 if(fbuser != null){
-                    Log.d(LOG_TAG, "Retrieved firebaseUser");
+                    Log.d(TAG, "Retrieved firebaseUser");
                 }
                 else{
-                    Log.d(LOG_TAG, "failure to retrieve firebaseUser");
+                    Log.d(TAG, "failure to retrieve firebaseUser");
                 }
             }
         };
@@ -126,12 +128,12 @@ public class SessionInformationActivity extends AppCompatActivity
                     getServerGameSessionObj(gameSessionId);
                 }
                 else{
-                    Log.d(LOG_TAG, "User does not exist");
+                    Log.d(TAG, "User does not exist");
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG, "Failed to read User info");
+                Log.d(TAG, "Failed to read User info");
             }
         });
 
@@ -141,13 +143,13 @@ public class SessionInformationActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnJoinLeaveLobby:
-                Log.d(LOG_TAG, "Pressing Join/Leave Lobby");
+                Log.d(TAG, "Pressing Join/Leave Lobby");
                 if(currentUserInfo != null){
                     generateAvailableLobbyInformation();
-                    Log.d(LOG_TAG, "Spaces avaialble " + spacesAvailable + ":" + "isvalid game :" + isValidGame);
-                    if (isPlayerJoinedCurrentSession(getCurrentPlayerInfo())) {
+                    Log.d(TAG, "Spaces avaialble " + spacesAvailable + ":" + "isvalid game :" + isValidGame);
+                    if (isPlayerJoinedCurrentSession(getCurrentPlayer())) {
                         //remove player from session
-                        removePlayerFromGameSession(getCurrentPlayerInfo());
+                        removePlayerFromGameSession(getCurrentPlayer());
                         updateServerGameSession(publicGameSession);
                         loadDataToForm();
                         adapter.notifyDataSetChanged();
@@ -162,32 +164,32 @@ public class SessionInformationActivity extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d(LOG_TAG, "User not authenticated");
+                    Log.d(TAG, "User not authenticated");
                 }
                 break;
             case R.id.btnEditLobby:
-                Log.d(LOG_TAG, "Pressing Edit Lobby");
+                Log.d(TAG, "Pressing Edit Lobby");
                 if(currentUserInfo != null){
                     Intent sessionInformation = new Intent(SessionInformationActivity.this,CreateLobbyActivity.class);
                     sessionInformation.putExtra("gameSessionId",gameSessionId);
                     startActivity(sessionInformation);
                 }
                 else{
-                    Log.d(LOG_TAG, "User not authenticated");
+                    Log.d(TAG, "User not authenticated");
                 }
                 break;
             case R.id.btnDeleteLobby:
-                Log.d(LOG_TAG, "Pressing Delete Lobby");
+                Log.d(TAG, "Pressing Delete Lobby");
                 if (currentUserInfo != null) {
                     deleteServerGameSessionObj(publicGameSession);
                     inactivatePage();
                     Toast.makeText(SessionInformationActivity.this, " Game Deleted!", Toast.LENGTH_LONG).show();
                 } else {
-                    Log.d(LOG_TAG, "User not authenticated");
+                    Log.d(TAG, "User not authenticated");
                 }
                 break;
             case R.id.btnStartGame:
-                Log.d(LOG_TAG, "Pressing StartGame ");
+                Log.d(TAG, "Pressing StartGame ");
                 if (currentUserInfo != null) {
                     startGameSession();
                 }
@@ -224,7 +226,7 @@ public class SessionInformationActivity extends AppCompatActivity
             return;
         }
         else{
-            Log.d(LOG_TAG, "Fetching available Lobby Info: public game session is null");
+            Log.d(TAG, "Fetching available Lobby Info: public game session is null");
             isValidGame = false;
             return;
         }
@@ -242,18 +244,7 @@ public class SessionInformationActivity extends AppCompatActivity
             //identifier that the game is starting
             publicGameSession.setGameStarted(true);
             updateServerGameSession(publicGameSession);
-            Toast.makeText(getApplicationContext(), "Launching AR Camera" , Toast.LENGTH_SHORT).show();
-            gameInputHashmap.put(ServiceTools.GAME_SESSION_KEY, gameSessionId);
-            ServiceTools serviceTools = new ServiceTools();
-            boolean isServiceRunning;
-            ServiceTools.startNewService(SessionInformationActivity.this, AndroidToUnitySender.class, gameInputHashmap);
-            isServiceRunning = ServiceTools.isServiceRunning(SessionInformationActivity.this, AndroidToUnitySender.class);
-            Log.d(LOG_TAG, "After initiation ofthe service is it running?" + isServiceRunning);
-            isServiceRunning = ServiceTools.stopRunningService(SessionInformationActivity.this, AndroidToUnitySender.class);
-            Log.d(LOG_TAG, "After termination of the service is it running ?" + isServiceRunning);
-
-            //Intent i = new Intent(SessionInformationActivity.this, UnityPlayerActivity.class);
-            //startActivity(i);
+            launchGameSession();
         }
     }
     /**
@@ -275,23 +266,23 @@ public class SessionInformationActivity extends AppCompatActivity
                     } else {
                         btnJoinGame.setVisibility(View.VISIBLE);
                     }
-                    if (isPlayerJoinedCurrentSession(getCurrentPlayerInfo())) {
+                    if (isPlayerJoinedCurrentSession(getCurrentPlayer())) {
                         btnJoinGame.setText(leaveText);
                     }
                     generateAvailableLobbyInformation();
                     loadDataToForm();
                     adapter.notifyDataSetChanged();
                     listenToServerForGameSessionChanges();
-                    Log.d(LOG_TAG," Successfully Fetched Game Session");
+                    Log.d(TAG, " Successfully Fetched Game Session");
                 }
                 else{
                     //return null value
-                    Log.d(LOG_TAG,"Game Session does not exist");
+                    Log.d(TAG, "Game Session does not exist");
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG,"Game Session - Read Error");
+                Log.d(TAG, "Game Session - Read Error");
             }
         });
         return publicGameSession;
@@ -311,18 +302,18 @@ public class SessionInformationActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0) {
                     //update values
-                    Log.d(LOG_TAG, " Successfully Updated Game Session");
+                    Log.d(TAG, " Successfully Updated Game Session");
                 } else {
                     //create new value
                     gameSession.setSessionId(gameSessionId);
-                    Log.d(LOG_TAG, " Successfully Updated Game Session");
+                    Log.d(TAG, " Successfully Updated Game Session");
                 }
                 gameSessionDbReference.child(gameSessionId).setValue(gameSession);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG, "Game Session - Update Error");
+                Log.d(TAG, "Game Session - Update Error");
             }
         });
     }
@@ -340,6 +331,18 @@ public class SessionInformationActivity extends AppCompatActivity
                 generateAvailableLobbyInformation();
                 loadDataToForm();
                 adapter.notifyDataSetChanged();
+                if (publicGameSession.getGameStarted()) {
+                    //game has started launch the game state if the player is one of the joined members
+                    if (GameSession.containsPlayer(publicGameSession, getCurrentPlayer())) {
+                        if (!currentUserInfo.getEmail().equals(publicGameSession.getCreator().getDisplayName()) &&
+                                isInitialising) {
+                            launchGameSession();
+                            Toast.makeText(SessionInformationActivity.this, "Game Launching Now!", Toast.LENGTH_LONG).show();
+                            isInitialising = false;
+                        }
+
+                    }
+                }
 
             }
             @Override
@@ -361,28 +364,27 @@ public class SessionInformationActivity extends AppCompatActivity
      */
     private void deleteServerGameSessionObj(final GameSession gameSession) {
         if (gameSession == null || gameSession.getSessionId() == null) {
-            Log.d(LOG_TAG, " Game session not instantiated");
+            Log.d(TAG, " Game session not instantiated");
             return;
         }
-        final String key = gameSession.getSessionId();
-        Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(key);
+        Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSession.getSessionId());
         gameSessionIdQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0){
                     //value exists on server
                     gameSessionId = gameSession.getSessionId();
-                    gameSessionDbReference.child(key).removeValue();
-                    Log.d(LOG_TAG, " Successfully Deleted Game Session");
+                    gameSessionDbReference.child(gameSession.getSessionId()).removeValue();
+                    Log.d(TAG, " Successfully Deleted Game Session");
                 }
                 else{
                     //Value does not exist on server
-                    Log.d(LOG_TAG, " Game Session does not exist");
+                    Log.d(TAG, " Game Session does not exist");
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG, "Game session - Deletion Error");
+                Log.d(TAG, "Game session - Deletion Error");
             }
         });
     }
@@ -402,8 +404,8 @@ public class SessionInformationActivity extends AppCompatActivity
             //create Player and join
             Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
             Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
-            if (capturingTeam.getPlayerArrayList().contains(getCurrentPlayerInfo())
-                    || escapingTeam.getPlayerArrayList().contains(getCurrentPlayerInfo())) {
+            if (capturingTeam.getPlayerArrayList().contains(getCurrentPlayer())
+                    || escapingTeam.getPlayerArrayList().contains(getCurrentPlayer())) {
                 //player already joined unable to join
                 Toast.makeText(SessionInformationActivity.this, "Already Joined Session",
                         Toast.LENGTH_LONG).show();
@@ -411,14 +413,14 @@ public class SessionInformationActivity extends AppCompatActivity
             } else if (capturingTeam.getPlayerArrayList().size()
                     < publicGameSession.getMaxPlayers() / 2 && escapingTeam.getPlayerArrayList().size() >=
                     capturingTeam.getPlayerArrayList().size()) {
-                capturingTeam.addPlayer(getCurrentPlayerInfo());
+                capturingTeam.addPlayer(getCurrentPlayer());
             }
             //add to escapping team if it has space or is smaller than the capturing team
             else if (escapingTeam.getPlayerArrayList().size() < publicGameSession.getMaxPlayers() / 2 &&
                     capturingTeam.getPlayerArrayList().size() >= escapingTeam.getPlayerArrayList().size()) {
-                escapingTeam.addPlayer(getCurrentPlayerInfo());
+                escapingTeam.addPlayer(getCurrentPlayer());
             }
-            Log.d(LOG_TAG, "updating the player list with " + currentUserInfo.getEmail());
+            Log.d(TAG, "updating the player list with " + currentUserInfo.getEmail());
             //update the player list
             loadDataToForm();
             adapter.notifyDataSetChanged();
@@ -450,7 +452,7 @@ public class SessionInformationActivity extends AppCompatActivity
     /*
     * Acquire the player's key information for use in the game session
     * **/
-    public Player getCurrentPlayerInfo() {
+    public Player getCurrentPlayer() {
         Player player = new Player(currentUserInfo.getEmail());
         return player;
     }
@@ -471,11 +473,18 @@ public class SessionInformationActivity extends AppCompatActivity
         }
     }
 
-    public void inactivatePage() {
+    private void inactivatePage() {
         btnJoinGame.setClickable(false);
         btnStartGame.setClickable(false);
         btnDeleteGame.setClickable(false);
         btnEditGame.setClickable(false);
+    }
+
+    private void launchGameSession() {
+        Toast.makeText(getApplicationContext(), "Launching AR Camera", Toast.LENGTH_SHORT).show();
+        Intent activeGame = new Intent(SessionInformationActivity.this, RunningGameActivity.class);
+        activeGame.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);
+        startActivity(activeGame);
     }
 
 

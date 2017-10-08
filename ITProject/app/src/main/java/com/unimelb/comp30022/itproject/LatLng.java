@@ -44,7 +44,7 @@ public class LatLng {
     public final String toString() {
         double var1 = this.latitude;
         double var3 = this.longitude;
-        return (new StringBuilder(60)).append("lat/lng: (").append(var1).append(",").append(var3).append(")").toString();
+        return (new StringBuilder(60)).append("").append(var1).append(",").append(var3).append(")").toString();
     }
 
     @Override

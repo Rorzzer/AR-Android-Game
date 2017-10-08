@@ -2,7 +2,9 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\ServiceListenerScript.cs">
     <Files>
-      <File FileName="Assets\Scripts\ServiceListenerScript.cs" Line="31" Column="1" />
+      <File FileName="Assets\Scripts\ServiceListenerScript.cs" Line="29" Column="47" />
+      <File FileName="Assets\Scripts\TeamClass.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\GameSessionClass.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

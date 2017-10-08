@@ -35,12 +35,15 @@ import java.util.ArrayList;
 
 public class CreateLobbyActivity extends AppCompatActivity
                 implements View.OnClickListener{
-    private static String LOG_TAG = CreateLobbyActivity.class.getName();
+    private static String TAG = CreateLobbyActivity.class.getName();
     private static int MILLISECONDS_IN_MINUTE = 60000;
     private static double MAX_GAME_DURATION_MINS = 60;
     private static int MAX_TEAM_SIZE = 30;
     private static int MIN_GAME_DURATION = 5;
     private static int MAX_GAME_RADIUS = 500;
+    private final String KEY_LOCATION_DATA = "location";
+    private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
+    private final String KEY_GAMESESSION_DATA = "gameSession";
     //Firebase members
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -196,10 +199,10 @@ public class CreateLobbyActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 fbuser = firebaseAuth.getCurrentUser();
                 if(fbuser != null){
-                    Log.d(LOG_TAG, "Retrieved firebaseUser");
+                    Log.d(TAG, "Retrieved firebaseUser");
                 }
                 else{
-                    Log.d(LOG_TAG, "failure to retrieve firebaseUser");
+                    Log.d(TAG, "failure to retrieve firebaseUser");
                 }
             }
         };
@@ -212,19 +215,19 @@ public class CreateLobbyActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     currentUserInfo = dataSnapshot.child(userId).getValue(User.class);
-                    Log.d(LOG_TAG, currentUserInfo.getEmail());
+                    Log.d(TAG, currentUserInfo.getEmail());
                     if (inEditMode) {
                         //populate the form
                         getServerGameSessionObj(gameSessionId);
                     }
                 }
                 else{
-                    Log.d(LOG_TAG, "User does not exist");
+                    Log.d(TAG, "User does not exist");
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG, "Failed to read User info");
+                Log.d(TAG, "Failed to read User info");
             }
         });
 
@@ -254,7 +257,7 @@ public class CreateLobbyActivity extends AppCompatActivity
 
                 }
                 else{
-                   Log.d(LOG_TAG, "User not authenticated");
+                    Log.d(TAG, "User not authenticated");
                 }
                 break;
             case R.id.btnDeleteOrCancelLobby:
@@ -272,7 +275,7 @@ public class CreateLobbyActivity extends AppCompatActivity
 
                 }
                 else{
-                    Log.d(LOG_TAG, "User not authenticated");
+                    Log.d(TAG, "User not authenticated");
                 }
                 break;
             case R.id.btnSelectStartTime:
@@ -291,13 +294,13 @@ public class CreateLobbyActivity extends AppCompatActivity
                 if (checked)
                     // set public accessibility
                     isPublic = true;
-                    Log.d(LOG_TAG,"Public Selected");
+                Log.d(TAG, "Public Selected");
                     break;
             case R.id.btnPrivate:
                 if (checked)
                     // set private accessibility
                     isPublic = false;
-                Log.d(LOG_TAG,"Private Selected");
+                Log.d(TAG, "Private Selected");
                 break;
         }
     }
@@ -323,21 +326,22 @@ public class CreateLobbyActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0){
                     //update values game already exists
-                    Log.d(LOG_TAG," Successfully Updated Game Session");
+                    Log.d(TAG, " Successfully Updated Game Session");
                 }
                 else{
                     //create new value game does not exist
                     gameSessionId = gameSessionDbReference.push().getKey();
-                    Log.d(LOG_TAG," Successfully Updated Game Session");
+                    gameSession.setSessionId(gameSessionId);
+                    Log.d(TAG, " Successfully Updated Game Session");
+                    gameSessionDbReference.child(gameSessionId).setValue(gameSession);
                 }
-                gameSessionDbReference.child(gameSessionId).setValue(gameSession);
                 displaySuccessfulUpdate();
                 launchSessionInformationActivity();
 
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG,"Game Session - Update Error");
+                Log.d(TAG, "Game Session - Update Error");
             }
         });
     }
@@ -346,7 +350,7 @@ public class CreateLobbyActivity extends AppCompatActivity
      * */
     private void deleteServerGameSessionObj(final GameSession gameSession){
         if(gameSession== null || gameSession.getSessionId() == null){
-            Log.d(LOG_TAG, " Game session not instantiated unable to delete");
+            Log.d(TAG, " Game session not instantiated unable to delete");
             return;
         }
         final String key = gameSession.getSessionId();
@@ -358,17 +362,17 @@ public class CreateLobbyActivity extends AppCompatActivity
                     //value exists on server
                     gameSessionId = gameSession.getSessionId();
                     gameSessionDbReference.child(key).removeValue();
-                    Log.d(LOG_TAG," Successfully Deleted Game Session");
+                    Log.d(TAG, " Successfully Deleted Game Session");
                 }
                 else{
                     //Value does not exist on server
-                    Log.d(LOG_TAG," Game Session does not exist");
+                    Log.d(TAG, " Game Session does not exist");
                 }
                 displaySuccessfulUpdate();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG,"Game session - Deletion Error");
+                Log.d(TAG, "Game session - Deletion Error");
             }
         });
     }
@@ -389,16 +393,16 @@ public class CreateLobbyActivity extends AppCompatActivity
                     if (gameSession.getGameStarted()) {
                         gameStarted = true;
                     }
-                    Log.d(LOG_TAG," Successfully Fetched Game Session");
+                    Log.d(TAG, " Successfully Fetched Game Session");
                 }
                 else{
                     //return null value
-                    Log.d(LOG_TAG,"Game Session does not exist");
+                    Log.d(TAG, "Game Session does not exist");
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(LOG_TAG,"Game Session - Read Error");
+                Log.d(TAG, "Game Session - Read Error");
             }
         });
         return gameSession;
@@ -482,7 +486,7 @@ public class CreateLobbyActivity extends AppCompatActivity
      * */
     public void launchSessionInformationActivity() {
         Intent sessionInformation = new Intent(CreateLobbyActivity.this, SessionInformationActivity.class);
-        sessionInformation.putExtra("gameSessionId", gameSessionId);
+        sessionInformation.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);
         startActivity(sessionInformation);
     }
 
@@ -521,7 +525,7 @@ public class CreateLobbyActivity extends AppCompatActivity
         DataGenerator dataGenerator = new DataGenerator();
         Type gameSessionType = new TypeToken<GameSession>() {
         }.getType();
-        Log.d(LOG_TAG, gson.toJson(gameSession));
+        Log.d(TAG, gson.toJson(gameSession));
         return gameSession;
     }
 
