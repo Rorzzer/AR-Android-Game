@@ -1,6 +1,5 @@
 package com.unimelb.comp30022.itproject.arcamera;
 
-import com.unity3d.player.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

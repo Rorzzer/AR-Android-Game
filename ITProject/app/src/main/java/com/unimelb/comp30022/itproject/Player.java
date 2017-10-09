@@ -24,10 +24,11 @@ public class Player  {
     private Integer skillLevel;
     private Boolean isActive;
     private Boolean isCapturing;
+    private Boolean isBeinCaptured;
+    private String capturedBy;
     private ArrayList<Player> capturedList;
     private ArrayList<LatLng> path;
     private ArrayList<CoordinateLocation> relativePath;
-    private String capturedBy;
     //mutator & acessor methods
     public Player( String displayName){
         this.displayName = displayName;
@@ -154,6 +155,14 @@ public class Player  {
 
     public void setCapturing(Boolean capturing) {
         isCapturing = capturing;
+    }
+
+    public Boolean getBeinCaptured() {
+        return isBeinCaptured;
+    }
+
+    public void setBeinCaptured(Boolean beinCaptured) {
+        isBeinCaptured = beinCaptured;
     }
 
     public ArrayList<Player> getCapturedList() {
