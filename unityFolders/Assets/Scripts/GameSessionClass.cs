@@ -14,6 +14,7 @@ namespace Game{
 		public long duration;
 		public bool gameStarted;
 		public bool gameCompleted;
+		public bool isPublicAccess;
 		public LatLngClass location;
 		public int gameRadius;
 		public long timeSessionCreated;
