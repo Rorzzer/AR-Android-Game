@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 namespace GameDataTypes{
-	public class LatLngClass : MonoBehaviour {
+	[System.Serializable]
+	public class LatLngClass {
 
 		public double latitude;
 		public double longitude;

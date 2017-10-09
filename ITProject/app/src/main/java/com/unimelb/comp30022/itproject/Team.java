@@ -16,7 +16,7 @@ public class Team {
     private Boolean isActive;
     private Boolean isCapturing;
     private String teamImageUri;
-    private ArrayList<Player> playerArrayList = new ArrayList<Player>();
+    private ArrayList<Player> playerArrayList;
     public  Team(String teamId, String teamName,Boolean isCapturing ,Player creator){
         this.teamId = teamId;
         this.teamName = teamName;
@@ -24,9 +24,11 @@ public class Team {
         this.timeTeamCreated = System.currentTimeMillis();
         this.isActive = true;
         this.isCapturing = isCapturing;
+        playerArrayList = new ArrayList<Player>();
     }
     public Team (){
         this.timeTeamCreated = System.currentTimeMillis();
+        playerArrayList = new ArrayList<Player>();
 
     }
 

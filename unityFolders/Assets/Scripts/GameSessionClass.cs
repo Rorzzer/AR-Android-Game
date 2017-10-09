@@ -5,21 +5,24 @@ using GameEntities;
 using GameEntities;
 using GameDataTypes;
 namespace Game{
-	public class GameSessionClass : MonoBehaviour {
+	[System.Serializable]
+	public class GameSessionClass {
 		public int sessionId;
 		public long startTime;
 		public long endTime;
-		public int maxTeams;
 		public int maxPlayers;
 		public long duration;
 		public bool gameStarted;
 		public bool gameCompleted;
 		public LatLngClass location;
 		public int gameRadius;
+		public long timeSessionCreated;
 		public PlayerClass creator;
+		public string sessionName;
 		public string description;
 		public string sessionImageUri;
-		public ArrayList teamArrayList = new ArrayList ();
+		public float bearing;
+		public List<TeamClass> teamArrayList = new List<TeamClass> ();
 
 		// Use this for initialization
 		void Start () {
