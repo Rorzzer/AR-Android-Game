@@ -12,8 +12,8 @@ public class ServiceListenerScript : MonoBehaviour {
 	public bool gameStarted = false;
 	public bool displayingSessionInfo = true;
 	float counter = 10;
-	Transform escapingMember;
-	Transform capturingMember;
+	public Transform escapingMember;
+	public Transform capturingMember;
 	public List<Transform> chasers;
 	public List<Transform> runners;
 	AndroidJavaClass javaClass;
@@ -25,11 +25,10 @@ public class ServiceListenerScript : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void Update () {
+	public void Update () {
 		receiverMessage = javaClass.GetStatic<string> ("text");
-		generatePlayers (receiverMessage);
 		if (gameStarted == false) {
-			generatePlayers (receiverMessage);
+			//generatePlayers (receiverMessage);
 			GetComponent<TextMesh> ().text = receiverMessage;
 			gameStarted = true;
 		} else {
@@ -43,7 +42,7 @@ public class ServiceListenerScript : MonoBehaviour {
 			//updatePlayerLocations (receiverMessage);
 		}
 	}
-	void generatePlayers(string gameString){
+	public void generatePlayers(string gameString){
 		GameSessionClass currentGame = gameStateFromJson (gameString);
 		GetComponent<TextMesh> ().text = "Creator: " + currentGame.creator.displayName+ "\n"+
 			"Team Names: " +currentGame.teamArrayList[0] + "  and "+ currentGame.teamArrayList[1]+ "\n"+

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class StartMessage : MonoBehaviour {
-	public float timerCounter = 3;
+	public float timerCounter = 10;
 	public float gameStartCounter = 2;
 	public bool displayingCounter;
 	public bool displayingStart ;
