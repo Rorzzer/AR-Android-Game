@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +20,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -41,8 +41,8 @@ import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
-        /*LocationListener*/ {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
@@ -55,8 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest mLocationRequest;
     Location mLastLocation;
     FusedLocationProviderClient mFusedLocationClient;
-    Marker mCurrLocationMarker;
-
+    LocationCallback mLocationCallback;
 
     //GeoFire database connection
     DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
@@ -67,7 +66,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Upon map activity creation
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mLocationCallback = new LocationCallback() {    //Call back loop
+            public void onLocationResult(LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+
+
+                    onLocationChanged(location);
+                }
+            }
+        };
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -119,6 +130,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+
     }
 
     @Override
@@ -141,6 +153,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
+
+
     }
 
     //Builder method for google api client
@@ -156,6 +170,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Upon connection to location services
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
@@ -164,17 +179,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
         }
+
+
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
+
+    //Function for changing user location, essentially updating
+    @Override
+    public void onLocationChanged(Location location) {
+
+        //Setting users location in geofire database, using UserData as key
+        geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
+
+        mLastLocation = location;
+
+        //Place current location marker
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+
+        //stop location updates
+        if (mGoogleApiClient != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        }
+    }
+
+
+
+
 
     //Requesting location permissions
     public boolean checkLocationPermission(){
@@ -190,6 +235,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
+
+
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
@@ -222,6 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                         mMap.setMyLocationEnabled(true);
                     }
+
                 } else {
 
                     // Permission denied, Disable the functionality that depends on this permission.
@@ -239,21 +287,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onPause();
         geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
-
-    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            for (Location location : locationResult.getLocations()) {
-                //Setting users location in geofire database, using UserData as key
-                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
-                mLastLocation = location;
-
-                //move map camera
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-            }
-        }
-    };
 
 
 }
