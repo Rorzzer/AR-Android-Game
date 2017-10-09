@@ -1,56 +1,50 @@
 package com.unimelb.comp30022.itproject;
 
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Created by Kiptenai on 20/09/2017.
  */
-
-import java.util.ArrayList;
-
 /**
  * Class to mediate player interactions and data
  * */
 public class Player  {
+    private Integer  playerId;
     private String displayName;
     private LatLng absLocation;
-    private CoordinateLocation coordinateLocation;
+    private RelLocation relLocation;
     private Boolean isLoggedOn;
     private Long lastLoggedOn;
     private String imageUri;
     private Integer score;
-    private String assignedTeamName;
+    private String teamName;
     private Integer teamId;
     private Long lastPing;
     private Integer skillLevel;
     private Boolean isActive;
-    private Boolean isCapturing;
-    private ArrayList<Player> capturedList;
-    private ArrayList<LatLng> path;
-    private ArrayList<CoordinateLocation> relativePath;
-    private String capturedBy;
     //mutator & acessor methods
-    public Player( String displayName){
+    public Player(Integer playerId , String displayName){
+        this.playerId = playerId;
         this.displayName = displayName;
-        this.isLoggedOn = false;
-        this.score = 0;
-        this.skillLevel = 0;
-        this.isActive = false;
-        this.isCapturing = false;
-        capturedList = new ArrayList<Player>();
-        path = new ArrayList<LatLng>();
-        relativePath = new ArrayList<CoordinateLocation>();
     }
 
-    public Player() {
-        this.isLoggedOn = false;
-        this.score = 0;
-        this.skillLevel = 0;
-        this.isActive = false;
-        this.isCapturing = false;
-        capturedList = new ArrayList<Player>();
-        path = new ArrayList<LatLng>();
-        relativePath = new ArrayList<CoordinateLocation>();
+    //mutators and getters to determine player information
+    public Boolean isLoggedOn(){
+        if(isLoggedOn!= null){
+            return isLoggedOn;
+        }
+        return false;
     }
+
+    public Integer getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(Integer playerId) {
+        this.playerId = playerId;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -67,13 +61,14 @@ public class Player  {
         this.absLocation = absLocation;
     }
 
-    public CoordinateLocation getCoordinateLocation() {
-        return coordinateLocation;
+    public RelLocation getRelLocation() {
+        return relLocation;
     }
 
-    public void setCoordinateLocation(CoordinateLocation coordinateLocation) {
-        this.coordinateLocation = coordinateLocation;
+    public void setRelLocation(RelLocation relLocation) {
+        this.relLocation = relLocation;
     }
+
     public Boolean getLoggedOn() {
         return isLoggedOn;
     }
@@ -108,12 +103,12 @@ public class Player  {
         this.score = score;
     }
 
-    public String getAssignedTeamName() {
-        return assignedTeamName;
+    public String getTeamName() {
+        return teamName;
     }
 
-    public void setAssignedTeamName(String assignedTeamName) {
-        this.assignedTeamName = assignedTeamName;
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
     }
 
     public Integer getTeamId() {
@@ -148,69 +143,6 @@ public class Player  {
         isActive = active;
     }
 
-    public Boolean getCapturing() {
-        return isCapturing;
-    }
-
-    public void setCapturing(Boolean capturing) {
-        isCapturing = capturing;
-    }
-
-    public ArrayList<Player> getCapturedList() {
-        return capturedList;
-    }
-
-    public void setCapturedList(ArrayList<Player> capturedList) {
-        this.capturedList = capturedList;
-    }
-
-    public ArrayList<LatLng> getPath() {
-        return path;
-    }
-
-    public void setPath(ArrayList<LatLng> path) {
-        this.path = path;
-    }
-
-    public ArrayList<CoordinateLocation> getRelativePath() {
-        return relativePath;
-    }
-
-    public void setRelativePath(ArrayList<CoordinateLocation> relativePath) {
-        this.relativePath = relativePath;
-    }
-
-    public String getCapturedBy() {
-        return capturedBy;
-    }
-
-    public void setCapturedBy(String capturedBy) {
-        this.capturedBy = capturedBy;
-    }
-
-    public void updatePaths(int maxSteps) {
-        if (this.absLocation != null) {
-            if (path.size() >= maxSteps) {
-                //remove last item in queue and add new item
-                path.remove(0);
-                path.add(getAbsLocation());
-            } else {
-                //add new item in queue
-                path.add(getAbsLocation());
-            }
-        }
-    }
-
-    public void updateRelativePaths(LatLng reference) {
-        relativePath.clear();
-        if (this.path.size() > 0) {
-            for (LatLng latLng : this.path) {
-                GameSession.convertToCartesian(reference, this.getAbsLocation());
-            }
-        }
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -218,7 +150,7 @@ public class Player  {
 
         Player player = (Player) o;
 
-        return displayName.equals(player.getDisplayName());
+        return getPlayerId().equals(player.getPlayerId());
 
     }
 
@@ -226,7 +158,5 @@ public class Player  {
     public int hashCode() {
         return 0;
     }
-
-
 
 }
