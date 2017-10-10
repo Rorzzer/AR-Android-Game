@@ -6,8 +6,9 @@ package com.unimelb.comp30022.itproject;
  */
 
 public class LatLng {
-    public double latitude;
-    public double longitude;
+    private double latitude;
+    private double longitude;
+    private double accuracy;
     public LatLng(double latitude,double longitude){
         this.latitude = latitude;
         this.longitude = longitude;
@@ -31,6 +32,15 @@ public class LatLng {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    public double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
+    }
+
     public final boolean equals(Object var1) {
         if(this == var1) {
             return true;

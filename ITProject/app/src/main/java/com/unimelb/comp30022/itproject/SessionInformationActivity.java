@@ -250,7 +250,7 @@ public class SessionInformationActivity extends AppCompatActivity
     /**
      * Fetch game sesion object if it already exists on the server
      * */
-    private GameSession getServerGameSessionObj(final String gameSessionId){
+    private void getServerGameSessionObj(final String gameSessionId) {
         GameSession fetchedGameSession = null ;
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSessionId);
         gameSessionIdQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -259,7 +259,7 @@ public class SessionInformationActivity extends AppCompatActivity
                 if (dataSnapshot.getChildrenCount() > 0){
                     //assign fetched value
                     publicGameSession = dataSnapshot.child(gameSessionId).getValue(GameSession.class);
-                    if (publicGameSession.getCreator().getDisplayName().equals(currentUserInfo.getEmail())) {
+                    if (publicGameSession.getCreator().equals(currentUserInfo.getEmail())) {
                         btnDeleteGame.setVisibility(View.VISIBLE);
                         btnEditGame.setVisibility(View.VISIBLE);
                         btnStartGame.setVisibility(View.VISIBLE);
@@ -285,7 +285,6 @@ public class SessionInformationActivity extends AppCompatActivity
                 Log.d(TAG, "Game Session - Read Error");
             }
         });
-        return publicGameSession;
     }
     /***
      * updates a game session information for a specific value from local device to server
@@ -334,7 +333,7 @@ public class SessionInformationActivity extends AppCompatActivity
                 if (publicGameSession.getGameStarted()) {
                     //game has started launch the game state if the player is one of the joined members
                     if (GameSession.containsPlayer(publicGameSession, getCurrentPlayer())) {
-                        if (!currentUserInfo.getEmail().equals(publicGameSession.getCreator().getDisplayName()) &&
+                        if (!currentUserInfo.getEmail().equals(publicGameSession.getCreator()) &&
                                 isInitialising) {
                             launchGameSession();
                             Toast.makeText(SessionInformationActivity.this, "Game Launching Now!", Toast.LENGTH_LONG).show();
@@ -390,7 +389,7 @@ public class SessionInformationActivity extends AppCompatActivity
     }
     public void loadDataToForm(){
         tvSessionName.setText(publicGameSession.getSessionName());
-        tvCreator.setText(publicGameSession.getCreator().getDisplayName());
+        tvCreator.setText(publicGameSession.getCreator());
         tvLocation.setText(publicGameSession.getLocation().toString());
         tvAddress.setText("Generated from location");
         refreshPlayerList(joinedPlayers);

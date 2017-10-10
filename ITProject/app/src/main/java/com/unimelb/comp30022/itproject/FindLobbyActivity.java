@@ -79,6 +79,7 @@ public class FindLobbyActivity extends AppCompatActivity {
                 }
             }
         };
+        Log.d(TAG, "Launching android to unity service");
         showProgressStarted();
         getActiveGameSessions();
         activeGamesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,6 +92,7 @@ public class FindLobbyActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
     /***
      * Searches sever for available lobbies that meet criteria
@@ -101,7 +103,6 @@ public class FindLobbyActivity extends AppCompatActivity {
 
     private void getActiveGameSessions() {
         Log.d(TAG, "Running to getActive Games list");
-
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("gameStarted").equalTo(false);
         gameSessionIdQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

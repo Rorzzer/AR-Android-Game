@@ -48,15 +48,13 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\CloseScript.cs" />
      <Compile Include="Assets\Scripts\CoordinateLocationClass.cs" />
-     <Compile Include="Assets\Scripts\GameSessionClass.cs" />
-     <Compile Include="Assets\Scripts\JsonConvert.cs" />
+     <Compile Include="Assets\Scripts\JsonToObjectConvert.cs" />
      <Compile Include="Assets\Scripts\LatLngClass.cs" />
      <Compile Include="Assets\Scripts\MovePlayers.cs" />
      <Compile Include="Assets\Scripts\PlayerClass.cs" />
-     <Compile Include="Assets\Scripts\RelLocationClass.cs" />
      <Compile Include="Assets\Scripts\ServiceListenerScript.cs" />
      <Compile Include="Assets\Scripts\StartMessage.cs" />
-     <Compile Include="Assets\Scripts\TeamClass.cs" />
+     <Compile Include="Assets\Scripts\playerObject.cs" />
      <Compile Include="Assets\Vuforia\Scripts\BackgroundPlaneBehaviour.cs" />
      <Compile Include="Assets\Vuforia\Scripts\CloudRecoBehaviour.cs" />
      <Compile Include="Assets\Vuforia\Scripts\CylinderTargetBehaviour.cs" />
@@ -122,6 +120,9 @@
  </Reference>
  <Reference Include="UnityEngine.VR">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
+ </Reference>
+ <Reference Include="LitJson">
+ <HintPath>C:/Users/Kiptenai/Desktop/android_studio/COMP30022/unityFolders/Assets/LitJson.dll</HintPath>
  </Reference>
  <Reference Include="Vuforia.UnityExtensions">
  <HintPath>C:/Users/Kiptenai/Desktop/android_studio/COMP30022/unityFolders/Assets/Vuforia/Scripts/Internal/Vuforia.UnityExtensions.dll</HintPath>

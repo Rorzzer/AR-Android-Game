@@ -8,6 +8,13 @@ namespace GameDataTypes{
 		public double latitude;
 		public double longitude;
 
+		public double Accuraccy;
+
+		public LatLngClass(double lat,double lon){
+			latitude = lat;
+			longitude = lon;
+			
+		}
 		// Use this for initialization
 		void Start () {
 

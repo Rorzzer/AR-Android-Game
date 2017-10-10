@@ -1,217 +1,140 @@
 {
-    "creator": {
-        "absLocation": {
-            "latitude": -37.79520481212935,
-            "longitude": 144.96136181342243
-        },
-        "displayName": "player372802913",
-        "isActive": true,
-        "lastLoggedOn": -2345817425498297060,
-        "playerId": -1213403809
-    },
-    "duration": 8872065461845836653,
-    "endTime": 3426317839862713775,
-    "gameRadius": 1404283018,
-    "location": {
-        "latitude": -37.79529876856575,
-        "longitude": 144.96126386576574
-    },
-    "maxPlayers": 10,
-    "maxTeams": 2,
-    "sessionId": 97714951,
-    "startTime": -5445747621983122878,
-    "teamArrayList": [
+    "playerArrayList": [
         {
-            "canCapture": false,
-            "creator": {
-                "absLocation": {
-                    "latitude": -37.7952174659901,
-                    "longitude": 144.96133000601034
-                },
-                "displayName": "player-762521318",
-                "isActive": true,
-                "lastLoggedOn": -5647448580179703361,
-                "playerId": 1677577038
+            "absLocation": {
+                "latitude": 0.0,
+                "longitude": 0.0
             },
-            "isActive": false,
-            "maxPlayers": 5,
-            "playerArrayList": [
+            "capturedList": [
+                "tom"
+            ],
+            "coordinateLocation": {
+                "x": 5.36,
+                "y": 0.0,
+                "z": 5.5
+            },
+            "displayName": "player53107451",
+            "isActive": true,
+            "isCapturing": false,
+            "isLoggedOn": false,
+            "lastLoggedOn": -1091577943023425932,
+            "path": [
                 {
-                    "absLocation": {
-                        "latitude": -37.795218998397125,
-                        "longitude": 144.96136185590876
-                    },
-                    "displayName": "player1255422404",
-                    "isActive": true,
-                    "lastLoggedOn": -7427710853182410778,
-                    "playerId": -753236402,
-                    "relLocation": {
-                        "x": -225.48139418289065,
-                        "y": 581.8608932304196,
-                        "z": 504.73722454858944
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.79522455306358,
-                        "longitude": 144.96131896315123
-                    },
-                    "displayName": "player153726190",
-                    "isActive": false,
-                    "lastLoggedOn": -6063224267859578906,
-                    "playerId": 50653638,
-                    "relLocation": {
-                        "x": -110.57005835603923,
-                        "y": 334.957080129534,
-                        "z": 469.5905398618197
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.79527710763116,
-                        "longitude": 144.96135882902672
-                    },
-                    "displayName": "player-451713588",
-                    "isActive": true,
-                    "lastLoggedOn": 972354292625079321,
-                    "playerId": -1946780379,
-                    "relLocation": {
-                        "x": -249.21935756970197,
-                        "y": 549.1280114711262,
-                        "z": 137.05686671752483
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.795199897208484,
-                        "longitude": 144.96126407384065
-                    },
-                    "displayName": "player-1797576110",
-                    "isActive": false,
-                    "lastLoggedOn": -6823527300152145751,
-                    "playerId": -187767078,
-                    "relLocation": {
-                        "x": 53.986515446566045,
-                        "y": 27.41118655214086,
-                        "z": 625.5985322772758
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.795284549254966,
-                        "longitude": 144.96131562728877
-                    },
-                    "displayName": "player601841720",
-                    "isActive": true,
-                    "lastLoggedOn": 4447690617013102982,
-                    "playerId": 1569935696,
-                    "relLocation": {
-                        "x": -134.50307858921587,
-                        "y": 299.95570189645514,
-                        "z": 89.97088630520739
-                    }
+                    "latitude": 3.4,
+                    "longitude": 0.0
                 }
             ],
-            "teamId": 925095430,
-            "teamImageUri": "www.team-513577546.com",
-            "teamName": "team-1525150748",
-            "timeTeamCreated": 1506871830560
-        },
-        {
-            "canCapture": true,
-            "creator": {
-                "absLocation": {
-                    "latitude": -37.7952268780452,
-                    "longitude": 144.96130826003719
-                },
-                "displayName": "player-1264946105",
-                "isActive": true,
-                "lastLoggedOn": -6074755217973223554,
-                "playerId": 1634279168
-            },
-            "isActive": false,
-            "maxPlayers": 5,
-            "playerArrayList": [
+            "relativePath": [
                 {
-                    "absLocation": {
-                        "latitude": -37.795210294469086,
-                        "longitude": 144.96128065207373
-                    },
-                    "displayName": "player1063281642",
-                    "isActive": true,
-                    "lastLoggedOn": -6898352931279309463,
-                    "playerId": -2021263770,
-                    "relLocation": {
-                        "x": 2.660153567790985,
-                        "y": 119.51840884005651,
-                        "z": 559.8106347810244
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.795216893237836,
-                        "longitude": 144.96128050001676
-                    },
-                    "displayName": "player-520428846",
-                    "isActive": false,
-                    "lastLoggedOn": 7041827830825877410,
-                    "playerId": -439376951,
-                    "relLocation": {
-                        "x": -0.5615921709686518,
-                        "y": 116.8989219670184,
-                        "z": 518.0574477588525
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.79523996865767,
-                        "longitude": 144.96126685261777
-                    },
-                    "displayName": "player1182615322",
-                    "isActive": false,
-                    "lastLoggedOn": -2035951507316130474,
-                    "playerId": -1183034473,
-                    "relLocation": {
-                        "x": 24.239464457146823,
-                        "y": 32.688144363462925,
-                        "z": 372.049763848423
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.795267447405415,
-                        "longitude": 144.9613386243945
-                    },
-                    "displayName": "player1679259117",
-                    "isActive": false,
-                    "lastLoggedOn": -7787893056249672152,
-                    "playerId": -1882048783,
-                    "relLocation": {
-                        "x": -188.31460049189627,
-                        "y": 436.0817536152899,
-                        "z": 198.18083469057456
-                    }
-                },
-                {
-                    "absLocation": {
-                        "latitude": -37.79526150149318,
-                        "longitude": 144.96127539277688
-                    },
-                    "displayName": "player-1948670444",
-                    "isActive": true,
-                    "lastLoggedOn": 4987862434654481203,
-                    "playerId": 1132914582,
-                    "relLocation": {
-                        "x": -11.128866286017,
-                        "y": 75.84549083700404,
-                        "z": 235.80293921101838
-                    }
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
                 }
             ],
-            "teamId": 972905928,
-            "teamImageUri": "www.team2144307022.com",
-            "teamName": "team1640784019",
-            "timeTeamCreated": 1506871830560
+            "score": 0,
+            "skillLevel": 0
+        },
+        {
+            "absLocation": {
+                "latitude": 0.0,
+                "longitude": 0.0
+            },
+            "capturedList": [
+                "tom"
+            ],
+            "coordinateLocation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.5
+            },
+            "displayName": "player986128659",
+            "isActive": true,
+            "isCapturing": true,
+            "isLoggedOn": false,
+            "lastLoggedOn": 8398664761802238706,
+            "path": [
+                {
+                    "latitude": 0.0,
+                    "longitude": 0.0
+                }
+            ],
+            "relativePath": [
+                {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            ],
+            "score": 0,
+            "skillLevel": 0
+        },
+        {
+            "absLocation": {
+                "latitude": 0.0,
+                "longitude": 0.0
+            },
+            "capturedList": [
+                "tom"
+            ],
+            "coordinateLocation": {
+                "x": 6.0,
+                "y": 0.0,
+                "z": 2.0
+            },
+            "displayName": "player-496790917",
+            "isActive": true,
+            "isCapturing": true,
+            "isLoggedOn": false,
+            "lastLoggedOn": 2809111305792560138,
+            "path": [
+                {
+                    "latitude": 0.0,
+                    "longitude": 0.0
+                }
+            ],
+            "relativePath": [
+                {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            ],
+            "score": 0,
+            "skillLevel": 0
+        },
+        {
+            "absLocation": {
+                "latitude": 0.0,
+                "longitude": 0.0
+            },
+            "capturedList": [
+                "tom"
+            ],
+            "coordinateLocation": {
+                "x": 7.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "displayName": "player1355089672",
+            "isActive": false,
+            "isCapturing": false,
+            "isLoggedOn": false,
+            "lastLoggedOn": 7678354934941874996,
+            "path": [
+                {
+                    "latitude": 0.0,
+                    "longitude": 0.0
+                }
+            ],
+            "relativePath": [
+                {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            ],
+            "score": 0,
+            "skillLevel": 0
         }
     ]
 }

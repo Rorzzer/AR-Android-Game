@@ -12,14 +12,17 @@ namespace GameEntities{
 		public long lastLoggedOn;
 		public string imageUri;
 		public int score;
-		public string teamName;
+		public string assignedTeamName;
 		public int teamId;
 		public long lastPing;
-		public int skillLevel;
 		public bool isActive;
+		public int skillLevel;
+	
 		public bool isCapturing;
+		public bool hasBeenCaptured;
+
 		public string capturedBy;
-		public List<PlayerClass> capturedList = new List<PlayerClass> (); 
+		public List<string> capturedList = new List<string> (); 
 		public List<LatLngClass> path = new List<LatLngClass> ();
 		public List<CoordinateLocation> relativePath = new List<CoordinateLocation>();
 	

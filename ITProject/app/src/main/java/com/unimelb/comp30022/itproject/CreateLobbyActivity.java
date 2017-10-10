@@ -380,7 +380,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     /**
      * Fetch game sesion object if it already exists on the server
      * */
-    private GameSession getServerGameSessionObj(final String gameSessionId){
+    private void getServerGameSessionObj(final String gameSessionId) {
         GameSession fetchedGameSession = null ;
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSessionId);
         gameSessionIdQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -405,7 +405,6 @@ public class CreateLobbyActivity extends AppCompatActivity
                 Log.d(TAG, "Game Session - Read Error");
             }
         });
-        return gameSession;
     }
     /**
      * launches a new lobby for other individuals to view andjoin
@@ -517,7 +516,7 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.setGameStarted(false);
         gameSession.setGameCompleted(false);
         Player creator = new Player(user.getEmail());
-        gameSession.setCreator(creator);
+        gameSession.setCreator(creator.getDisplayName());
         gameSession.add2Teams(gameSession.getSessionId(),creator);
         loadDataFromForm();
         gameSession.addPlayerToCapturingTeam(creator);

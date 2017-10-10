@@ -11,6 +11,7 @@ import java.util.Random;
  * */
 public class DataGenerator {
     private static int MAX_TEAM_CAP = 20;
+    private static int MAX_RADIUS = 20;
     private static int MAX_TEAMS= 2;
     private static double MAX_LAT = 89.0;
     private static double MIN_LAT = -89.0;
@@ -23,7 +24,7 @@ public class DataGenerator {
     public GameSession generateRandomGameSession(LatLng latLng,int maxTeamMembers){
         GameSession gameSession = new GameSession();
         Player creator = generateRandomPlayer(latLng);
-        gameSession.setCreator(creator);
+        gameSession.setCreator(creator.getDisplayName());
         gameSession.setMaxPlayers(maxTeamMembers * GameSession.MAX_TEAMS_2);
         gameSession.setLocation(latLng);
         gameSession.setSessionId(new Integer(random.nextInt()).toString());
@@ -31,7 +32,10 @@ public class DataGenerator {
         gameSession.setDuration(random.nextLong());
         gameSession.setEndTime(gameSession.getStartTime()+gameSession.getDuration());
         gameSession.setGameRadius(random.nextInt());
-        gameSession.add2Teams("testid", creator);
+        for (int i = 0; i < GameSession.MAX_TEAMS_2; i++) {
+            gameSession.addTeam(this.generateRandomTeam(latLng, maxTeamMembers, true));
+        }
+
         return gameSession;
 
     }
@@ -41,10 +45,10 @@ public class DataGenerator {
     }
 
     public Team generateRandomTeam(LatLng latLng, int maxMembers, boolean isCapturing){
-        Team team = new Team(new Integer(random.nextInt()).toString(),"team"+random.nextInt(),true, generateRandomPlayer(latLng));
-        team.setMaxPlayers(MAX_TEAM_CAP);
+        Team team = new Team(new Integer(random.nextInt()).toString(), "team" + random.nextInt(), true, generateRandomPlayer(latLng).getDisplayName());
+        team.setMaxPlayers(maxMembers);
         team.setTeamImageUri("www.team"+random.nextInt()+".com");
-        for(int i = 0; i< MAX_TEAM_CAP; i++){
+        for (int i = 0; i < maxMembers; i++) {
             team.addPlayer(generateRandomPlayer(latLng));
         }
         team.setActive(random.nextBoolean());
@@ -54,9 +58,11 @@ public class DataGenerator {
         Player player = new Player("player"+random.nextInt());
         player.setActive(random.nextBoolean());
         player.setLastLoggedOn(random.nextLong());
-        LatLng nLatLng = new LatLng(latLng.latitude+((int)random.nextDouble())%MAX_TEAM_CAP,
-                    latLng.latitude+((int)random.nextDouble())%MAX_TEAM_CAP);
+        LatLng nLatLng = new LatLng(latLng.getLatitude() + ((int) random.nextDouble()) % MAX_RADIUS,
+                latLng.getLongitude() + ((int) random.nextDouble()) % MAX_RADIUS);
         player.setAbsLocation(nLatLng);
+        player.getPath().add(nLatLng);
+        player.getCapturedList().add("tom");
         return player;
     }
     public LatLng generateRandomLocation(){
