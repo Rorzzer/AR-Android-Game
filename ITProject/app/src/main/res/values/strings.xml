@@ -17,4 +17,5 @@
     </string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_user_prof">UserProfActivity</string>
+    <string name="title_activity_chat">ChatActivity</string>
 </resources>
