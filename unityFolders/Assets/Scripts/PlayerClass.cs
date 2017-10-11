@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using GameDataTypes;
 namespace GameEntities{
-	
-	public class PlayerClass : MonoBehaviour {
-		public int  playerId;
+	[System.Serializable]
+	public class PlayerClass {
 		public string displayName;
-		public LatLngClass location;
+		public LatLngClass abslocation;
+		public CoordinateLocation coordinateLocation;
 		public bool isLoggedOn;
 		public long lastLoggedOn;
 		public string imageUri;
@@ -17,6 +17,12 @@ namespace GameEntities{
 		public long lastPing;
 		public int skillLevel;
 		public bool isActive;
+		public bool isCapturing;
+		public string capturedBy;
+		public List<PlayerClass> capturedList = new List<PlayerClass> (); 
+		public List<LatLngClass> path = new List<LatLngClass> ();
+		public List<CoordinateLocation> relativePath = new List<CoordinateLocation>();
+	
 		// Use this for initialization
 		void Start () {
 			
