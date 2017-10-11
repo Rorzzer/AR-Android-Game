@@ -426,7 +426,8 @@ public class RunningGameActivity extends AppCompatActivity implements
 
     private void stopLocationUpdate() {
         if (googleApiClient.isConnected()) {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+            //Permission required
+            //mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
     }
 
