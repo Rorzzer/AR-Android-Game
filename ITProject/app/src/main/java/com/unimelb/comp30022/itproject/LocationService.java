@@ -23,6 +23,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -43,19 +44,28 @@ public class LocationService extends Service implements
     private final Integer LATENCY = 500;
     private LocationRequest locationRequest;
     private GoogleApiClient googleApiClient;
+    private FusedLocationProviderApi fusedLocationProviderClient = LocationServices.FusedLocationApi;
     private Gson gson = new Gson();
     private Type locationtype = new TypeToken<Location>() {
     }.getType();
 
+
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "location service started");
+    public void onCreate() {
+        super.onCreate();
         setLocationUpdateSettings();
         googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API)
                 .addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "location service started");
         if (googleApiClient != null) {
             googleApiClient.connect();
         }
+
         return super.onStartCommand(intent, flags, startId);
     }
 

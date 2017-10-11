@@ -103,15 +103,9 @@ public class AndroidToUnitySenderService extends Service {
                     Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             //direct intent with string targeted by reciever and specitfy data format
             //---> post this information and update the database once after the latency is passed
-            if (currentLocation != null && myGameSession != null && currentPlayer != null) {
-                for (Player player : myGameSession.getAllPlayerInformation()) {
-                    //Log.d(LOG_TAG,"distances are "+ GameSession.distanceBetweenTwoPlayers(currentPlayer,player));
-                }
-            }
             if (currentLocation != null && myGameSession != null) {
                 myGameSession.updateRelativeLocations(currentLocation);
                 int bearing = 0;
-                Log.d(LOG_TAG, "to unity" + gson.toJson(myGameSession));
                 senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT,
                         gson.toJson(myGameSession));
                 sendBroadcast(senderIntent);            //send the current game state to the AR fiewfinder
@@ -174,7 +168,7 @@ public class AndroidToUnitySenderService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //gameRunning = false;
+        gameRunning = false;
         unregisterReceiver(captureButtonReciever);
         unregisterReceiver(currentLocationReciever);
         if (ServiceTools.isServiceRunning(getApplicationContext(), LocationService.class)) {
@@ -206,7 +200,7 @@ public class AndroidToUnitySenderService extends Service {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String input = intent.getStringExtra(KEY_LOCATION_DATA);
-                    Log.d(LOG_TAG, "new loction is " + input);
+                    //Log.d(LOG_TAG, "new Location is " + input);
                     Location recentLocation = gson.fromJson(input, locationType);
                     if (recentLocation != null) {
                         LatLng absLocation = new LatLng(recentLocation.getLatitude(), recentLocation.getLongitude(), recentLocation.getAccuracy());
@@ -325,7 +319,6 @@ public class AndroidToUnitySenderService extends Service {
                 if (dataSnapshot.getChildrenCount() > 0) {
                     //update values
                     gameSessionDbReference.child(gameSessionId).setValue(gameSession);
-                    Log.d(LOG_TAG, " Successfully Updated Game Session");
                 }
                 if (gameInitializing) {
                     Log.d(LOG_TAG, " updating for the first time and Listening to future updates");
@@ -355,7 +348,7 @@ public class AndroidToUnitySenderService extends Service {
                 publicGameSession = dataSnapshot.getValue(GameSession.class);
 
                 if (currentLocation != null && myGameSession != null) {
-                    Log.d(LOG_TAG, " Recieved update from server");
+                    //Log.d(LOG_TAG, " Recieved update from server");
                     getCapturedIndividualsFromServer(myGameSession, publicGameSession);
                     myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
                     myGameSession.updateRelativeLocations(currentLocation);
@@ -416,6 +409,9 @@ public class AndroidToUnitySenderService extends Service {
                 if (!currentPlayer.getCapturedList().contains(closestPlayer.getDisplayName())) {
                     myGameSession.capturePlayer(currentPlayer, closestPlayer);
                     publicGameSession.capturePlayer(currentPlayer, closestPlayer);
+                    Log.d(LOG_TAG, "Distance between the two " + GameSession.distanceBetweenTwoPlayers(currentPlayer, closestPlayer));
+                    Log.d(LOG_TAG, "location of Current" + currentPlayer.getAbsLocation().toString());
+                    Log.d(LOG_TAG, "location of Closest" + closestPlayer.getAbsLocation().toString());
                     Log.d(LOG_TAG, "player " + currentPlayer.getDisplayName() + " has captured " + closestPlayer.getDisplayName());
                     for (String i : currentPlayer.getCapturedList()) {
                         Log.d(LOG_TAG, currentPlayer.getDisplayName() + "has in his list " + i);

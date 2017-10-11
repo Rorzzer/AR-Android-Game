@@ -27,7 +27,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.lang.reflect.Type;
 
@@ -70,20 +69,6 @@ public class RunningGameActivity extends AppCompatActivity {
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
     private final Handler handler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     TextView textView;
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
@@ -149,6 +134,20 @@ public class RunningGameActivity extends AppCompatActivity {
             hide();
         }
     };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,11 +206,6 @@ public class RunningGameActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(currentGameStateReciever);
-        if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
-            Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-            stopService(intent);
-        }
     }
 
     @Override
@@ -226,7 +220,11 @@ public class RunningGameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        unregisterReceiver(currentGameStateReciever);
+        if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
+            Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+            stopService(intent);
+        }
     }
 
     @Override
@@ -296,8 +294,8 @@ public class RunningGameActivity extends AppCompatActivity {
         intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
         startService(intent);
         isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-        startActivity(ar);
+        //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+        //startActivity(ar);
     }
 
 

@@ -81,23 +81,20 @@ public class ServiceListenerScript : MonoBehaviour {
         /**
         	preliminary tests	
          */
-        jsonPath = Application.streamingAssetsPath + "/testSession.json";
-        jsonString = File.ReadAllText (jsonPath);
-        //javaClass = new AndroidJavaClass("com.unimelb.comp30022.receiver.UnityReceiver");
-        //javaClass.CallStatic ("createInstance");
+        //jsonPath = Application.streamingAssetsPath + "/testSession.json";
+        //jsonString = File.ReadAllText (jsonPath);
+        javaClass = new AndroidJavaClass("com.unimelb.comp30022.receiver.UnityReceiver");
+        javaClass.CallStatic ("createInstance");
         //spawn all players
-
     }
 
     // Update is called once per frame
     public void Update () {
-        //receiverMessage = javaClass.GetStatic<string> ("text");
-        receiverMessage = jsonString;
+        receiverMessage = javaClass.GetStatic<string> ("text");
+        //receiverMessage = jsonString;
         Debug.Log ("Game started is " + gameStarted.ToString ());
         if (gameStarted == false) {
-            Debug.Log ("should only print once");
             generatePlayers (receiverMessage);
-            Debug.Log ("should only print once");
             GetComponent<TextMesh> ().text = receiverMessage;
             gameStarted = true;
         } else {
@@ -162,6 +159,49 @@ public class ServiceListenerScript : MonoBehaviour {
         }
 
     }
+
+	public void updatePlayerLocations (JsonData data) {
+        playerData = gameStateFromJson (jsonString);
+		float timeSinceStarted = 0f;
+
+        for (int teamIdx = 0; teamIdx < (int) playerData[teamList].Count; teamIdx++) {
+            for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
+				//transform.Translate(Vector3.right * movementSpeed * Time.deltaTime);
+
+               x = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][xPos];
+                y = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][yPos];
+                z = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][zPos];
+                a = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][acc];
+                name = (string) playerData[teamList][teamIdx][playerList][playerIdx][id];
+				Vector3 target = new Vector3(x,y,z);
+                for (int i=0;i<players.Count; i++) {
+                    if (players[i].id == getDisplayName (teamIdx, playerIdx)) {
+						Debug.Log("players.gameModel.position");
+						float xDiff = x - players[i].gameModel.position.x;
+						float yDiff = y - players[i].gameModel.position.y;
+						float zDiff = z - players[i].gameModel.position.z;
+						float distance = Mathf.Sqrt(xDiff*xDiff + yDiff*yDiff+zDiff*zDiff);
+						long timeDiff= (long)playerData[teamList][teamIdx][playerList][playerIdx][ping]-players[i].lastPing;
+						if(timeDiff != 0){
+							players[i].speed = (float)distance/timeDiff;
+						}
+						players[i].gameModel.position = Vector3.MoveTowards(players[i].gameModel.position,target,players[i].speed*Time.deltaTime);
+                        if (getActive (teamIdx, playerIdx)) {
+                            if (getCapturing (teamIdx, playerIdx) == true) {
+								colorCapturing(players[i]);
+                            } else {
+								colorEscaping(players[i]);
+                            }
+                        } else {
+                            colorInactive(players[i]);
+                        }
+
+                    }
+
+                }
+            }
+        }
+    }
     //parse json file into heirarchy
     public static JsonData gameStateFromJson (string jsonString) {
         return JsonMapper.ToObject (jsonString);
@@ -201,49 +241,7 @@ public class ServiceListenerScript : MonoBehaviour {
     public int getCapturedListLength (int teamIdx, int playerIdx) {
         return (int) playerData[teamList][teamIdx][playerList][playerIdx][captured];
     }
-    public void updatePlayerLocations (JsonData data) {
-        playerData = gameStateFromJson (jsonString);
-		float timeSinceStarted = 0f;
-
-        for (int teamIdx = 0; teamIdx < (int) playerData[teamList].Count; teamIdx++) {
-            for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
-				//transform.Translate(Vector3.right * movementSpeed * Time.deltaTime);
-
-               x = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][xPos];
-                y = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][yPos];
-                z = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][zPos];
-                a = (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][acc];
-                name = (string) playerData[teamList][teamIdx][playerList][playerIdx][id];
-				Vector3 target = new Vector3(x,y,z);
-                for (int i=0;i<players.Count; i++) {
-                    if (players[i].id == getDisplayName (teamIdx, playerIdx)) {
-						Debug.Log("players.gameModel.position");
-						float xDiff = x - players[i].gameModel.position.x;
-						float yDiff = y - players[i].gameModel.position.y;
-						float zDiff = z - players[i].gameModel.position.z;
-						float distance = Mathf.Sqrt(xDiff*xDiff + yDiff*yDiff+zDiff*zDiff);
-						long timeDiff= (long)playerData[teamList][teamIdx][playerList][playerIdx][ping]-players[i].lastPing;
-						if(timeDiff != 0){
-							players[i].speed = (float)distance/timeDiff;
-						}
-						players[i].speed = 0.2f;
-						players[i].gameModel.position = Vector3.MoveTowards(players[i].gameModel.position,target,players[i].speed*Time.deltaTime);
-                        if (getActive (teamIdx, playerIdx)) {
-                            if (getCapturing (teamIdx, playerIdx) == true) {
-								colorCapturing(players[i]);
-                            } else {
-								colorEscaping(players[i]);
-                            }
-                        } else {
-                            colorInactive(players[i]);
-                        }
-
-                    }
-
-                }
-            }
-        }
-    }
+    
 
   
     public void updatePlayerActiveStates (JsonData data) {
