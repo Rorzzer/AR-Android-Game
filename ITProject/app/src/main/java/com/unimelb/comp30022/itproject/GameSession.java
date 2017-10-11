@@ -50,10 +50,12 @@ public class GameSession {
         }
         return false;
     }
-
     public static double distanceBetweenPoints(LatLng origin, LatLng dest) {
         //havesine formula from http://www.movable-type.co.uk/scripts/latlong.html
         ///calculate distance
+        if (origin == null || dest == null) {
+            return Double.MAX_VALUE;
+        }
         double dLat = (dest.getLatitude() - origin.getLatitude()) * RAD_TO_DEGREE;
         double dLong = (dest.getLongitude() - origin.getLongitude()) * RAD_TO_DEGREE;
         double latL = Math.sin(dLat * 0.5) * Math.sin(dLat * 0.5);
@@ -77,10 +79,10 @@ public class GameSession {
         double magnitude = Math.sqrt(xComponent * xComponent + zComponent * zComponent);
 
         if (magnitude == 0.0) {
-            relativeLoc = new CoordinateLocation(0, 0.0, 0.0);
+            relativeLoc = new CoordinateLocation(0, 0.0, 0.0, 0);
 
         } else {
-            relativeLoc = new CoordinateLocation(dist * (xComponent / magnitude), 0.0, dist * (zComponent / magnitude));
+            relativeLoc = new CoordinateLocation(dist * (xComponent / magnitude), 0.0, dist * (zComponent / magnitude), dest.getAccuracy());
 
         }
         return relativeLoc;
@@ -270,17 +272,22 @@ public class GameSession {
         ArrayList<Player> closePlayers = new ArrayList<Player>();
         for (Team team : this.getTeamArrayList()) {
             for (Player p : team.getPlayerArrayList()) {
-                double dist = distanceBetweenTwoPlayers(player, p);
-                if (dist < distance) {
-                    closePlayers.add(p);
+                if (p.getAbsLocation() != null) {
+                    double dist = distanceBetweenTwoPlayers(player, p);
+                    if (dist < distance) {
+                        closePlayers.add(p);
+                    }
                 }
+
             }
         }
         return closePlayers;
     }
 
     public void capturePlayer(Player capturing, Player captured) {
-        capturing.getCapturedList().add(captured.getDisplayName());
+        if (!capturing.getCapturedList().contains(captured.getDisplayName())) {
+            capturing.getCapturedList().add(captured.getDisplayName());
+        }
         captured.setCapturedBy(capturing.getDisplayName());
         captured.setCapturing(true);
     }
@@ -298,7 +305,7 @@ public class GameSession {
     public void add2Teams(String gameSessionId, Player player){
         for(int i = 0;i<MAX_TEAMS_2;i++){
             //create 2 opposign teams
-            this.addTeam(new Team(gameSessionId + "team_" + String.valueOf(i),
+            this.addTeam(new Team("team_" + String.valueOf(i),
                     "team_" + new Integer(i).toString(), new Boolean(i == TEAM_CAPTURING), player.getDisplayName()));
         }
     }
@@ -325,14 +332,17 @@ public class GameSession {
         for(Team team : teamArrayList){
             for(Player player: team.getPlayerArrayList()) {
                 //generate relative coordinate from origin
-                player.setCoordinateLocation(convertToCartesian(originPlayerLocation, player.getAbsLocation()));
-                int pathSize = player.getPath().size();
-                if (pathSize > 0) {
-                    player.getRelativePath().clear();
-                    for (int i = 0; i < pathSize; i++) {
-                        player.getRelativePath().add(convertToCartesian(player.getAbsLocation(), player.getPath().get(i)));
+                if (player.getAbsLocation() != null) {
+                    player.setCoordinateLocation(convertToCartesian(originPlayerLocation, player.getAbsLocation()));
+                    int pathSize = player.getPath().size();
+                    if (pathSize > 0) {
+                        player.getRelativePath().clear();
+                        for (int i = 0; i < pathSize; i++) {
+                            player.getRelativePath().add(convertToCartesian(player.getAbsLocation(), player.getPath().get(i)));
+                        }
                     }
                 }
+
             }
         }
     }
@@ -387,14 +397,13 @@ public class GameSession {
     }
 
     public Player getPlayerDetails(String displayname) {
-        for (Player player : this.getAllPlayerInformation()) {
-            if (player.equals(new Player(displayname))) {
-                return player;
-            }
-
+        ArrayList<Player> players = this.getAllPlayerInformation();
+        Player newPlayer = new Player(displayname);
+        if (players.contains(newPlayer)) {
+            return players.get(players.indexOf(newPlayer));
+        } else {
+            return null;
         }
-        return null;
-
     }
 
 

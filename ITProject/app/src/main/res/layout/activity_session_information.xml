@@ -122,31 +122,12 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
 
-
-        <LinearLayout
-            android:id="@+id/joinedPlayersGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/addressLabelGroup"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvJoinedPlayers"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Joined Players" />
-
-            <ListView
-                android:id="@+id/lvPlayerListView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
         <LinearLayout
             android:id="@+id/joinLeaveButtonGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/joinedPlayersGroup"
+            android:layout_below="@id/addressLabelGroup"
+            android:gravity="center_vertical|center_horizontal"
             android:orientation="horizontal">
 
             <Button
@@ -184,6 +165,25 @@
                 android:layout_weight="1"
                 android:text="Start Game" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/joinedPlayersGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/editDeleteButtonGroup"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvJoinedPlayers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Joined Players" />
+
+            <ListView
+                android:id="@+id/lvPlayerListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
 

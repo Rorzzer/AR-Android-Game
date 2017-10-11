@@ -19,7 +19,7 @@ public class Player  {
     private String imageUri;
     private Integer score;
     private String assignedTeamName;
-    private Integer teamId;
+    private String teamId;
     private Long lastPing;
     private Integer skillLevel;
     private Boolean isActive;
@@ -117,11 +117,11 @@ public class Player  {
         this.assignedTeamName = assignedTeamName;
     }
 
-    public Integer getTeamId() {
+    public String getTeamId() {
         return teamId;
     }
 
-    public void setTeamId(Integer teamId) {
+    public void setTeamId(String teamId) {
         this.teamId = teamId;
     }
 

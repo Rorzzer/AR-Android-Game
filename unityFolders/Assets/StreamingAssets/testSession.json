@@ -1,140 +1,179 @@
 {
-    "playerArrayList": [
+    "creator": "tom@student.unimelb.edu.au",
+    "description": "",
+    "duration": 2334324,
+    "endTime": 4668648,
+    "gameCompleted": false,
+    "gameStarted": true,
+    "isPublicAccess": true,
+    "location": {
+        "accuracy": 10.0,
+        "latitude": -53.389295290015305,
+        "longitude": -3.187160406202878
+    },
+    "maxPlayers": 30,
+    "sessionId": "-Kw9elVYlimOmZELcDBt",
+    "sessionName": "aaafhdhfb",
+    "startTime": 2334324,
+    "teamArrayList": [
         {
-            "absLocation": {
-                "latitude": 0.0,
-                "longitude": 0.0
-            },
-            "capturedList": [
-                "tom"
-            ],
-            "coordinateLocation": {
-                "x": 5.36,
-                "y": 0.0,
-                "z": 5.5
-            },
-            "displayName": "player53107451",
-            "isActive": true,
-            "isCapturing": false,
-            "isLoggedOn": false,
-            "lastLoggedOn": -1091577943023425932,
-            "path": [
-                {
-                    "latitude": 3.4,
-                    "longitude": 0.0
-                }
-            ],
-            "relativePath": [
-                {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                }
-            ],
-            "score": 0,
-            "skillLevel": 0
-        },
-        {
-            "absLocation": {
-                "latitude": 0.0,
-                "longitude": 0.0
-            },
-            "capturedList": [
-                "tom"
-            ],
-            "coordinateLocation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.5
-            },
-            "displayName": "player986128659",
+            "creator": "tom@student.unimelb.edu.au",
             "isActive": true,
             "isCapturing": true,
-            "isLoggedOn": false,
-            "lastLoggedOn": 8398664761802238706,
-            "path": [
+            "maxPlayers": 15,
+            "playerArrayList": [
                 {
-                    "latitude": 0.0,
-                    "longitude": 0.0
+                    "absLocation": {
+                        "accuracy": 10.0,
+                        "latitude": -37.7743477,
+                        "longitude": 144.942383
+                    },
+                    "assignedTeamName": "team_0",
+                    "capturedList": [],
+                    "coordinateLocation": {
+                        "accuracy": 0.0,
+                        "x": 1.1,
+                        "y": 2.2,
+                        "z": 0.0
+                    },
+                    "displayName": "tom@student.unimelb.edu.au",
+                    "hasBeenCaptured": false,
+                    "isActive": true,
+                    "isCapturing": true,
+                    "isLoggedOn": true,
+                    "lastLoggedOn": 1507712524220,
+                    "lastPing": 1507712524220,
+                    "path": [],
+                    "relativePath": [],
+                    "score": 0,
+                    "skillLevel": 0,
+                    "teamId": "team_0"
+                },
+                {
+                    "absLocation": {
+                        "accuracy": 10.0,
+                        "latitude": -37.7743477,
+                        "longitude": 144.942383
+                    },
+                    "assignedTeamName": "team_0",
+                    "capturedList": [],
+                    "coordinateLocation": {
+                        "accuracy": 0.0,
+                        "x": 1.1,
+                        "y": 2.2,
+                        "z": 0.0
+                    },
+                    "displayName": "tom@student.unimelb.edu.au",
+                    "hasBeenCaptured": false,
+                    "isActive": true,
+                    "isCapturing": true,
+                    "isLoggedOn": true,
+                    "lastLoggedOn": 1507712524220,
+                    "lastPing": 1507712524220,
+                    "path": [],
+                    "relativePath": [],
+                    "score": 0,
+                    "skillLevel": 0,
+                    "teamId": "team_0"
+                },
+                {
+                    "absLocation": {
+                        "accuracy": 10.0,
+                        "latitude": -37.7743477,
+                        "longitude": 144.942383
+                    },
+                    "assignedTeamName": "team_0",
+                    "capturedList": [],
+                    "coordinateLocation": {
+                        "accuracy": 0.0,
+                        "x": 17.1,
+                        "y": 7.2,
+                        "z": 10.0
+                    },
+                    "displayName": "tom@student.unimelb.edu.au",
+                    "hasBeenCaptured": false,
+                    "isActive": true,
+                    "isCapturing": true,
+                    "isLoggedOn": true,
+                    "lastLoggedOn": 1507712524220,
+                    "lastPing": 1507712524220,
+                    "path": [],
+                    "relativePath": [],
+                    "score": 0,
+                    "skillLevel": 0,
+                    "teamId": "team_0"
                 }
             ],
-            "relativePath": [
-                {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                }
-            ],
-            "score": 0,
-            "skillLevel": 0
+            "teamId": "team_0",
+            "teamName": "team_0",
+            "timeTeamCreated": 1507712505468
         },
         {
-            "absLocation": {
-                "latitude": 0.0,
-                "longitude": 0.0
-            },
-            "capturedList": [
-                "tom"
-            ],
-            "coordinateLocation": {
-                "x": 6.0,
-                "y": 0.0,
-                "z": 2.0
-            },
-            "displayName": "player-496790917",
+            "creator": "tom@student.unimelb.edu.au",
             "isActive": true,
-            "isCapturing": true,
-            "isLoggedOn": false,
-            "lastLoggedOn": 2809111305792560138,
-            "path": [
-                {
-                    "latitude": 0.0,
-                    "longitude": 0.0
-                }
-            ],
-            "relativePath": [
-                {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                }
-            ],
-            "score": 0,
-            "skillLevel": 0
-        },
-        {
-            "absLocation": {
-                "latitude": 0.0,
-                "longitude": 0.0
-            },
-            "capturedList": [
-                "tom"
-            ],
-            "coordinateLocation": {
-                "x": 7.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "displayName": "player1355089672",
-            "isActive": false,
             "isCapturing": false,
-            "isLoggedOn": false,
-            "lastLoggedOn": 7678354934941874996,
-            "path": [
+            "maxPlayers": 15,
+            "playerArrayList": [
                 {
-                    "latitude": 0.0,
-                    "longitude": 0.0
-                }
-            ],
-            "relativePath": [
+                    "absLocation": {
+                        "accuracy": 3.9000000953674316,
+                        "latitude": -37.77438,
+                        "longitude": 144.9424883
+                    },
+                    "assignedTeamName": "team_1",
+                    "capturedList": [],
+                    "coordinateLocation": {
+                        "accuracy": 3.9000000953674316,
+                        "x": -2.9121132132900303,
+                        "y": 0.0,
+                        "z": 9.4936693917943
+                    },
+                    "displayName": "654321@student.unimelb.edu.au",
+                    "hasBeenCaptured": false,
+                    "isActive": true,
+                    "isCapturing": false,
+                    "isLoggedOn": true,
+                    "lastLoggedOn": 1507712524756,
+                    "lastPing": 1507712524756,
+                    "path": [],
+                    "relativePath": [],
+                    "score": 0,
+                    "skillLevel": 0,
+                    "teamId": "team_1"
+                },
                 {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
+                    "absLocation": {
+                        "accuracy": 3.9000000953674316,
+                        "latitude": -37.77438,
+                        "longitude": 144.9424883
+                    },
+                    "assignedTeamName": "team_1",
+                    "capturedList": [],
+                    "coordinateLocation": {
+                        "accuracy": 3.9000000953674316,
+                        "x": -6.4,
+                        "y": 0.0,
+                        "z": -9.4936693917943
+                    },
+                    "displayName": "654321@student.unimelb.edu.au",
+                    "hasBeenCaptured": false,
+                    "isActive": true,
+                    "isCapturing": false,
+                    "isLoggedOn": true,
+                    "lastLoggedOn": 1507712524756,
+                    "lastPing": 1507712524756,
+                    "path": [],
+                    "relativePath": [],
+                    "score": 0,
+                    "skillLevel": 0,
+                    "teamId": "team_1"
                 }
+            
             ],
-            "score": 0,
-            "skillLevel": 0
+            "teamId": "team_1",
+            "teamName": "team_1",
+            "timeTeamCreated": 1507712505468
         }
-    ]
+    ],
+    "timeSessionCreated": 1507712505468
 }

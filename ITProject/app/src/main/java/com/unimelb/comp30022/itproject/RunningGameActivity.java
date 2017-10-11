@@ -27,10 +27,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.lang.reflect.Type;
-
-//import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -59,22 +58,60 @@ public class RunningGameActivity extends AppCompatActivity {
     private final String FILTER_GAME_SESSIONID_RTA = "com.unimelb.comp30022.ITProject.sendintent.GameSessionIdToAndroidToUnitySender";
     private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
     private final String FILTER_GAME_SESSION_ATR = "com.unimelb.comp30022.ITProject.sendintent.GameSessionToRunningGameActivity";
+    private final String FILTER_CAPTURING_SIGNAL = "com.unimelb.comp30022.ITProject.sendintent.CapturingSignal";
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
+    private final String KEY_IS_CAPTURING = "capturing";
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
+    private final int CAPTURING_LATENCY = 500;
+
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
+    private final Handler handler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     TextView textView;
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
     private boolean hasFineLocationPermission;
     private Boolean canFetchLocations;
+    private boolean caputringBtnPressed;
     private String gameSessionId;
     private Gson gson = new Gson();
     private Type gameSessionType = new TypeToken<GameSession>() {
     }.getType();
+    private Runnable capturingButtonListener = new Runnable() {
+        public void run() {
+            Intent senderIntent = new Intent();
+            //while the individual does not press "capture" the broadcaster does not send out a capture signal
+            if (caputringBtnPressed) {
+                Log.d(TAG, "capturing button being pressed");
+                Intent intent = new Intent(FILTER_CAPTURING_SIGNAL);
+                intent.putExtra(KEY_IS_CAPTURING, "true");
+                sendBroadcast(intent);
+            } else {
+                Intent intent = new Intent(FILTER_CAPTURING_SIGNAL);
+                intent.putExtra(KEY_IS_CAPTURING, "false");
+                sendBroadcast(intent);
+            }
+            handler.removeCallbacks(this);
+            handler.postDelayed(this, CAPTURING_LATENCY);
+        }
+    };
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -110,20 +147,6 @@ public class RunningGameActivity extends AppCompatActivity {
         @Override
         public void run() {
             hide();
-        }
-    };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
         }
     };
 
@@ -169,9 +192,25 @@ public class RunningGameActivity extends AppCompatActivity {
         if (!getCurrentPermissions()) {
             Log.d(TAG, "Doesn't have permissions requesting ");
             shouldRequestPermissions();
+            caputringBtnPressed = false;
         } else {
             Log.d(TAG, "has permissions ");
+            caputringBtnPressed = true;
+            handler.removeCallbacks(capturingButtonListener);
+            handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
             launchCurrentGame();
+            receiveMyGameSessionBroadcasts();
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(currentGameStateReciever);
+        if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
+            Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+            stopService(intent);
         }
     }
 
@@ -182,6 +221,12 @@ public class RunningGameActivity extends AppCompatActivity {
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 
     @Override
@@ -251,9 +296,10 @@ public class RunningGameActivity extends AppCompatActivity {
         intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
         startService(intent);
         isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-        //startActivity(ar);
+        Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+        startActivity(ar);
     }
+
 
     //whether the applications should request for permisssions
     public boolean shouldRequestPermissions() {
@@ -335,12 +381,15 @@ public class RunningGameActivity extends AppCompatActivity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String input = intent.getStringExtra(FILTER_GAME_SESSION_ATR);
-                    currentGameState = gson.fromJson(input, gameSessionType);
-                    Log.d(TAG, input);
+                    if (input != null) {
+                        currentGameState = gson.fromJson(input, gameSessionType);
+                        Log.d(TAG, input);
+                    }
+
                 }
             };
         }
-        registerReceiver(currentGameStateReciever, new IntentFilter(FILTER_LOCATION));
+        registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
     }
 
 

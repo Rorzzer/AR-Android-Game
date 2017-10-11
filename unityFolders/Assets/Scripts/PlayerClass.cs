@@ -17,7 +17,6 @@ namespace GameEntities{
 		public long lastPing;
 		public bool isActive;
 		public int skillLevel;
-	
 		public bool isCapturing;
 		public bool hasBeenCaptured;
 
@@ -25,7 +24,6 @@ namespace GameEntities{
 		public List<string> capturedList = new List<string> (); 
 		public List<LatLngClass> path = new List<LatLngClass> ();
 		public List<CoordinateLocation> relativePath = new List<CoordinateLocation>();
-	
 		// Use this for initialization
 		void Start () {
 			

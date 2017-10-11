@@ -519,7 +519,6 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.setCreator(creator.getDisplayName());
         gameSession.add2Teams(gameSession.getSessionId(),creator);
         loadDataFromForm();
-        gameSession.addPlayerToCapturingTeam(creator);
         Gson gson = new Gson();
         DataGenerator dataGenerator = new DataGenerator();
         Type gameSessionType = new TypeToken<GameSession>() {

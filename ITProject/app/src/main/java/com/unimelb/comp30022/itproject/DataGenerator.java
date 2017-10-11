@@ -59,7 +59,7 @@ public class DataGenerator {
         player.setActive(random.nextBoolean());
         player.setLastLoggedOn(random.nextLong());
         LatLng nLatLng = new LatLng(latLng.getLatitude() + ((int) random.nextDouble()) % MAX_RADIUS,
-                latLng.getLongitude() + ((int) random.nextDouble()) % MAX_RADIUS);
+                latLng.getLongitude() + ((int) random.nextDouble()) % MAX_RADIUS, 20);
         player.setAbsLocation(nLatLng);
         player.getPath().add(nLatLng);
         player.getCapturedList().add("tom");
@@ -67,7 +67,7 @@ public class DataGenerator {
     }
     public LatLng generateRandomLocation(){
         LatLng latLng = new LatLng(MIN_LAT + (MAX_LAT - MIN_LAT) * random.nextDouble(),
-                MIN_LONG + (MAX_LONG - MIN_LONG) * random.nextDouble());
+                MIN_LONG + (MAX_LONG - MIN_LONG) * random.nextDouble(), 10);
         return latLng;
 
     }
