@@ -15,6 +15,7 @@ public class Chat {
     private String message;
     private String dateTime;
     private Date date;
+    private long time;
 
     public Chat() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -26,7 +27,7 @@ public class Chat {
         this.messageID = messageID;
         this.message = message;
         this.date = new Date();
-
+        this.time = date.getTime();
 
         Date dNow = new Date( );
         SimpleDateFormat ft =
@@ -44,17 +45,17 @@ public class Chat {
         this.username = username;
     }
 
-    public String getGameID() {
-        return gameID;
-    }
+//    public String getGameID() {
+//        return gameID;
+//    }
 
     public void setGameID(String gameID) {
         this.gameID = gameID;
     }
 
-    public String getMessageID() {
-        return messageID;
-    }
+//    public String getMessageID() {
+//        return messageID;
+//    }
 
     public void setMessageID(String messageID) {
         this.messageID = messageID;
@@ -72,7 +73,11 @@ public class Chat {
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }

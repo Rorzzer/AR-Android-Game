@@ -18,6 +18,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import static java.lang.String.valueOf;
 
 public class ChatActivity extends AppCompatActivity
@@ -37,6 +40,7 @@ public class ChatActivity extends AppCompatActivity
     private String message;
 
     private DatabaseReference mDatabase;
+    private DatabaseReference chatRef;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -45,21 +49,14 @@ public class ChatActivity extends AppCompatActivity
     private EditText etChat;
     private EditText etMessage;
 
+    private ArrayList<String> messageList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         findViewById(R.id.btnSend).setOnClickListener(this);
 
@@ -69,7 +66,8 @@ public class ChatActivity extends AppCompatActivity
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
+        mDatabase = database.getReference("users");
+        chatRef = database.getReference("chat").child(DUMMYGAMEID);
 
         updateFirebaseUser(mAuth);
 
@@ -80,6 +78,51 @@ public class ChatActivity extends AppCompatActivity
                 updateFirebaseUser(firebaseAuth);
             }
         };
+
+        chatRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    //private DataSnapshot dataSnapshot;
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+
+                    if (fUser != null) {
+
+                        //updateChat((Map<String,Object>) dataSnapshot.child(DUMMYGAMEID).getValue());
+
+                        messageList = new ArrayList<String>();
+
+                        for (DataSnapshot dsp : dataSnapshot.getChildren()) {
+                            Chat chatClass;
+                            chatClass = dsp.getValue(Chat.class);
+                            String message = chatClass.getMessage();
+                            messageList.add(String.valueOf(message)); //add result into array list
+                        }
+
+                        updateChat(messageList);
+
+                    } else {
+
+                    }
+
+                    //updateChat();
+
+
+                } else {
+                    Log.d(TAG, "datasnapshot does not exist");
+                }
+            }
+
+
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
 
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -92,9 +135,10 @@ public class ChatActivity extends AppCompatActivity
                     Log.d(TAG, "Datasnapshot exists");
 
                     if (fUser != null) {
-                        userInfo = dataSnapshot.child("users").child(uID).getValue(User.class);
+                        userInfo = dataSnapshot.child(uID).getValue(User.class);
                         username = userInfo.getUsername();
                         etUsername.setText(username);
+
                         //mDatabase.child("chat").child("GameID").setValue(DUMMYGAMEID);
                         //mDatabase.child("chat").child(DUMMYGAMEID).child("Username").setValue(username);
                     } else {
@@ -103,12 +147,6 @@ public class ChatActivity extends AppCompatActivity
                     }
 
                     Log.d(TAG, "Value is: " + uID);
-
-
-
-                    //chat = chat + "/n" + dataSnapshot.child("chat").child(DUMMYGAMEID).child(username).getValue().toString();
-
-                    updateChat();
 
 
                 } else {
@@ -141,17 +179,40 @@ public class ChatActivity extends AppCompatActivity
 
                 Chat chat = new Chat(username, DUMMYGAMEID, messageID, message);
 
-                mDatabase.child("chat").child(DUMMYGAMEID).child(username).child(messageID).setValue(chat);
+
+
+                chatRef.child(chatRef.push().getKey()).setValue(chat);
 
                 break;
         }
     }
 
 
-    private void updateChat(){
+    private void updateChat(ArrayList<String> messages){
 
 
-        etChat.setText(chat);
+//        ArrayList<Long> chatMessages = new ArrayList<>();
+
+//        //iterate through each user, ignoring their UID
+//        for (Map.Entry<String, Object> entry : messages.entrySet()){
+//
+//            //Get chat map
+//            Map singleChat = (Map) entry.getValue();
+//            //Get message field and append to list
+//            chatMessages.add((Long) singleChat.get("message"));
+//        }
+
+        StringBuilder builder = new StringBuilder();
+        for (String message : messages) {
+            builder.append(message + "\n");
+        }
+
+        etChat.setText(builder.toString());
+
+        //etChat.setText(messages.toString());
+        //= mDatabase.child("chat").child(DUMMYGAMEID).child(username).
+
+        //etChat.setText(chat);
 
     }
 
