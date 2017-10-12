@@ -66,10 +66,8 @@
         android:id="@+id/btnChat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="129dp"
-        android:layout_marginStart="18dp"
-        android:layout_toEndOf="@+id/tvStatus"
-        android:text="Chat" />
+        android:text="Chat"
+        android:layout_below="@+id/btnMap"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

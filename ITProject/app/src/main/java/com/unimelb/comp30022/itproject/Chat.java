@@ -10,21 +10,22 @@ import java.util.Date;
 public class Chat {
 
     private String username;
-    private String gameID;
-    private String messageID;
+    //private String gameID;
+    //private String messageID;
     private String message;
     private String dateTime;
     private Date date;
     private long time;
+    private String team;
 
     public Chat() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Chat(String userName, String gameID, String messageID, String message) {
+    public Chat(String userName, String message, String Team) {
         this.username = userName;
-        this.gameID = gameID;
-        this.messageID = messageID;
+        //this.gameID = gameID;
+        //this.messageID = messageID;
         this.message = message;
         this.date = new Date();
         this.time = date.getTime();
@@ -49,17 +50,17 @@ public class Chat {
 //        return gameID;
 //    }
 
-    public void setGameID(String gameID) {
-        this.gameID = gameID;
-    }
+//    public void setGameID(String gameID) {
+//        this.gameID = gameID;
+//    }
 
 //    public String getMessageID() {
 //        return messageID;
 //    }
 
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
-    }
+//    public void setMessageID(String messageID) {
+//        this.messageID = messageID;
+//    }
 
     public String getMessage() {
         return message;

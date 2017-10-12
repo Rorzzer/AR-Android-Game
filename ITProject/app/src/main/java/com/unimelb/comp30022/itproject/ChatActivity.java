@@ -6,9 +6,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,18 +39,19 @@ public class ChatActivity extends AppCompatActivity
 
     private String uID;
     private String username;
-    private String chat;
     private String message;
 
     private DatabaseReference mDatabase;
     private DatabaseReference chatRef;
+
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    private EditText etUsername;
-    private EditText etChat;
     private EditText etMessage;
+
+    private TextView tvUsername;
+    private TextView tvChat;
 
     private ArrayList<String> messageList;
 
@@ -58,9 +62,11 @@ public class ChatActivity extends AppCompatActivity
 
         findViewById(R.id.btnSend).setOnClickListener(this);
 
-        etUsername = (EditText)findViewById(R.id.etUsername);
-        etChat = (EditText)findViewById(R.id.etChat);
         etMessage = (EditText)findViewById(R.id.etMessage);
+
+        tvUsername = (TextView)findViewById(R.id.tvUsername);
+        tvChat = (TextView)findViewById(R.id.tvChat);
+        tvChat.setMovementMethod(new ScrollingMovementMethod());
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -94,7 +100,10 @@ public class ChatActivity extends AppCompatActivity
                         for (DataSnapshot dsp : dataSnapshot.getChildren()) {
                             Chat chatClass;
                             chatClass = dsp.getValue(Chat.class);
-                            String message = chatClass.getMessage();
+                            StringBuilder usernameAndMessage = new StringBuilder();
+                            usernameAndMessage.append(chatClass.getUsername() + ": " + chatClass.getMessage());
+
+                            String message = usernameAndMessage.toString();
                             messageList.add(String.valueOf(message)); //add result into array list
                         }
 
@@ -135,7 +144,7 @@ public class ChatActivity extends AppCompatActivity
                     if (fUser != null) {
                         userInfo = dataSnapshot.child(uID).getValue(User.class);
                         username = userInfo.getUsername();
-                        etUsername.setText(username);
+                        tvUsername.setText(username);
 
                         //mDatabase.child("chat").child("GameID").setValue(DUMMYGAMEID);
                         //mDatabase.child("chat").child(DUMMYGAMEID).child("Username").setValue(username);
@@ -168,16 +177,9 @@ public class ChatActivity extends AppCompatActivity
         switch (v.getId()) {
             case R.id.btnSend:
 
-
                 message = etMessage.getText().toString();
 
-                int DUMMYMESSAGEID = (int)(Math.random()*50000);
-
-                String messageID = valueOf(DUMMYMESSAGEID);
-
-                Chat chat = new Chat(username, DUMMYGAMEID, messageID, message);
-
-
+                Chat chat = new Chat(username, message, "team_1");
 
                 chatRef.child(chatRef.push().getKey()).setValue(chat);
 
@@ -188,29 +190,12 @@ public class ChatActivity extends AppCompatActivity
 
     private void updateChat(ArrayList<String> messages){
 
-
-//        ArrayList<Long> chatMessages = new ArrayList<>();
-
-//        //iterate through each user, ignoring their UID
-//        for (Map.Entry<String, Object> entry : messages.entrySet()){
-//
-//            //Get chat map
-//            Map singleChat = (Map) entry.getValue();
-//            //Get message field and append to list
-//            chatMessages.add((Long) singleChat.get("message"));
-//        }
-
         StringBuilder builder = new StringBuilder();
         for (String message : messages) {
             builder.append(message + "\n");
         }
 
-        etChat.setText(builder.toString());
-
-        //etChat.setText(messages.toString());
-        //= mDatabase.child("chat").child(DUMMYGAMEID).child(username).
-
-        //etChat.setText(chat);
+        tvChat.setText(builder.toString());
 
     }
 
@@ -226,7 +211,6 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
-
     /**
      * When the Activity starts and stops, the app needs to connect and
      * disconnect the AuthListener
@@ -240,6 +224,11 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
+
+
+        // this logic will eventually be moved to the onStop of game session
+        //chatRef.setValue(null);
+
         if (mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
         }
