@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.unimelb.comp30022.itproject">
 
     <uses-sdk
@@ -18,9 +17,8 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -41,6 +39,9 @@
         android:name="android.hardware.camera.front"
         android:required="false" />
     <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
     <uses-feature
@@ -54,24 +55,28 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name="android.support.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name="android.support.multidex.MultiDexApplication">
+        android:theme="@style/AppTheme">
+
         <!-- OR Other activities like this And  intent filter is not necessary in other activites -->
-        <activity android:name="com.unimelb.comp30022.itproject.SignInActivity"></activity>
-        <activity android:name="com.unimelb.comp30022.itproject.MainActivity">
+        <activity android:name=".SignInActivity" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CreateLobbyActivity" />
+        <activity android:name=".FindLobbyActivity" />
+        <activity android:name=".SessionInformationActivity" />
         <activity
-            android:name="com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity"
+            android:name=".arcamera.UnityPlayerActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
             android:label="@string/app_name"
             android:launchMode="singleTask"
@@ -87,7 +92,8 @@
             android:name="com.unity3d.player.VideoPlayer"
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -100,30 +106,33 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <!--Activity for maps activity -->
+        <!-- Activity for maps activity -->
         <activity
-            android:name="com.unimelb.comp30022.itproject.MapsActivity"
-            android:label="@string/title_activity_maps">
-
-        </activity>
+            android:name=".MapsActivity"
+            android:label="@string/title_activity_maps" />
         <activity
-            android:name="com.unimelb.comp30022.itproject.UserProfActivity"
+            android:name=".UserProfActivity"
             android:label="@string/title_activity_user_prof"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".RunningGameActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/FullscreenTheme" />
+
         <service
-            android:name="com.unimelb.comp30022.itproject.AndroidToUnitySender"
-            android:enabled="true"></service>
+            android:name=".AndroidToUnitySender"
+            android:enabled="true" />
 
         <receiver android:name="com.unimelb.comp30022.receiver.UnityReceiver">
             <intent-filter>
-                <action android:name="com.unimelb.comp30022.ITProject.sendintent.IntentToUnity"></action>
+                <action android:name="com.unimelb.comp30022.ITProject.sendintent.IntentToUnity" />
             </intent-filter>
         </receiver>
 
         <uses-library
             android:name="com.ti.s3d"
             android:required="false" />
-        <!--                 To support the ODG R7 in stereo mode we must add the following library. -->
+        <!-- To support the ODG R7 in stereo mode we must add the following library. -->
         <uses-library
             android:name="com.osterhoutgroup.api.ext"
             android:required="false" />

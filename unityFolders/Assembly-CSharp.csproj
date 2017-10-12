@@ -47,8 +47,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\CloseScript.cs" />
+     <Compile Include="Assets\Scripts\CoordinateLocationClass.cs" />
      <Compile Include="Assets\Scripts\GameSessionClass.cs" />
+     <Compile Include="Assets\Scripts\JsonConvert.cs" />
      <Compile Include="Assets\Scripts\LatLngClass.cs" />
+     <Compile Include="Assets\Scripts\MovePlayers.cs" />
      <Compile Include="Assets\Scripts\PlayerClass.cs" />
      <Compile Include="Assets\Scripts\RelLocationClass.cs" />
      <Compile Include="Assets\Scripts\ServiceListenerScript.cs" />

@@ -2,15 +2,11 @@ package com.unimelb.comp30022.itproject;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +25,7 @@ public class UserProfActivity extends AppCompatActivity
     private final String TAG = UserProfActivity.class.getName();
     private final String EMPTYFIRST = "Enter First name";
     private final String EMPTYLAST = "Enter Last name";
-    private final String EMPTYUSERNAME = "Entre Username";
+    private final String EMPTYUSERNAME = "Enter Username";
     private final String EMPTYEMAIL = "Enter Email";
     private String username;
     private String firstName;
@@ -60,10 +56,10 @@ public class UserProfActivity extends AppCompatActivity
         findViewById(R.id.btnCancel).setOnClickListener(this);
 
         //etEmail = (EditText)findViewById(R.id.etEmail);
-        etFirstname = (EditText)findViewById(R.id.etFirst);
-        etLastname = (EditText)findViewById(R.id.etLast);
-        etUsername = (EditText)findViewById(R.id.etUsername);
-        etEmail = (EditText)findViewById(R.id.etEmail);
+        etFirstname = findViewById(R.id.etFirst);
+        etLastname = findViewById(R.id.etLast);
+        etUsername = findViewById(R.id.etUsername);
+        etEmail = findViewById(R.id.etEmail);
 
         //get a reference to the database
         // Write a message to the database
@@ -126,10 +122,8 @@ public class UserProfActivity extends AppCompatActivity
         if (fUser != null) {
             uID = fUser.getUid();
             Log.d(TAG, "Signed in: " + fUser.getUid());
-        }
-        else{
+        } else {
             Log.d(TAG, "Currently Signed Out");
-
         }
     }
 
@@ -223,7 +217,7 @@ public class UserProfActivity extends AppCompatActivity
                 if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
                     Toast.makeText(UserProfActivity.this, "Username already in use.", Toast.LENGTH_LONG).show();
                     loadUserData();
-                } else if (validateUsername(username)){
+                } else if (validateUsername(username)) {
                     // commit the information to the database
                     User user = new User(username, firstName, lastName, email);
                     mDatabase.child(uID).setValue(user);
