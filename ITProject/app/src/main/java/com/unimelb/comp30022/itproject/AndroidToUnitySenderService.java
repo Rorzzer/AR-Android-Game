@@ -55,21 +55,20 @@ public class AndroidToUnitySenderService extends Service {
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final String KEY_IS_CAPTURING = "capturing";
-    private final double MIN_CAPTURE_DIST = 4.0;
+    private final double MIN_CAPTURE_DIST = 15.0;
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
     private final Integer LATENCY = 500;
     private final Handler handler = new Handler();
+    int num = 0;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference userDbReference;
     private DatabaseReference gameSessionDbReference;
     private FirebaseDatabase firebaseDatabase;
     private FirebaseUser fbuser;
-
     private BroadcastReceiver currentLocationReciever;
     private BroadcastReceiver captureButtonReciever;
-
     private boolean gameInitializing = true;
     private boolean caputringBtnPressed;
     private boolean gameRunning = true;
@@ -99,6 +98,21 @@ public class AndroidToUnitySenderService extends Service {
         public void run() {
             Intent senderIntent = new Intent();
             //Intent Flags
+            num++;
+            senderIntent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_NO_ANIMATION |
+                    Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            //direct intent with string targeted by reciever and specitfy data format
+            //---> post this information and update the database once after the latency is passed
+            senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT, "Intent" + num);
+            sendBroadcast(senderIntent);            //send the current game state to the AR fiewfinder
+            handler.removeCallbacks(this);
+            handler.postDelayed(this, LATENCY);
+        }
+    };
+    private Runnable sendData1 = new Runnable() {
+        public void run() {
+            Intent senderIntent = new Intent();
+            //Intent Flags
             senderIntent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_NO_ANIMATION |
                     Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             //direct intent with string targeted by reciever and specitfy data format
@@ -106,9 +120,11 @@ public class AndroidToUnitySenderService extends Service {
             if (currentLocation != null && myGameSession != null) {
                 myGameSession.updateRelativeLocations(currentLocation);
                 int bearing = 0;
-                senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT,
-                        gson.toJson(myGameSession));
+                senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT, gson.toJson(myGameSession));
+                Log.d(LOG_TAG, "sending " + gson.toJson(myGameSession));
                 sendBroadcast(senderIntent);            //send the current game state to the AR fiewfinder
+            } else {
+                Log.d(LOG_TAG, "Not sending information");
             }
             if (gameRunning) {
                 handler.removeCallbacks(this);
@@ -169,8 +185,10 @@ public class AndroidToUnitySenderService extends Service {
     public void onDestroy() {
         super.onDestroy();
         gameRunning = false;
-        unregisterReceiver(captureButtonReciever);
-        unregisterReceiver(currentLocationReciever);
+        if (captureButtonReciever != null && currentLocationReciever != null) {
+            unregisterReceiver(captureButtonReciever);
+            unregisterReceiver(currentLocationReciever);
+        }
         if (ServiceTools.isServiceRunning(getApplicationContext(), LocationService.class)) {
             Intent intent = new Intent(AndroidToUnitySenderService.this, LocationService.class);
             stopService(intent);
@@ -420,6 +438,7 @@ public class AndroidToUnitySenderService extends Service {
                     Log.d(LOG_TAG, closestPlayer.getDisplayName() + " has his capture status " + capturestate);
                     capturedList.add(closestPlayer.getDisplayName());
                     checkCapturedNumberChange();
+                    Toast.makeText(AndroidToUnitySenderService.this, "player " + currentPlayer.getDisplayName() + " has captured " + closestPlayer.getDisplayName(), Toast.LENGTH_SHORT).show();
                     updateServerGameSession(publicGameSession);
                 }
 
@@ -448,7 +467,6 @@ public class AndroidToUnitySenderService extends Service {
     public void displayCapturedMessge(String capturedName) {
         Toast.makeText(AndroidToUnitySenderService.this, "Player " + capturedName + "has been Captured", Toast.LENGTH_SHORT).show();
     }
-
     public String getCapturedPlayer() {
         return capturedList.get(capturedList.size() - 1);
     }

@@ -81,6 +81,8 @@ public class SessionInformationActivity extends AppCompatActivity
         btnEditGame = findViewById(R.id.btnEditLobby);
         btnDeleteGame = findViewById(R.id.btnDeleteLobby);
         btnStartGame = findViewById(R.id.btnStartGame);
+        findViewById(R.id.sessionContent).setVisibility(View.INVISIBLE);
+        findViewById(R.id.loadingProgressLobby).setVisibility(View.VISIBLE);
 
         btnJoinGame.setOnClickListener(this);
         btnDeleteGame.setOnClickListener(this);
@@ -274,6 +276,8 @@ public class SessionInformationActivity extends AppCompatActivity
                 if (dataSnapshot.getChildrenCount() > 0){
                     //assign fetched value
                     publicGameSession = dataSnapshot.child(gameSessionId).getValue(GameSession.class);
+                    findViewById(R.id.sessionContent).setVisibility(View.VISIBLE);
+                    findViewById(R.id.loadingProgressLobby).setVisibility(View.GONE);
                     if (publicGameSession.getCreator().equals(currentUserInfo.getEmail())) {
                         btnDeleteGame.setVisibility(View.VISIBLE);
                         btnEditGame.setVisibility(View.VISIBLE);
@@ -288,6 +292,7 @@ public class SessionInformationActivity extends AppCompatActivity
                     if (hasPlayerJoinedSession(getNewCurrentPlayer())) {
                         btnJoinGame.setText(leaveText);
                     }
+
                     generateAvailableLobbyInformation();
                     loadDataToForm();
                     adapter.notifyDataSetChanged();
