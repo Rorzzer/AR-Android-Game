@@ -76,6 +76,9 @@
         <activity android:name=".FindLobbyActivity" />
         <activity android:name=".SessionInformationActivity" />
 
+        <activity android:name=".ChatActivity" />
+
+
         <activity
                 android:name=".arcamera.UnityPlayerActivity"
                 android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
