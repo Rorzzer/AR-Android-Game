@@ -123,6 +123,13 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
+            case R. id.ServiceTest:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Intent LocationService = new Intent(getApplicationContext(), LocationService.class);
+                    startService(LocationService);
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
         }
     }
 
