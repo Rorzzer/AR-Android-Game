@@ -46,7 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
-    private static final GeoLocation QUERY_CENTER = new GeoLocation(-37.778569, 145.0315955);
+    private static final GeoLocation QUERY_CENTER = new GeoLocation(-37.7988847, 144.964109);
 
     private GoogleMap mMap;
     private Map<String, Marker> markers;
@@ -84,7 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markers = new HashMap<String, Marker>();
 
         //Geo query for other players and relevant listeners
-        GeoQuery geoQuery = geoFire.queryAtLocation(QUERY_CENTER, 2);
+        GeoQuery geoQuery = geoFire.queryAtLocation(QUERY_CENTER, 1);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -241,6 +241,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onPause() {
         super.onPause();
+        geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
+    }
+
+    //OnDestroy//
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
         geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
