@@ -17,18 +17,21 @@ public class Chat {
     private Date date;
     private long time;
     private String team;
+    private boolean teamOnly;
 
     public Chat() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Chat(String userName, String message, String Team) {
+    public Chat(String userName, String message, String team, boolean teamOnly) {
         this.username = userName;
         //this.gameID = gameID;
         //this.messageID = messageID;
         this.message = message;
         this.date = new Date();
         this.time = date.getTime();
+        this.team = team;
+        this.teamOnly = teamOnly;
 
         Date dNow = new Date( );
         SimpleDateFormat ft =
@@ -80,5 +83,21 @@ public class Chat {
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public String getTeam() {
+        return team;
+    }
+
+    public void setTeam(String team) {
+        this.team = team;
+    }
+
+    public boolean isTeamOnly() {
+        return teamOnly;
+    }
+
+    public void setTeamOnly(boolean teamOnly) {
+        this.teamOnly = teamOnly;
     }
 }

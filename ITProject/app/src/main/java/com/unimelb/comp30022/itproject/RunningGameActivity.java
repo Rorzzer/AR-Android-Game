@@ -33,7 +33,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+//import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -185,13 +185,13 @@ public class RunningGameActivity extends AppCompatActivity implements
                 ServiceTools serviceTools = new ServiceTools();
                 googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
                 boolean isServiceRunning;
-                textView = findViewById(R.id.fullscreen_content);
+                textView = (TextView) findViewById(R.id.fullscreen_content);
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameInputHashmap);
                 startService(intent);
                 isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-                Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-                startActivity(ar);
+                //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+                //startActivity(ar);
             } else {
                 shouldRequestPermissions();
             }
