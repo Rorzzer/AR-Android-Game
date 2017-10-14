@@ -99,21 +99,21 @@ public class CreateLobbyActivity extends AppCompatActivity
         setContentView(R.layout.activity_create_lobby);
         Context context = getApplicationContext();
 
-        etSessionName = findViewById(R.id.etLobbyName);
-        tvSelectedStartTime = findViewById(R.id.tvSelectedStartTime);
-        etDescription = findViewById(R.id.etDescription);
-        listView = findViewById(R.id.lvPlayerListView);
-        tvDurationMinutes = findViewById(R.id.tvSelectedDuration);
-        tvMaxTeamSize = findViewById(R.id.tvSelectedMaxSize);
-        btnCreateOrEdit = findViewById(R.id.btnCreateOrUpdateLobby);
-        btnDeleteOrCancel = findViewById(R.id.btnDeleteOrCancelLobby);
+        etSessionName = (EditText) findViewById(R.id.etLobbyName);
+        tvSelectedStartTime = (TextView) findViewById(R.id.tvSelectedStartTime);
+        etDescription = (EditText) findViewById(R.id.etDescription);
+        listView = (ListView) findViewById(R.id.lvPlayerListView);
+        tvDurationMinutes = (TextView) findViewById(R.id.tvSelectedDuration);
+        tvMaxTeamSize = (TextView) findViewById(R.id.tvSelectedMaxSize);
+        btnCreateOrEdit = (Button)findViewById(R.id.btnCreateOrUpdateLobby);
+        btnDeleteOrCancel = (Button)findViewById(R.id.btnDeleteOrCancelLobby);
         btnCreateOrEdit.setOnClickListener(this);
         btnDeleteOrCancel.setOnClickListener(this);
         findViewById(R.id.btnSelectStartTime).setOnClickListener(this);
-        durationSeekBar = findViewById(R.id.durationSlider);
-        maxTeamSizeSeekbar = findViewById(R.id.teamSizeSlider);
-        radioButtonPublicAccess = findViewById(R.id.btnPublic);
-        radiobuttonPrivateAccess = findViewById(R.id.btnPrivate);
+        durationSeekBar = (SeekBar) findViewById(R.id.durationSlider);
+        maxTeamSizeSeekbar = (SeekBar) findViewById(R.id.teamSizeSlider);
+        radioButtonPublicAccess = (RadioButton) findViewById(R.id.btnPublic);
+        radiobuttonPrivateAccess = (RadioButton) findViewById(R.id.btnPrivate);
         durationSeekBarMaxValue = durationSeekBar.getMax();
         teamSeekBarMaxValue = maxTeamSizeSeekbar.getMax();
 

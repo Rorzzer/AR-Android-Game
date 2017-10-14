@@ -212,11 +212,12 @@ public class RunningGameActivity extends AppCompatActivity {
                 ServiceTools serviceTools = new ServiceTools();
                 googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
                 boolean isServiceRunning;
-                textView = findViewById(R.id.fullscreen_content);
+                textView = (TextView) findViewById(R.id.fullscreen_content);
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameInputHashmap);
                 startService(intent);
                 isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+
                 caputringBtnPressed = true;
                 handler.removeCallbacks(capturingButtonListener);
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
