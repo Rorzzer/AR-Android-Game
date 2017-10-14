@@ -244,6 +244,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
+    //OnDestroy
     @Override
     public void onDestroy(){
         super.onDestroy();
