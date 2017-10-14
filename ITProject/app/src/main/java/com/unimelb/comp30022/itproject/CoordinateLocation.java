@@ -8,10 +8,13 @@ public class CoordinateLocation {
     private double x;
     private double y;
     private double z;
-    public CoordinateLocation(double x, double y , double z){
+    private double accuracy;
+
+    public CoordinateLocation(double x, double y, double z, double accuracy) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.accuracy = accuracy;
     }
     public CoordinateLocation(){
 
@@ -50,7 +53,9 @@ public class CoordinateLocation {
         double var1 = this.x;
         double var2 = this.y;
         double var3 = this.z;
-        return (new StringBuilder(60)).append("x,y,z : (").append(var1).append(",").append(var2).append(",").append(var3).append(")").toString();
+        double var4 = this.accuracy;
+
+        return (new StringBuilder(60)).append("x,y,z +-accuracy: (").append(var1).append(",").append(var2).append(",").append(var3).append("+-").append(var4).append(")").toString();
     }
     public  boolean equals(Object location){
         if(this == location){

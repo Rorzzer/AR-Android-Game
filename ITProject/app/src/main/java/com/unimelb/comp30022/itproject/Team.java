@@ -10,14 +10,15 @@ public class Team {
     private String teamId;
     private String teamName;
     private Long timeTeamCreated;
-    private Player creator;
+    private String creator;
     private Integer maxPlayers;
     private Integer numPlayers;
     private Boolean isActive;
     private Boolean isCapturing;
     private String teamImageUri;
     private ArrayList<Player> playerArrayList;
-    public  Team(String teamId, String teamName,Boolean isCapturing ,Player creator){
+
+    public Team(String teamId, String teamName, Boolean isCapturing, String creator) {
         this.teamId = teamId;
         this.teamName = teamName;
         this.creator = creator;
@@ -116,11 +117,11 @@ public class Team {
         this.playerArrayList = playerArrayList;
     }
 
-    public Player getCreator() {
+    public String getCreator() {
         return creator;
     }
 
-    public void setCreator(Player creator) {
+    public void setCreator(String creator) {
         this.creator = creator;
     }
 
@@ -132,4 +133,19 @@ public class Team {
         isCapturing = capturing;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Team)) return false;
+
+        Team team = (Team) o;
+
+        return getTeamId().equals(team.getTeamId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getTeamId().hashCode();
+    }
 }

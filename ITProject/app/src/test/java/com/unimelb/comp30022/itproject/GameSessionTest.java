@@ -81,21 +81,21 @@ public class GameSessionTest {
     public void convertToCartesianSamePoint() throws Exception {
         latLng = dataGenerator.generateRandomLocation();
         gameSession = new GameSession();
-        assertEquals("Expected true",true,gameSession.convertToCartesian(latLng,latLng).equals(gameSession.convertToCartesian(latLng,latLng)));
-        assertEquals(gameSession.convertToCartesian(latLng,latLng).getX(),0.0,0.1);
-        assertEquals(gameSession.convertToCartesian(latLng,latLng).getY(),0.0,0.1);
-        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
+        assertEquals("Expected true", true, GameSession.convertToCartesian(latLng, latLng).equals(GameSession.convertToCartesian(latLng, latLng)));
+        assertEquals(GameSession.convertToCartesian(latLng, latLng).getX(), 0.0, 0.1);
+        assertEquals(GameSession.convertToCartesian(latLng, latLng).getY(), 0.0, 0.1);
+        assertEquals(GameSession.convertToCartesian(latLng, latLng).getZ(), 0.0, 0.1);
     }
     @Test
     public void convertToCartesianDifferentPoints() throws Exception {
         gameSession = new GameSession();
-        LatLng loc1 = new LatLng(13.3,144.343);
-        LatLng loc2 = new LatLng(14.2,90.34);
+        LatLng loc1 = new LatLng(13.3, 144.343, 10);
+        LatLng loc2 = new LatLng(14.2, 90.34, 10);
         assertEquals("Expected False", false,
-                gameSession.convertToCartesian(loc1,loc2)
-                        .equals(gameSession.convertToCartesian(loc2,loc2)));
-        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
-        assertEquals(gameSession.convertToCartesian(latLng,latLng).getZ(),0.0,0.1);
+                GameSession.convertToCartesian(loc1, loc2)
+                        .equals(GameSession.convertToCartesian(loc2, loc2)));
+        assertEquals(GameSession.convertToCartesian(latLng, latLng).getZ(), 0.0, 0.1);
+        assertEquals(GameSession.convertToCartesian(latLng, latLng).getZ(), 0.0, 0.1);
 
 
     }
