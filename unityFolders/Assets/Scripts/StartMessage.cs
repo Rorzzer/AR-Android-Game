@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class StartMessage : MonoBehaviour {
-	public float timerCounter = 3;
+	public int startTextDistance = 10;
+	public float timerCounter = 10;
 	public float gameStartCounter = 2;
 	public bool displayingCounter;
 	public bool displayingStart ;
@@ -11,6 +12,7 @@ public class StartMessage : MonoBehaviour {
 	void Start () {
 		displayingCounter = true;
 		displayingStart = false;
+		//GetComponent<TextMesh>().transform.position = Camera.transform.position +Camera.transform.forward*startTextDistance;
 	}
 	
 	// Update is called once per frame
@@ -18,6 +20,13 @@ public class StartMessage : MonoBehaviour {
 		changeText ();
 	}
 	void changeText(){
+		int delay =2;
+		Transform textTrans = GetComponent<TextMesh>().transform;
+		textTrans.position = Camera.main.transform.position + Camera.main.transform.forward* 10;
+		Vector3 look = Camera.main.transform.position - textTrans.transform.position;
+		look.y = 0;
+		Quaternion rotate = Quaternion.LookRotation(look);
+		GetComponent<TextMesh>().transform.rotation = Quaternion.Slerp(textTrans.rotation,rotate,Time.deltaTime*delay);
 		if (displayingCounter) {
 			if (timerCounter > 1) {
 				//displaying countdown

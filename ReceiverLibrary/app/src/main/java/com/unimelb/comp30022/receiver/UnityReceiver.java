@@ -1,5 +1,8 @@
 package com.unimelb.comp30022.receiver;
-
+/**
+ * Created by Kiptenai on 10/10/2017.
+ * Handles recieving information on the unity end, running as a plugin
+ */
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +13,9 @@ public class UnityReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String sentIntent = intent.getStringExtra(Intent.EXTRA_TEXT);
-        if(sentIntent != null) {
-            text = sentIntent;
+        String message = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if(message != null) {
+            text = message;
         }
 
     }

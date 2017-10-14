@@ -19,14 +19,14 @@ public class Player  {
     private String imageUri;
     private Integer score;
     private String assignedTeamName;
-    private Integer teamId;
+    private String teamId;
     private Long lastPing;
     private Integer skillLevel;
     private Boolean isActive;
     private Boolean isCapturing;
-    private Boolean isBeinCaptured;
+    private Boolean hasBeenCaptured;
     private String capturedBy;
-    private ArrayList<Player> capturedList;
+    private ArrayList<String> capturedList;
     private ArrayList<LatLng> path;
     private ArrayList<CoordinateLocation> relativePath;
     //mutator & acessor methods
@@ -37,7 +37,7 @@ public class Player  {
         this.skillLevel = 0;
         this.isActive = false;
         this.isCapturing = false;
-        capturedList = new ArrayList<Player>();
+        capturedList = new ArrayList<String>();
         path = new ArrayList<LatLng>();
         relativePath = new ArrayList<CoordinateLocation>();
     }
@@ -48,7 +48,7 @@ public class Player  {
         this.skillLevel = 0;
         this.isActive = false;
         this.isCapturing = false;
-        capturedList = new ArrayList<Player>();
+        capturedList = new ArrayList<String>();
         path = new ArrayList<LatLng>();
         relativePath = new ArrayList<CoordinateLocation>();
     }
@@ -117,11 +117,11 @@ public class Player  {
         this.assignedTeamName = assignedTeamName;
     }
 
-    public Integer getTeamId() {
+    public String getTeamId() {
         return teamId;
     }
 
-    public void setTeamId(Integer teamId) {
+    public void setTeamId(String teamId) {
         this.teamId = teamId;
     }
 
@@ -157,19 +157,19 @@ public class Player  {
         isCapturing = capturing;
     }
 
-    public Boolean getBeinCaptured() {
-        return isBeinCaptured;
+    public Boolean getHasBeenCaptured() {
+        return hasBeenCaptured;
     }
 
-    public void setBeinCaptured(Boolean beinCaptured) {
-        isBeinCaptured = beinCaptured;
+    public void setHasBeenCaptured(Boolean hasBeenCaptured) {
+        this.hasBeenCaptured = hasBeenCaptured;
     }
 
-    public ArrayList<Player> getCapturedList() {
+    public ArrayList<String> getCapturedList() {
         return capturedList;
     }
 
-    public void setCapturedList(ArrayList<Player> capturedList) {
+    public void setCapturedList(ArrayList<String> capturedList) {
         this.capturedList = capturedList;
     }
 
