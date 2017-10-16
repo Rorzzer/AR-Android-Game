@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnMap).setOnClickListener(this);
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
-        findViewById(R.id.btnTestUnity).setOnClickListener(this);
+        findViewById(R.id.btnChat).setOnClickListener(this);
     }
 
     /**
@@ -50,13 +50,17 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         Button btnCreateLobby = findViewById(R.id.btnCreateOrUpdateLobby);
         Button btnFindLobby = findViewById(R.id.btnFindLobby);
+        Button btnChat = findViewById(R.id.btnChat);
         if (FirebaseAuth.getInstance().getCurrentUser()!= null){
             btnCreateLobby.setVisibility(View.VISIBLE);
             btnFindLobby.setVisibility(View.VISIBLE);
+            btnChat.setVisibility(View.VISIBLE);
+
 
         }else{
             btnCreateLobby.setVisibility(View.GONE);
             btnFindLobby.setVisibility(View.GONE);
+            btnChat.setVisibility(View.GONE);
         }
 
     }
@@ -107,6 +111,14 @@ public class MainActivity extends AppCompatActivity
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Intent findLobby = new Intent(getApplicationContext(), FindLobbyActivity.class);
                     startActivity(findLobby);
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
+            case R.id.btnChat:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
+                    startActivity(chat);
                 } else {
                     updateStatus("You must be signed in to access this feature.");
                 }

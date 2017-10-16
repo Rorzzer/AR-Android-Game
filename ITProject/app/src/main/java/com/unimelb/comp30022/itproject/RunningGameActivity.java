@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -25,13 +26,24 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+//import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.lang.reflect.Type;
 
-//import com.unimelb.testAR.UnityPlayerActivity;
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -151,6 +163,10 @@ public class RunningGameActivity extends AppCompatActivity {
         }
     };
 
+    LocationRequest mLocationRequest;
+    Location mLastLocation;
+    FusedLocationProviderClient mFusedLocationClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -188,19 +204,29 @@ public class RunningGameActivity extends AppCompatActivity {
         if (!hasGooglePlay()) {
             Toast.makeText(RunningGameActivity.this, R.string.google_play_unavailable, Toast.LENGTH_SHORT).show();
             finish();
-        }
-        Log.d(TAG, "Has Google play installed ");
-        if (!getCurrentPermissions()) {
-            Log.d(TAG, "Doesn't have permissions requesting ");
-            shouldRequestPermissions();
-            caputringBtnPressed = false;
         } else {
-            Log.d(TAG, "has permissions ");
-            caputringBtnPressed = true;
-            handler.removeCallbacks(capturingButtonListener);
-            handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
-            launchCurrentGame();
-            receiveMyGameSessionBroadcasts();
+
+            if (hasFineLocationPermission) {
+                Log.d(TAG, "Has Google play installed ");
+                createAndSpecifyLocationRequest();
+                ServiceTools serviceTools = new ServiceTools();
+                googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+                boolean isServiceRunning;
+                textView = findViewById(R.id.fullscreen_content);
+                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameInputHashmap);
+                startService(intent);
+                isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+                caputringBtnPressed = true;
+                handler.removeCallbacks(capturingButtonListener);
+                handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
+                receiveMyGameSessionBroadcasts();
+                launchCurrentGame();
+       //       
+            } else {
+                shouldRequestPermissions();
+            }
+
         }
 
     }
@@ -367,6 +393,23 @@ public class RunningGameActivity extends AppCompatActivity {
         }
 
     }
+
+
+    @SuppressWarnings("MissingPermission")
+    private void startLocationUpdate() {
+
+
+        Task<Void> pending =
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    }
+
+    private void stopLocationUpdate() {
+        if (googleApiClient.isConnected()) {
+            //Permission required
+            //mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        }
+    }
+
     private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {
         Snackbar.make(findViewById(android.R.id.content),
                 mainText,
@@ -391,5 +434,15 @@ public class RunningGameActivity extends AppCompatActivity {
         registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
     }
 
+    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            for (Location location : locationResult.getLocations()) {
+
+                //TODO: whatever was happening with the location data
+
+            }
+        }
+    };
 
 }

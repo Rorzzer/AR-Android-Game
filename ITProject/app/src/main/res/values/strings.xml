@@ -47,6 +47,7 @@
     <string name="Ok">Ok</string>
 
     <string name="title_activity_user_prof">UserProfActivity</string>
+    <string name="title_activity_chat">ChatActivity</string>
 
     <string name="title_activity_test_full">testFull</string>
     <string name="dummy_button">Dummy Button</string>

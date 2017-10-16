@@ -75,6 +75,10 @@
         <activity android:name=".CreateLobbyActivity" />
         <activity android:name=".FindLobbyActivity" />
         <activity android:name=".SessionInformationActivity" />
+
+        <activity android:name=".ChatActivity" />
+
+
         <activity
             android:name=".arcamera.UnityPlayerActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
@@ -110,12 +114,10 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-
         <activity
             android:name=".UserProfActivity"
             android:label="@string/title_activity_user_prof"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".RunningGameActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
