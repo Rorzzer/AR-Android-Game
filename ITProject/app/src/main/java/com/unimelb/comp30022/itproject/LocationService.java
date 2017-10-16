@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
@@ -67,8 +68,12 @@ public class LocationService extends Service implements
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Toast toast = Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT);
+        toast.show();
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        Log.d(TAG, "Started Locaiton Service");
+        Log.d(TAG, "Started Location Service");
         setLocationUpdateSettings();
         mgoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -80,6 +85,8 @@ public class LocationService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast toast = Toast.makeText(getApplicationContext(), "omStartCommand", Toast.LENGTH_SHORT);
+        toast.show();
         Log.d(TAG, "location service started");
         if (mgoogleApiClient != null) {
             mgoogleApiClient.connect();
@@ -154,6 +161,8 @@ public class LocationService extends Service implements
                 Intent intent = new Intent(FILTER_LOCATION);
                 intent.putExtra(KEY_LOCATION_DATA, gson.toJson(location, locationtype));
                 sendBroadcast(intent);
+                Toast toast = Toast.makeText(getApplicationContext(), "Location change", Toast.LENGTH_SHORT);
+                toast.show();
                 Log.d(TAG, "location updated" + location.toString());
 
             }
