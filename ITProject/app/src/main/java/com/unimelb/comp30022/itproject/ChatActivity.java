@@ -2,22 +2,16 @@ package com.unimelb.comp30022.itproject;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,9 +22,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Map;
-
-import static java.lang.String.valueOf;
 
 public class ChatActivity extends AppCompatActivity
         implements View.OnClickListener{
@@ -45,8 +36,10 @@ public class ChatActivity extends AppCompatActivity
 
     private String uID;
     private String username;
-    private String message;
+    //private String message;
     private String team;
+
+    private Boolean validUser;
 
     private DatabaseReference mDatabase;
     private DatabaseReference chatRef;
@@ -58,7 +51,6 @@ public class ChatActivity extends AppCompatActivity
     private EditText etMessage;
 
     private TextView tvUsername;
-    private TextView tvChat;
 
     private Switch swtChat;
 
@@ -66,7 +58,6 @@ public class ChatActivity extends AppCompatActivity
 
     private ArrayList<String> teamMessageList;
     private ArrayList<String> publicMessageList;
-    private ArrayList<String> chatList;
 
     private ArrayAdapter<String> publicChatAdapter;
     private ArrayAdapter<String> teamChatAdapter;
@@ -85,16 +76,6 @@ public class ChatActivity extends AppCompatActivity
 
         lvChat = (ListView) findViewById(R.id.lvChat);
 
-//        publicMessageList = new ArrayList();
-//        teamMessageList = new ArrayList();
-
-
-
-        //lvChat.setAdapter(teamChatAdapter);
-        //publicMessageList = new ArrayList<>();
-        //lvChat.setAdapter(publicChatAdapter);
-
-
         etMessage = (EditText)findViewById(R.id.etMessage);
         etMessage.setText("");
 
@@ -107,8 +88,6 @@ public class ChatActivity extends AppCompatActivity
         team = "team_0";
 
         tvUsername = (TextView)findViewById(R.id.tvUsername);
-        tvChat = (TextView)findViewById(R.id.tvChat);
-        tvChat.setMovementMethod(new ScrollingMovementMethod());
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -136,22 +115,25 @@ public class ChatActivity extends AppCompatActivity
                     Log.d(TAG, "Datasnapshot exists");
 
                     if (fUser != null) {
-                        userInfo = dataSnapshot.child(uID).getValue(User.class);
-                        username = userInfo.getUsername();
-                        tvUsername.setText(username);
 
-                        //mDatabase.child("chat").child("GameID").setValue(DUMMYGAMEID);
-                        //mDatabase.child("chat").child(DUMMYGAMEID).child("Username").setValue(username);
+                        Log.d(TAG, "User ID is: " + uID);
+
+                        userInfo = dataSnapshot.child(uID).getValue(User.class);
+                        if (userInfo.getUsername().equals("Empty")){
+                            validUser = false;
+                        }else {
+                            validUser = true;
+                            username = userInfo.getUsername();
+                            tvUsername.setText(username);
+                        }
                     } else {
+
                         Log.d(TAG, "fUser is null");
                         updateFirebaseUser(mAuth);
                     }
 
-                    Log.d(TAG, "Value is: " + uID);
-
-
                 } else {
-                    Log.d(TAG, "datasnapshot does not exist");
+                    Log.d(TAG, "The datasnapshot does not exist");
                 }
             }
 
@@ -193,14 +175,20 @@ public class ChatActivity extends AppCompatActivity
 
                             // sort the chats into the correct list
                             if (chatClass.isTeamOnly() && chatClass.getTeam().equals(team)) {
-                                Log.d(TAG, "Add " + chatLine + " to team message list");
+
+                                //debug
+                                //Log.d(TAG, "Add " + chatLine + " to team message list");
+
                                 teamMessageList.add(String.valueOf(chatLine));
                                 lvChat.setAdapter(teamChatAdapter);
                                 teamChatAdapter.notifyDataSetChanged();
 
 
                             }else if (!chatClass.isTeamOnly()){
-                                Log.d(TAG, "Add " + chatLine + " to pub message list");
+
+                                //debug
+                                //Log.d(TAG, "Add " + chatLine + " to pub message list");
+
                                 publicMessageList.add(String.valueOf(chatLine));
                                 lvChat.setAdapter(publicChatAdapter);
                                 publicChatAdapter.notifyDataSetChanged();
@@ -212,12 +200,14 @@ public class ChatActivity extends AppCompatActivity
 //                                }
                             }
                         }
+
                         updateTeamChat(teamMessageList);
                         updatePublicChat(publicMessageList);
                         updateChat();
+
                     }
                 } else {
-                    Log.d(TAG, "datasnapshot does not exist");
+                    Log.d(TAG, "The datasnapshot does not exist");
                 }
             }
 
@@ -233,18 +223,22 @@ public class ChatActivity extends AppCompatActivity
         if (swtChat != null) {
             swtChat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Log.d(TAG, "onCheckedChanged");
+                    //Log.d(TAG, "onCheckedChanged");
 
+
+                    //change the listview display when the switch is flicked
                     if (isChecked) {
+
+                        lvChat.setAdapter(teamChatAdapter);
                         updateChatDisplay(teamChatBuilder);
-//                        lvChat.setAdapter(teamChatAdapter);
 
                     }else{
-                        updateChatDisplay(publicChatBuilder);
-//                        lvChat.setAdapter(publicChatAdapter);
 
+                        lvChat.setAdapter(publicChatAdapter);
+                        updateChatDisplay(publicChatBuilder);
 
                     }
+                    updateChat();
                 }
             });
         }
@@ -253,15 +247,19 @@ public class ChatActivity extends AppCompatActivity
 
     public void onClick(View v) {
         switch (v.getId()) {
+
             case R.id.btnSend:
+                if (validUser) {
+                    String message;
+                    message = etMessage.getText().toString();
+                    etMessage.setText("");
 
-                message = etMessage.getText().toString();
-                etMessage.setText("");
+                    Chat chat = new Chat(username, message, "team_0", swtChat.isChecked());
 
-                Chat chat = new Chat(username, message, "team_0", swtChat.isChecked());
-
-                chatRef.child(chatRef.push().getKey()).setValue(chat);
-
+                    chatRef.child(chatRef.push().getKey()).setValue(chat);
+                }else{
+                    Toast.makeText(ChatActivity.this, "Please create a user profile.", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
@@ -290,7 +288,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void updateChatDisplay(StringBuilder display){
-        tvChat.setText(display);
+        //tvChat.setText(display);
     }
 
     private void updateChat(){
@@ -332,7 +330,7 @@ public class ChatActivity extends AppCompatActivity
         super.onStop();
 
         // this logic will eventually be moved to the onStop of game session
-        chatRef.setValue(null);
+        //chatRef.setValue(null);
 
         if (mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
