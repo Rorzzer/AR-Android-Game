@@ -11,9 +11,11 @@ import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -64,7 +66,12 @@ public class ChatActivity extends AppCompatActivity
 
     private ArrayList<String> teamMessageList;
     private ArrayList<String> publicMessageList;
-    private ArrayList<String> messageList;
+    private ArrayList<String> chatList;
+
+    private ArrayAdapter<String> publicChatAdapter;
+    private ArrayAdapter<String> teamChatAdapter;
+
+    private ListView lvChat;
 
     private StringBuilder teamChatBuilder;
     private StringBuilder publicChatBuilder;
@@ -75,6 +82,18 @@ public class ChatActivity extends AppCompatActivity
         setContentView(R.layout.activity_chat);
 
         findViewById(R.id.btnSend).setOnClickListener(this);
+
+        lvChat = (ListView) findViewById(R.id.lvChat);
+
+//        publicMessageList = new ArrayList();
+//        teamMessageList = new ArrayList();
+
+
+
+        //lvChat.setAdapter(teamChatAdapter);
+        //publicMessageList = new ArrayList<>();
+        //lvChat.setAdapter(publicChatAdapter);
+
 
         etMessage = (EditText)findViewById(R.id.etMessage);
         etMessage.setText("");
@@ -158,6 +177,11 @@ public class ChatActivity extends AppCompatActivity
                         teamMessageList = new ArrayList<String>();
                         publicMessageList = new ArrayList<String>();
 
+                        publicChatAdapter = new ArrayAdapter<String>(ChatActivity.this, android.R.layout.simple_list_item_1, publicMessageList);
+                        teamChatAdapter = new ArrayAdapter<String>(ChatActivity.this, android.R.layout.simple_list_item_1, teamMessageList);
+
+                        lvChat.setAdapter(publicChatAdapter);
+
                         for (DataSnapshot dsp : dataSnapshot.getChildren()) {
 
                             chatClass = dsp.getValue(Chat.class);
@@ -171,10 +195,17 @@ public class ChatActivity extends AppCompatActivity
                             if (chatClass.isTeamOnly() && chatClass.getTeam().equals(team)) {
                                 Log.d(TAG, "Add " + chatLine + " to team message list");
                                 teamMessageList.add(String.valueOf(chatLine));
+                                lvChat.setAdapter(teamChatAdapter);
+                                teamChatAdapter.notifyDataSetChanged();
+
 
                             }else if (!chatClass.isTeamOnly()){
                                 Log.d(TAG, "Add " + chatLine + " to pub message list");
                                 publicMessageList.add(String.valueOf(chatLine));
+                                lvChat.setAdapter(publicChatAdapter);
+                                publicChatAdapter.notifyDataSetChanged();
+
+
                                 // debug code, to print chat list
 //                                for (String member : publicMessageList){
 //                                    Log.i("List item: ", member);
@@ -206,8 +237,12 @@ public class ChatActivity extends AppCompatActivity
 
                     if (isChecked) {
                         updateChatDisplay(teamChatBuilder);
+//                        lvChat.setAdapter(teamChatAdapter);
+
                     }else{
                         updateChatDisplay(publicChatBuilder);
+//                        lvChat.setAdapter(publicChatAdapter);
+
 
                     }
                 }
@@ -262,8 +297,11 @@ public class ChatActivity extends AppCompatActivity
 
         if (swtChat.isChecked()){
             updateChatDisplay(teamChatBuilder);
+
+
         }else{
             updateChatDisplay(publicChatBuilder);
+
         }
        }
 

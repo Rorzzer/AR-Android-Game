@@ -10,10 +10,10 @@
 
     <TextView
         android:id="@+id/tvUsername"
-        android:layout_width="178dp"
-        android:layout_height="45dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="7dp"
+        android:layout_width="163dp"
+        android:layout_height="33dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="10dp"
         android:ems="10"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -56,13 +56,12 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/loChat"
-        android:layout_width="330dp"
-        android:layout_height="83dp"
-        android:layout_marginBottom="330dp"
+        android:layout_width="144dp"
+        android:layout_height="96dp"
+        android:layout_marginBottom="360dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.296">
+        android:layout_marginRight="25dp">
 
         <TextView
             android:id="@+id/tvChat"
@@ -83,11 +82,11 @@
 
     <ListView
         android:id="@+id/lvChat"
-        android:layout_width="340dp"
-        android:layout_height="39dp"
+        android:layout_width="195dp"
+        android:layout_height="149dp"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        tools:layout_editor_absoluteY="52dp" />
+        tools:layout_editor_absoluteY="55dp" />
 
 </android.support.constraint.ConstraintLayout>
