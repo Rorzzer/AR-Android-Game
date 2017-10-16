@@ -46,7 +46,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
-    private static final GeoLocation QUERY_CENTER = new GeoLocation(-37.7988847, 144.964109);
+    private static final int QUERY_DISTANCE = 1;
+
 
     private GoogleMap mMap;
     private Map<String, Marker> markers;
@@ -55,6 +56,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest mLocationRequest;
     Location mLastLocation;
     FusedLocationProviderClient mFusedLocationClient;
+    GeoLocation QueryCenter = new GeoLocation(-37.7988847, 144.964109);
+
 
 
     //GeoFire database connection
@@ -83,8 +86,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //hashmap for key location pairs
         markers = new HashMap<String, Marker>();
 
-        //Geo query for other players and relevant listeners
-        GeoQuery geoQuery = geoFire.queryAtLocation(QUERY_CENTER, 1);
+        //GeoQuery of nearby games
+        GeoQuery geoQuery = geoFire.queryAtLocation(QueryCenter, QUERY_DISTANCE);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -123,6 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+
     }
 
     @Override
@@ -241,14 +245,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onPause() {
         super.onPause();
-        geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
+       // geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     //OnDestroy//
     @Override
     public void onDestroy(){
         super.onDestroy();
-        geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
+      //  geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
@@ -256,12 +260,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
                 //Setting users location in geofire database, using UserData as key
-                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
+               // geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
                 mLastLocation = location;
+
+                QueryCenter = new GeoLocation(location.getLatitude(), location.getLongitude());
 
                 //move map camera
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+               // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+
+
             }
         }
     };

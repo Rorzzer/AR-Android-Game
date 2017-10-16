@@ -28,7 +28,10 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
         findViewById(R.id.btnChat).setOnClickListener(this);
-        findViewById(R.id.ServiceTest).setOnClickListener(this);
+
+        //Launch Location services
+        Intent LocationService = new Intent(this, LocationService.class);
+        startService(LocationService);
     }
 
     /**
@@ -124,13 +127,6 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
-            case R. id.ServiceTest:
-                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    Intent LocationService = new Intent(this, LocationService.class);
-                    startService(LocationService);
-                } else {
-                    updateStatus("You must be signed in to access this feature.");
-                }
         }
     }
 

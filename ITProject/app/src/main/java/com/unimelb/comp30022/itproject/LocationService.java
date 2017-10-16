@@ -161,8 +161,6 @@ public class LocationService extends Service implements
                 Intent intent = new Intent(FILTER_LOCATION);
                 intent.putExtra(KEY_LOCATION_DATA, gson.toJson(location, locationtype));
                 sendBroadcast(intent);
-                Toast toast = Toast.makeText(getApplicationContext(), "Location change", Toast.LENGTH_SHORT);
-                toast.show();
                 Log.d(TAG, "location updated" + location.toString());
 
             }

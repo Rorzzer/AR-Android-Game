@@ -1,8 +1,11 @@
 package com.unimelb.comp30022.itproject;
 
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -18,6 +21,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,15 +40,19 @@ import java.util.ArrayList;
 
 public class CreateLobbyActivity extends AppCompatActivity
                 implements View.OnClickListener{
+    private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
+    private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
     private static String TAG = CreateLobbyActivity.class.getName();
     private static int MILLISECONDS_IN_MINUTE = 60000;
     private static double MAX_GAME_DURATION_MINS = 60;
     private static int MAX_TEAM_SIZE = 30;
     private static int MIN_GAME_DURATION = 5;
     private static int MAX_GAME_RADIUS = 500;
+    private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
+
     //Firebase members
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -92,12 +101,20 @@ public class CreateLobbyActivity extends AppCompatActivity
     private ArrayList list = new ArrayList();
     private ArrayAdapter adapter;
     private Handler handler;
+    private BroadcastReceiver currentLocationReciever;
+    private LatLng currentLocation;
+    private Gson gson = new Gson();
+    private Type locationType = new TypeToken<Location>() {
+    }.getType();
+    private DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
+    private GeoFire geoFire = new GeoFire(GeoRef);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_lobby);
         Context context = getApplicationContext();
+        receiveLocationBroadcasts();
 
         etSessionName = findViewById(R.id.etLobbyName);
         tvSelectedStartTime = findViewById(R.id.tvSelectedStartTime);
@@ -477,7 +494,12 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.setDuration(new Long(2334324));
         gameSession.setEndTime(new Long(gameSession.getStartTime().longValue() + gameSession.getDuration().longValue()));
         gameSession.setGameRadius(gameRadius);
-        gameSession.setLocation(new DataGenerator().generateRandomLocation());
+
+        if(currentLocation != null){
+            gameSession.setLocation(currentLocation);
+            geoFire.setLocation(gameSession.getSessionId(), new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()));
+        }
+
     }
 
     /**
@@ -525,6 +547,32 @@ public class CreateLobbyActivity extends AppCompatActivity
         }.getType();
         Log.d(TAG, gson.toJson(gameSession));
         return gameSession;
+    }
+
+    private void receiveLocationBroadcasts() {
+        if (currentLocationReciever == null) {
+            currentLocationReciever = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String input = intent.getStringExtra(KEY_LOCATION_DATA);
+                    Log.d(TAG, "Recieving Broadcast");
+                    Location recentLocation = gson.fromJson(input, locationType);
+                    if (recentLocation != null) {
+                        LatLng absLocation = new LatLng(recentLocation.getLatitude(), recentLocation.getLongitude(), recentLocation.getAccuracy());
+                        currentLocation = absLocation;
+                        if(currentLocation != null){
+
+                            Log.d(TAG, "Location Retrieved" + currentLocation.toString());
+                        }
+                        else{
+                            Log.d(TAG, "Location Failure");
+                        }
+
+                    }
+                }
+            };
+        }
+        registerReceiver(currentLocationReciever, new IntentFilter(FILTER_LOCATION));
     }
 
 }
