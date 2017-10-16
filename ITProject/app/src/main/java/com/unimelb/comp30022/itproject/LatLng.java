@@ -6,11 +6,15 @@ package com.unimelb.comp30022.itproject;
  */
 
 public class LatLng {
-    public double latitude;
-    public double longitude;
-    public LatLng(double latitude,double longitude){
+    private double latitude;
+    private double longitude;
+    private double accuracy;
+
+    public LatLng(double latitude, double longitude, double accuracy) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.accuracy = accuracy;
+
     }
     public LatLng(){
 
@@ -31,6 +35,15 @@ public class LatLng {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    public double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
+    }
+
     public final boolean equals(Object var1) {
         if(this == var1) {
             return true;
@@ -43,8 +56,9 @@ public class LatLng {
     }
     public final String toString() {
         double var1 = this.latitude;
-        double var3 = this.longitude;
-        return (new StringBuilder(60)).append("").append(var1).append(",").append(var3).append(")").toString();
+        double var2 = this.longitude;
+        double var3 = this.accuracy;
+        return (new StringBuilder(60)).append("").append(var1).append(",").append(var2).append("+-").append(var3).append(")").toString();
     }
 
     @Override
