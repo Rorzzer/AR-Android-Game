@@ -66,25 +66,11 @@ public class RunningGameActivity extends AppCompatActivity {
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
-    private final int CAPTURING_LATENCY = 500;
+    private final int CAPTURING_LATENCY = 2000;
 
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
     private final Handler handler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     TextView textView;
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
@@ -150,6 +136,20 @@ public class RunningGameActivity extends AppCompatActivity {
             hide();
         }
     };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,7 +186,7 @@ public class RunningGameActivity extends AppCompatActivity {
 
         //Verify that location settings are enabled before start game
         if (!hasGooglePlay()) {
-            Toast.makeText(RunningGameActivity.this, "Google play Unavailable", Toast.LENGTH_LONG).show();
+            Toast.makeText(RunningGameActivity.this, R.string.google_play_unavailable, Toast.LENGTH_SHORT).show();
             finish();
         }
         Log.d(TAG, "Has Google play installed ");
@@ -222,11 +222,10 @@ public class RunningGameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(currentGameStateReciever);
-        if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
-            Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-            stopService(intent);
+        if (currentGameStateReciever != null) {
+            unregisterReceiver(currentGameStateReciever);
         }
+
     }
 
     @Override

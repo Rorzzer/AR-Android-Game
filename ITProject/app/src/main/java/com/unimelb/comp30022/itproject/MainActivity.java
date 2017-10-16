@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnMap).setOnClickListener(this);
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
+        findViewById(R.id.btnTestUnity).setOnClickListener(this);
     }
 
     /**
@@ -110,6 +111,14 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
+            case R.id.btnTestUnity:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
+
         }
     }
 

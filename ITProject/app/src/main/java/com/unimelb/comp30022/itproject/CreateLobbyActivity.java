@@ -252,7 +252,7 @@ public class CreateLobbyActivity extends AppCompatActivity
                     if (!gameStarted) {
                         createNewLobby(currentUserInfo);
                     } else {
-                        Toast.makeText(CreateLobbyActivity.this, "Can't Edit running Game", Toast.LENGTH_SHORT);
+                        Toast.makeText(CreateLobbyActivity.this, R.string.lobby_unable_to_edit_started, Toast.LENGTH_SHORT);
                     }
 
                 }
@@ -266,7 +266,7 @@ public class CreateLobbyActivity extends AppCompatActivity
                         if (!gameStarted) {
                             deleteServerGameSessionObj(gameSession);
                         } else {
-                            Toast.makeText(CreateLobbyActivity.this, "Can't delete running Game", Toast.LENGTH_SHORT);
+                            Toast.makeText(CreateLobbyActivity.this, R.string.lobby_unable_to_delete_started, Toast.LENGTH_SHORT);
                         }
 
                     } else {
@@ -506,7 +506,7 @@ public class CreateLobbyActivity extends AppCompatActivity
      *manipulates layout elements to provide user with feedback about successful informaiton update
      */
     private void displaySuccessfulUpdate(){
-        Toast.makeText(this,"Successful update",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.successful_game_created, Toast.LENGTH_SHORT).show();
     }
     /***
      * Generates a new gamesession based on form information

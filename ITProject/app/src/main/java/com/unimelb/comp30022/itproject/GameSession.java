@@ -1,8 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 /**
@@ -90,6 +88,9 @@ public class GameSession {
     }
 
     public static double distanceBetweenTwoPlayers(Player player1, Player player2) {
+        if (player1 == null || player2 == null) {
+            return Double.MAX_VALUE;
+        }
         double dist = distanceBetweenPoints(player1.getAbsLocation(), player2.getAbsLocation());
         return dist;
     }
@@ -285,14 +286,14 @@ public class GameSession {
     }
 
     public void capturePlayer(Player capturing, Player captured) {
-        if (!capturing.getCapturedList().contains(captured.getDisplayName())) {
-            capturing.getCapturedList().add(captured.getDisplayName());
+        captured = this.getPlayerDetails(captured.getDisplayName());
+        if (!this.getPlayerDetails(capturing.getDisplayName()).getCapturedList().contains(captured.getDisplayName())) {
+            this.getPlayerDetails(capturing.getDisplayName()).getCapturedList().add(captured.getDisplayName());
         }
-        captured.setCapturedBy(capturing.getDisplayName());
-        captured.setCapturing(true);
+        this.getPlayerDetails(captured.getDisplayName()).setCapturedBy(capturing.getDisplayName());
+        this.getPlayerDetails(captured.getDisplayName()).setCapturing(true);
+        this.getPlayerDetails(captured.getDisplayName()).setHasBeenCaptured(true);
     }
-
-
 
     public boolean removeTeam(Team team){
         if (teamArrayList != null && teamArrayList.size() > 0 && teamArrayList.contains(team)) {
@@ -305,8 +306,8 @@ public class GameSession {
     public void add2Teams(String gameSessionId, Player player){
         for(int i = 0;i<MAX_TEAMS_2;i++){
             //create 2 opposign teams
-            this.addTeam(new Team("team_" + String.valueOf(i),
-                    "team_" + new Integer(i).toString(), new Boolean(i == TEAM_CAPTURING), player.getDisplayName()));
+            this.addTeam(new Team("team_" + String.valueOf(i + 1),
+                    "team_" + new Integer(i + 1).toString(), new Boolean(i == TEAM_CAPTURING), player.getDisplayName()));
         }
     }
 
@@ -324,6 +325,15 @@ public class GameSession {
 
     public void removePlayerFromEscapingTeam(Player player) {
         this.teamArrayList.get(TEAM_ESCAPING).removePlayer(player);
+    }
+
+    public int getTeamIndex(Player player) {
+        return this.getTeamArrayList().indexOf(new Team(player.getTeamId()));
+    }
+
+    public int getPlayerIndexInTeam(Player player) {
+        int teamId = getTeamIndex(player);
+        return this.getTeamArrayList().get(teamId).getPlayerArrayList().indexOf(player);
     }
 
 
@@ -364,7 +374,6 @@ public class GameSession {
             Team team = teamArrayList.get(i);
             if (team.containsPlayer(player)) {
                 pos = team.getPlayerArrayList().indexOf(player);
-                Log.d("updatePlayerLocation", "updating player" + team.getPlayerArrayList().get(pos).getDisplayName());
                 team.getPlayerArrayList().get(pos).setAbsLocation(latLng);
             }
         }
@@ -386,7 +395,7 @@ public class GameSession {
 
     }
 
-    public ArrayList<Player> getAllPlayerInformation() {
+    public ArrayList<Player> fetchAllPlayerInformation() {
         //concatenate player arraylists
         ArrayList<Player> allTeams = new ArrayList<Player>();
         ArrayList<Player> team1 = this.getTeamArrayList().get(0).getPlayerArrayList();
@@ -397,7 +406,7 @@ public class GameSession {
     }
 
     public Player getPlayerDetails(String displayname) {
-        ArrayList<Player> players = this.getAllPlayerInformation();
+        ArrayList<Player> players = this.fetchAllPlayerInformation();
         Player newPlayer = new Player(displayname);
         if (players.contains(newPlayer)) {
             return players.get(players.indexOf(newPlayer));

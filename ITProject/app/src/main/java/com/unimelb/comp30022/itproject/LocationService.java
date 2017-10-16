@@ -11,6 +11,10 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,16 +38,32 @@ import java.lang.reflect.Type;
 
 public class LocationService extends Service implements
         LocationListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, SensorEventListener {
     private static String TAG = LocationService.class.getName();
     private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
+    private final String KEY_AZIMUTH_DATA = "azimuth";
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
     private final Integer LATENCY = 500;
     private LocationRequest locationRequest;
     private GoogleApiClient googleApiClient;
+    private SensorManager sensorManager;
+    private Sensor accelerometerSensor;
+    private Sensor magnetometerSensor;
+    private float[] magnetometerReadings = new float[4];
+    private float[] accelerometerReadings = new float[4];
+    private boolean magnetometerReceived = false;
+    private boolean accelerometerReceived = false;
+    private float cOrientation = 0f;
+    private Float currentBearing;
+    private Float prevBearing;
+    private float[] orientationArray = new float[4];
+    private float[] rotationMatrix = new float[9];
+    private float radAzimuth;
+    private float degAzimuth;
+    private Bundle locationAndAzimuthOutputs = new Bundle();
     private FusedLocationProviderApi fusedLocationProviderClient = LocationServices.FusedLocationApi;
     private Gson gson = new Gson();
     private Type locationtype = new TypeToken<Location>() {
@@ -56,6 +76,12 @@ public class LocationService extends Service implements
         setLocationUpdateSettings();
         googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API)
                 .addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
 
     }
 
@@ -82,6 +108,9 @@ public class LocationService extends Service implements
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
             googleApiClient.disconnect();
         }
+        sensorManager.unregisterListener(this, magnetometerSensor);
+        sensorManager.unregisterListener(this, accelerometerSensor);
+
     }
 
     @SuppressWarnings("MissingPermission")
@@ -109,9 +138,46 @@ public class LocationService extends Service implements
     @Override
     public void onLocationChanged(Location location) {
         Intent intent = new Intent(FILTER_LOCATION);
-        intent.putExtra(KEY_LOCATION_DATA, gson.toJson(location, locationtype));
+        locationAndAzimuthOutputs.putString(KEY_LOCATION_DATA, gson.toJson(location, locationtype));
+        intent.putExtras(locationAndAzimuthOutputs);
         sendBroadcast(intent);
         Log.d(TAG, "location updated" + location.toString());
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor == accelerometerSensor) {
+            accelerometerReceived = true;
+            System.arraycopy(sensorEvent.values, 0, accelerometerReadings, 0, sensorEvent.values.length);
+        }
+        if (sensorEvent.sensor == magnetometerSensor) {
+            magnetometerReceived = true;
+            System.arraycopy(sensorEvent.values, 0, magnetometerReadings, 0, sensorEvent.values.length);
+        }
+        //calculate rotation and reorientation and push to the calling activity
+        if (magnetometerReceived && accelerometerReceived) {
+            SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReadings, magnetometerReadings);
+            SensorManager.getOrientation(rotationMatrix, orientationArray);
+            //latest orientation
+            radAzimuth = orientationArray[0];
+            degAzimuth = (float) (Math.toDegrees(radAzimuth) + 360) % 360;
+            currentBearing = (float) (((int) (degAzimuth) / 10) * 10);
+            if (prevBearing == null || !prevBearing.equals(currentBearing)) {
+                //new direction turned
+                prevBearing = currentBearing;
+                Intent intent = new Intent(FILTER_LOCATION);
+                locationAndAzimuthOutputs.putString(KEY_AZIMUTH_DATA, String.valueOf(degAzimuth));
+                intent.putExtras(locationAndAzimuthOutputs);
+                sendBroadcast(intent);
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 
     //verify that the location and connectivity are enabled

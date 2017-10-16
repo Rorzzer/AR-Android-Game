@@ -173,7 +173,7 @@ public class UserProfActivity extends AppCompatActivity
         if (username.length() > 3) {
             return true;
         } else {
-            Toast.makeText(UserProfActivity.this, "Username must be at least 4 characters", Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserProfActivity.this, R.string.usernames_at_least_four, Toast.LENGTH_SHORT).show();
             etUsername.setText(userInfo.getUsername());
             return false;
         }
@@ -184,7 +184,7 @@ public class UserProfActivity extends AppCompatActivity
         if (name.length() > 2) {
             return true;
         } else {
-            Toast.makeText(UserProfActivity.this, "Names must be at least 3 characters long", Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserProfActivity.this, R.string.names_at_least_three, Toast.LENGTH_SHORT).show();
             etFirstname.setText(userInfo.getFirstname());
             etLastname.setText(userInfo.getLastname());
             return false;
@@ -196,7 +196,7 @@ public class UserProfActivity extends AppCompatActivity
         if (email.contains("@") && email.endsWith("unimelb.edu.au")) {
             return true;
         } else {
-            Toast.makeText(UserProfActivity.this, "Must be a Unimelb Email", Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserProfActivity.this, R.string.requires_unimelb_email, Toast.LENGTH_SHORT).show();
             etEmail.setText(userInfo.getEmail());
             return false;
         }
@@ -215,13 +215,13 @@ public class UserProfActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
-                    Toast.makeText(UserProfActivity.this, "Username already in use.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserProfActivity.this, R.string.username_already_used, Toast.LENGTH_SHORT).show();
                     loadUserData();
                 } else if (validateUsername(username)) {
                     // commit the information to the database
                     User user = new User(username, firstName, lastName, email);
                     mDatabase.child(uID).setValue(user);
-                    Toast.makeText(UserProfActivity.this, "Details updated", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserProfActivity.this, R.string.successfuly_updated_details, Toast.LENGTH_SHORT).show();
                 }
             }
 

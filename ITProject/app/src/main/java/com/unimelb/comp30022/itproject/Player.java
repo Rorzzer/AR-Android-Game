@@ -210,15 +210,6 @@ public class Player  {
         }
     }
 
-    public void updateRelativePaths(LatLng reference) {
-        relativePath.clear();
-        if (this.path.size() > 0) {
-            for (LatLng latLng : this.path) {
-                GameSession.convertToCartesian(reference, this.getAbsLocation());
-            }
-        }
-    }
-
 
     @Override
     public boolean equals(Object o) {

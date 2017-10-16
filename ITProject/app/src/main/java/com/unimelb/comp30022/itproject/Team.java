@@ -27,6 +27,11 @@ public class Team {
         this.isCapturing = isCapturing;
         playerArrayList = new ArrayList<Player>();
     }
+
+    public Team(String teamId) {
+        this.teamId = teamId;
+        playerArrayList = new ArrayList<Player>();
+    }
     public Team (){
         this.timeTeamCreated = System.currentTimeMillis();
         playerArrayList = new ArrayList<Player>();

@@ -115,11 +115,8 @@ public class FindLobbyActivity extends AppCompatActivity {
                         availableGames.add(gameSession.getSessionName());
                         Log.d(TAG, "Adding to gamesesion list" + gameSession.getSessionName());
                     }
+                    isGameListEmpty = false;
                     adapter.notifyDataSetChanged();
-                    for (String s : availableGames) {
-                        Log.d(TAG, "availableGames has:" + s);
-                    }
-
                 } else {
                     Log.d(TAG, "DataSnapshot is zero");
                     isGameListEmpty = true;
@@ -143,16 +140,16 @@ public class FindLobbyActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 GameSession gameSession = dataSnapshot.getValue(GameSession.class);
-                if (isGameListEmpty) {
+                if (gameSessionList.size() == 0) {
                     availableGames.clear();
+
                 }
                 if (!gameSessionList.contains(gameSession)) {
                     gameSessionList.add(gameSession);
                     availableGames.add(gameSession.getSessionName());
-                    adapter.notifyDataSetChanged();
+
                 }
-
-
+                adapter.notifyDataSetChanged();
             }
 
             @Override

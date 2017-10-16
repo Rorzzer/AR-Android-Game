@@ -1,5 +1,5 @@
 {
-    "bearing": 0.0,
+    "bearing": 90.3,
     "creator": "tom@student.unimelb.edu.au",
     "description": "",
     "duration": 2334324,
@@ -9,12 +9,12 @@
     "isPublicAccess": true,
     "location": {
         "accuracy": 10.0,
-        "latitude": 62.19255120694399,
-        "longitude": 108.7126830655601
+        "latitude": -85.76095617309515,
+        "longitude": -131.9569790216857
     },
     "maxPlayers": 30,
-    "sessionId": "-KwBP3i7Fq5l8lpvwJQI",
-    "sessionName": "rtg",
+    "sessionId": "-KwUVRqE_y3Buo4mqZiq",
+    "sessionName": "agahag",
     "startTime": 2334324,
     "teamArrayList": [
         {
@@ -25,35 +25,35 @@
             "playerArrayList": [
                 {
                     "absLocation": {
-                        "accuracy": 96.0,
-                        "latitude": -37.7743867,
-                        "longitude": 144.9424833
+                        "accuracy": 6.0,
+                        "latitude": -37.7742296,
+                        "longitude": 144.9424275
                     },
                     "assignedTeamName": "team_0",
                     "capturedList": [],
                     "coordinateLocation": {
-                        "accuracy": 96.0,
-                        "x": -6.372816339763745,
+                        "accuracy": 10.0,
+                        "x": 0.0,
                         "y": 0.0,
-                        "z": 4.929136263449074
+                        "z": 0.0
                     },
-                    "displayName": "654321@student.unimelb.edu.au",
+                    "displayName": "tom@student.unimelb.edu.au",
                     "hasBeenCaptured": false,
                     "isActive": true,
                     "isCapturing": true,
                     "isLoggedOn": true,
-                    "lastLoggedOn": 1507741694323,
-                    "lastPing": 1507741694323,
+                    "lastLoggedOn": 1508062136815,
+                    "lastPing": 1508062136815,
                     "path": [],
                     "relativePath": [],
                     "score": 0,
                     "skillLevel": 0,
-                    "teamId": "team_0"
+                    "teamId": "team_01"
                 }
             ],
-            "teamId": "team_0",
+            "teamId": "team_01",
             "teamName": "team_0",
-            "timeTeamCreated": 1507741681815
+            "timeTeamCreated": 1508062120961
         },
         {
             "creator": "tom@student.unimelb.edu.au",
@@ -62,37 +62,32 @@
             "maxPlayers": 15,
             "playerArrayList": [
                 {
-                    "absLocation": {
-                        "accuracy": 10.0,
-                        "latitude": -37.7743249,
-                        "longitude": 144.9424355
-                    },
                     "assignedTeamName": "team_1",
                     "capturedList": [],
                     "coordinateLocation": {
-                        "accuracy": 0.0,
-                        "x": 0.0,
+                        "accuracy": 100.0,
+                        "x": 19.6,
                         "y": 0.0,
-                        "z": 0.0
+                        "z": 19.2
                     },
-                    "displayName": "tom@student.unimelb.edu.au",
+                    "displayName": "123456@student.unimelb.edu.au",
                     "hasBeenCaptured": false,
                     "isActive": true,
                     "isCapturing": false,
                     "isLoggedOn": true,
-                    "lastLoggedOn": 1507741697349,
-                    "lastPing": 1507741697349,
+                    "lastLoggedOn": 1508065225489,
+                    "lastPing": 1508065225489,
                     "path": [],
                     "relativePath": [],
                     "score": 0,
                     "skillLevel": 0,
-                    "teamId": "team_1"
+                    "teamId": "team_11"
                 }
             ],
-            "teamId": "team_1",
+            "teamId": "team_11",
             "teamName": "team_1",
-            "timeTeamCreated": 1507741681815
+            "timeTeamCreated": 1508062120961
         }
     ],
-    "timeSessionCreated": 1507741681814
+    "timeSessionCreated": 1508062120961
 }
