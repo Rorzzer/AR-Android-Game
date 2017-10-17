@@ -1,6 +1,8 @@
 package com.unimelb.comp30022.itproject;
 
 
+import android.net.Uri;
+
 import java.util.ArrayList;
 
 /**
@@ -28,7 +30,7 @@ public class GameSession {
     private String creator;
     private String sessionName;
     private String description;
-    private String sessionImageUri;
+    private Uri sessionImageUri;
     private Float bearing;
     private ArrayList<Team> teamArrayList ;
     public GameSession()
@@ -209,11 +211,11 @@ public class GameSession {
         this.description = description;
     }
 
-    public String getSessionImageUri() {
+    public Uri getSessionImageUri() {
         return sessionImageUri;
     }
 
-    public void setSessionImageUri(String sessionImageUri) {
+    public void setSessionImageUri(Uri sessionImageUri) {
         this.sessionImageUri = sessionImageUri;
     }
 

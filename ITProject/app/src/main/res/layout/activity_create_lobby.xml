@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -63,10 +64,71 @@
             android:singleLine="false" />
 
         <LinearLayout
+            android:id="@+id/imagePickerGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etDescription"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvLobbyImageLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Image "
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/tvLobbyImageLandscape"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="(landcape)"
+                    android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/addImageButton"
+                android:layout_width="10dp"
+                android:layout_height="48dp"
+                android:layout_weight="1.48"
+                app:srcCompat="@drawable/ic_camera_alt_black_24dp" />
+
+            <ImageView
+                android:id="@+id/ivUploadImagePreview"
+                android:layout_width="145dp"
+                android:layout_height="62dp"
+                app:srcCompat="@drawable/team128" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/progressBarGroup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/imagePickerGroup"
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/pbUploadProgress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/timePickerGroup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/etDescription"
+            android:layout_below="@id/progressBarGroup"
             android:orientation="horizontal"
             android:weightSum="1">
 
@@ -90,8 +152,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="TextView" />
+                android:gravity="center_vertical" />
 
         </LinearLayout>
 

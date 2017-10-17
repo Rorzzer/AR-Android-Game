@@ -516,7 +516,7 @@ public class SessionInformationActivity extends AppCompatActivity
     public void loadDataToForm(){
         tvSessionName.setText(publicGameSession.getSessionName());
         tvCreator.setText(publicGameSession.getCreator());
-        tvLocation.setText(publicGameSession.getLocation().toString());
+        //tvLocation.setText(publicGameSession.getLocation().toString());
         tvAddress.setText("Generated from location");
         refreshPlayerList(joinedPlayers);
 

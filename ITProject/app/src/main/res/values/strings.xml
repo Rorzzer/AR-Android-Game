@@ -25,7 +25,8 @@
     <string name="successfuly_updated_details">Details updated</string>
     <string name="names_at_least_three">Names must be at least 3 characters long</string>
     <string name="usernames_at_least_four">Usernames must be at least 4 characters long</string>
-
+    <string name="error_adding_image">Error uploading image Session not created</string>
+    <string name="success_adding_image">Successfully uploaded image</string>
 
     <string name="title_activity_maps">Map</string>
     <string name="game_started_prompt">Game Launching Now!</string>

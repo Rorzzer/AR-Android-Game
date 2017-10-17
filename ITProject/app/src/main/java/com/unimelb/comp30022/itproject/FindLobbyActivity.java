@@ -51,6 +51,7 @@ public class FindLobbyActivity extends AppCompatActivity {
     private ListView activeGamesList;
     private ProgressBar progressBar;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

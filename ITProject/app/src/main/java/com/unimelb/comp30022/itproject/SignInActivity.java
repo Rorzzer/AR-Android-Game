@@ -162,7 +162,6 @@ public class SignInActivity extends AppCompatActivity
     private void signUserIn() {
         if (!checkFormFields())
             return;
-
         String email = etEmail.getText().toString();
         String password = etPass.getText().toString();
 
