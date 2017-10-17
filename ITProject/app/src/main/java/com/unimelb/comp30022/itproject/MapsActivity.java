@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -41,16 +42,20 @@ import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
+        GoogleApiClient.OnConnectionFailedListener, GeoQueryEventListener
         /*LocationListener*/ {
 
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
     private static final int QUERY_DISTANCE = 1;
 
+    private static String TAG = MapsActivity.class.getName();
+
 
     private GoogleMap mMap;
     private Map<String, Marker> markers;
+    private GeoQuery geoQuery;
+    private GeoFire geoFire;
 
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -62,7 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //GeoFire database connection
     DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
-    GeoFire geoFire = new GeoFire(GeoRef);
+
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
@@ -87,45 +92,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markers = new HashMap<String, Marker>();
 
         //GeoQuery of nearby games
-        GeoQuery geoQuery = geoFire.queryAtLocation(QueryCenter, QUERY_DISTANCE);
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String key, GeoLocation location) {
-                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)));
-                markers.put(key, marker);
-            }
-
-            @Override
-            public void onKeyExited(String key) {
-                Marker marker = markers.get(key);
-                marker.remove();
-                markers.remove(key);
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-
-                Marker marker = markers.get(key);
-                if(key == FirebaseAuth.getInstance().getCurrentUser().getUid()){
-                    marker.remove();
-                }
-
-                if (marker != null && key != FirebaseAuth.getInstance().getCurrentUser().getUid()) {
-                    marker.setPosition(new LatLng(location.latitude, location.longitude));
-                }
-
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-
-            }
-
-            @Override
-            public void onGeoQueryError(DatabaseError error) {
-
-            }
-        });
+        this.geoFire = new GeoFire(GeoRef);
+        this.geoQuery = this.geoFire.queryAtLocation(QueryCenter, QUERY_DISTANCE);
+        this.geoQuery.addGeoQueryEventListener(this);
 
     }
 
@@ -143,6 +112,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     == PackageManager.PERMISSION_GRANTED) {              //Checks manifest permissions
                 buildGoogleApiClient();                                  //build APi client, method below
                 mMap.setMyLocationEnabled(true);
+
             }
         }
         else {
@@ -255,18 +225,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       //  geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
-    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
+     LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
         @Override
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
                 //Setting users location in geofire database, using UserData as key
                // geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
+                
+                if(mLastLocation == null){
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+                }
                 mLastLocation = location;
-
-                QueryCenter = new GeoLocation(location.getLatitude(), location.getLongitude());
+                Log.d(TAG, "Maps Callback");
+                geoQuery.setCenter(new GeoLocation(location.getLatitude(), location.getLongitude()));
 
                 //move map camera
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
 
 
@@ -274,5 +249,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
+    @Override
+    public void onKeyEntered(String key, GeoLocation location) {
+        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)));
+        markers.put(key, marker);
+    }
+
+    @Override
+    public void onKeyExited(String key) {
+        Marker marker = markers.get(key);
+        marker.remove();
+        markers.remove(key);
+    }
+
+    @Override
+    public void onKeyMoved(String key, GeoLocation location) {
+
+        Marker marker = markers.get(key);
+
+        if (marker != null) {
+            marker.setPosition(new LatLng(location.latitude, location.longitude));
+        }
+
+    }
+
+    @Override
+    public void onGeoQueryReady() {
+
+    }
+
+    @Override
+    public void onGeoQueryError(DatabaseError error) {
+
+    }
 
 }

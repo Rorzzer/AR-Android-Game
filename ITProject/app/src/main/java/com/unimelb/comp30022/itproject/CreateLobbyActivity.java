@@ -496,9 +496,15 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.setGameRadius(gameRadius);
 
         if(currentLocation != null){
+
+            //Currently storing utilising the creators userID, should be fine, users shouldnt create more than 1 session anyway
             gameSession.setLocation(currentLocation);
-            geoFire.setLocation(gameSession.getSessionId(), new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()));
+            geoFire.setLocation(firebaseAuth.getCurrentUser().getUid(), new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()));
         }
+        else{
+            Log.d(TAG, "Curent Location is null");
+        }
+
 
     }
 
