@@ -6,98 +6,11 @@
     android:fillViewport="true"
     tools:context="com.unimelb.comp30022.itproject.ChatActivity">
 
-    <RelativeLayout
 
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+    <!--<fragment-->
+        <!--android:id="@+id/chatFragment"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:name="com.unimelb.comp30022.itproject.ChatFragment"/>-->
 
-
-
-
-        <LinearLayout
-            android:id="@+id/filterSelectionGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-
-            <LinearLayout
-                android:id="@+id/usernameAndSwitch"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="1">
-
-                <TextView
-                    android:id="@+id/tvUsername"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.92"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Switch
-                    android:id="@+id/swtChat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Team Chat Only" />
-
-            </LinearLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/clChat"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:layout_below="@+id/usernameAndSwitch">
-
-
-
-                <ListView
-                    android:id="@+id/lvChat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:transcriptMode="alwaysScroll"
-                    android:stackFromBottom="true">
-
-
-                </ListView>
-
-            </android.support.constraint.ConstraintLayout>
-
-            <LinearLayout
-                android:id="@+id/messageAndSend"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/usernameAndSwitch"
-                android:orientation="horizontal"
-                android:weightSum="1">
-
-
-                <EditText
-                    android:id="@+id/etMessage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:text="Message"
-                    android:layout_weight="1.01" />
-
-
-                <Button
-                    android:id="@+id/btnSend"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Send" />
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-    </RelativeLayout>
 </RelativeLayout>
