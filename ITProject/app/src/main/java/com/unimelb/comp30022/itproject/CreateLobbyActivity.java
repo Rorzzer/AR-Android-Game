@@ -5,10 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-
 import android.content.IntentFilter;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -31,11 +30,11 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -45,12 +44,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -108,6 +109,8 @@ public class CreateLobbyActivity extends AppCompatActivity
     private double teamSeekBarUnit;
     private boolean inEditMode;
     private boolean timeSelected = false;
+    private Bundle locationAndAzimuthInputs = new Bundle();
+
 
     private EditText etSessionName;
     private TextView tvSelectedStartTime;
@@ -127,6 +130,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     private ArrayList list = new ArrayList();
     private ArrayAdapter adapter;
     private Handler handler;
+    private ProgressBar uploadProgressBar;
     private BroadcastReceiver currentLocationReciever;
     private LatLng currentLocation;
     private Gson gson = new Gson();
@@ -161,14 +165,14 @@ public class CreateLobbyActivity extends AppCompatActivity
         Context context = getApplicationContext();
         receiveLocationBroadcasts();
         lobbyImage = findViewById(R.id.ivUploadImagePreview);
-        etSessionName = (EditText) findViewById(R.id.etLobbyName);
-        tvSelectedStartTime = (TextView) findViewById(R.id.tvSelectedStartTime);
-        etDescription = (EditText) findViewById(R.id.etDescription);
-        listView = (ListView) findViewById(R.id.lvPlayerListView);
-        tvDurationMinutes = (TextView) findViewById(R.id.tvSelectedDuration);
-        tvMaxTeamSize = (TextView) findViewById(R.id.tvSelectedMaxSize);
-        btnCreateOrEdit = (Button)findViewById(R.id.btnCreateOrUpdateLobby);
-        btnDeleteOrCancel = (Button)findViewById(R.id.btnDeleteOrCancelLobby);
+        etSessionName = findViewById(R.id.etLobbyName);
+        tvSelectedStartTime = findViewById(R.id.tvSelectedStartTime);
+        etDescription = findViewById(R.id.etDescription);
+        listView = findViewById(R.id.lvPlayerListView);
+        tvDurationMinutes = findViewById(R.id.tvSelectedDuration);
+        tvMaxTeamSize = findViewById(R.id.tvSelectedMaxSize);
+        btnCreateOrEdit = findViewById(R.id.btnCreateOrUpdateLobby);
+        btnDeleteOrCancel = findViewById(R.id.btnDeleteOrCancelLobby);
         btnSelectStartTime = findViewById(R.id.btnSelectStartTime);
         addImage = findViewById(R.id.addImageButton);
         btnCreateOrEdit.setOnClickListener(this);
@@ -754,9 +758,10 @@ public class CreateLobbyActivity extends AppCompatActivity
             currentLocationReciever = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    String input = intent.getStringExtra(KEY_LOCATION_DATA);
+                    locationAndAzimuthInputs = intent.getExtras();
+                    String locationExtra = locationAndAzimuthInputs.getString(KEY_LOCATION_DATA);
                     Log.d(TAG, "Recieving Broadcast");
-                    Location recentLocation = gson.fromJson(input, locationType);
+                    Location recentLocation = gson.fromJson(locationExtra, locationType);
                     if (recentLocation != null) {
                         LatLng absLocation = new LatLng(recentLocation.getLatitude(), recentLocation.getLongitude(), recentLocation.getAccuracy());
                         currentLocation = absLocation;

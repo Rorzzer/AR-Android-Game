@@ -27,17 +27,11 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -99,6 +93,19 @@ public class RunningGameActivity extends AppCompatActivity {
         }
     };
     TextView textView;
+    LocationRequest mLocationRequest;
+    Location mLastLocation;
+    FusedLocationProviderClient mFusedLocationClient;
+    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            for (Location location : locationResult.getLocations()) {
+
+                //TODO: whatever was happening with the location data
+
+            }
+        }
+    };
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
     private boolean hasFineLocationPermission;
@@ -164,24 +171,6 @@ public class RunningGameActivity extends AppCompatActivity {
             hide();
         }
     };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
-
-    LocationRequest mLocationRequest;
-    Location mLastLocation;
-    FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,7 +234,7 @@ public class RunningGameActivity extends AppCompatActivity {
                 receiveMyGameSessionBroadcasts();
                 Log.d(TAG, "Launching current game");
                 launchCurrentGame();
-       //       
+                //
             } else {
                 Log.d(TAG, "Doesn't have permission");
 
@@ -327,6 +316,7 @@ public class RunningGameActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHidePart2Runnable);
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
+
     /**
      * Schedules a call to hide() in [delay] milliseconds, canceling any
      * previously scheduled calls.
@@ -335,6 +325,7 @@ public class RunningGameActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
     //verify that the location and connectivity are enabled
     private boolean getCurrentPermissions() {
         hasFineLocationPermission = (PackageManager.PERMISSION_GRANTED ==
@@ -354,7 +345,6 @@ public class RunningGameActivity extends AppCompatActivity {
         startActivity(ar);
         Log.d(TAG, "launching Ar");
     }
-
 
     //whether the applications should request for permisssions
     public boolean shouldRequestPermissions() {
@@ -413,6 +403,7 @@ public class RunningGameActivity extends AppCompatActivity {
 
         }
     }
+
     private boolean hasGooglePlay() {
         int availability = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
         if (availability == ConnectionResult.SUCCESS) {
@@ -423,7 +414,6 @@ public class RunningGameActivity extends AppCompatActivity {
         }
 
     }
-
 
     @SuppressWarnings("MissingPermission")
     private void startLocationUpdate() {
@@ -463,16 +453,5 @@ public class RunningGameActivity extends AppCompatActivity {
         }
         registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
     }
-
-    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            for (Location location : locationResult.getLocations()) {
-
-                //TODO: whatever was happening with the location data
-
-            }
-        }
-    };
 
 }
