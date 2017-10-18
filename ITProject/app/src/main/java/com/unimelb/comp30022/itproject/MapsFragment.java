@@ -2,8 +2,6 @@ package com.unimelb.comp30022.itproject;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,17 +11,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoQuery;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -36,30 +38,23 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 public class MapsFragment extends Fragment {
-    private final String KEY_LOCATION_DATA = "location";
     private static String TAG = MapsFragment.class.getName();
-    private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
 
     private OnFragmentInteractionListener mListener;
     private BroadcastReceiver currentLocationReciever;
-    private Type locationType = new TypeToken<Location>() {
-    }.getType();
-    private LatLng currentLocation;
+    private Type locationType = new TypeToken<Location>() {}.getType();
+    private LatLng PlayerLocation;
     private Gson gson = new Gson();
-    private Bundle locationAndAzimuthInputs = new Bundle();
-    private GoogleMap mMap;
+    private GoogleMap googleMap;
     private Map<String, Marker> markers;
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private Location mLastLocation;
-    private FusedLocationProviderClient mFusedLocationClient;
+    private MapView mMapView;
+    private GameSession currentGameState;
 
     public MapsFragment() {
         // Required empty public constructor
     }
 
-    // TODO: Rename and change types and number of parameters
-    public static MapsFragment newInstance(String param1, String param2) {
+    public static MapsFragment newInstance() {
         MapsFragment fragment = new MapsFragment();
         return fragment;
     }
@@ -68,11 +63,53 @@ public class MapsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
 
-        receiveLocationBroadcasts();
 
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        mMapView = rootView.findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
+        mMapView.onResume(); // needed to get the map to display immediately
+
+        currentGameState = ((RunningGameActivity)getActivity()).getCurrentGameState();
+        if(currentGameState == null){
+            Log.d(TAG, "Null gamestate");
+        }
+
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //hashmap for key location pairs
+        markers = new HashMap<String, Marker>();
+
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap mMap) {
+                googleMap = mMap;
+
+
+                // For showing a move to my location button
+                googleMap.setMyLocationEnabled(true);
+                Log.d(TAG, "Current player count ->" + currentGameState.currentPlayerCount());
+                for(int i=0; i <= currentGameState.currentPlayerCount(); i++ ){
+                    Log.d(TAG, "Currently Player ->" + i);
+
+                    if(currentGameState.allPlayerArrayLists().get(i).getDisplayName() != FirebaseAuth.getInstance().getCurrentUser().getDisplayName()){
+                        Marker marker = markers.get(currentGameState.allPlayerArrayLists().get(i).getDisplayName());
+                        if(marker != null){
+                            marker.remove();
+                        }
+                        PlayerLocation = new LatLng(currentGameState.allPlayerArrayLists().get(i).getAbsLocation().getLatitude(), currentGameState.allPlayerArrayLists().get(0).getAbsLocation().getLongitude());
+                        marker = mMap.addMarker(new MarkerOptions().position(PlayerLocation));
+                        markers.put(currentGameState.allPlayerArrayLists().get(i).getDisplayName(), marker);
+                    }
+                }
+            }
+        });
+
+        return rootView;
 
 
     }
@@ -116,28 +153,5 @@ public class MapsFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private void receiveLocationBroadcasts() {
-        if (currentLocationReciever == null) {
-            currentLocationReciever = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    locationAndAzimuthInputs = intent.getExtras();
-                    String locationExtra = locationAndAzimuthInputs.getString(KEY_LOCATION_DATA);
-                    Log.d(TAG, "Recieving Broadcast");
-                    Location recentLocation = gson.fromJson(locationExtra, locationType);
-                    if (recentLocation != null) {
-                        LatLng absLocation = new LatLng(recentLocation.getLatitude(), recentLocation.getLongitude(), recentLocation.getAccuracy());
-                        currentLocation = absLocation;
-                        if(currentLocation != null){
 
-                            Log.d(TAG, "Location Retrieved, via fragment" + currentLocation.toString());
-                        }
-                        else{
-                            Log.d(TAG, "Location Failure");
-                        }
-                    }
-                }
-            };
-        }
-    }
 }
