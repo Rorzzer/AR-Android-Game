@@ -8,12 +8,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -33,6 +36,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
@@ -43,7 +47,8 @@ import java.lang.reflect.Type;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class RunningGameActivity extends AppCompatActivity {
+public class RunningGameActivity extends AppCompatActivity implements
+        View.OnClickListener, MapsFragment.OnFragmentInteractionListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -74,6 +79,7 @@ public class RunningGameActivity extends AppCompatActivity {
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
     private final int CAPTURING_LATENCY = 2000;
+    private Fragment mFrag;
 
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
@@ -168,7 +174,7 @@ public class RunningGameActivity extends AppCompatActivity {
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
-            hide();
+//            hide();
         }
     };
 
@@ -177,22 +183,24 @@ public class RunningGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_running_game);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        findViewById(R.id.btnMapFrag).setOnClickListener(this);
 
-        mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = findViewById(R.id.fullscreen_content);
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null) {
+//            actionBar.setDisplayHomeAsUpEnabled(true);
+//        }
+
+//        mVisible = true;
+//        mControlsView = findViewById(R.id.fullscreen_content_controls);
+//        mContentView = findViewById(R.id.fullscreen_content);
 
         // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
+//        mContentView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                toggle();
+//            }
+//        });
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
@@ -216,15 +224,15 @@ public class RunningGameActivity extends AppCompatActivity {
                // createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
 
-                textView = findViewById(R.id.fullscreen_content);
+//                textView = findViewById(R.id.fullscreen_content);
 
                /* googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
                 boolean isServiceRunning;
                 textView = (TextView) findViewById(R.id.fullscreen_content);*/
 
-                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
-                startService(intent);
+//                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+//                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
+//                startService(intent);
 
                // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
 
@@ -233,8 +241,7 @@ public class RunningGameActivity extends AppCompatActivity {
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
                 receiveMyGameSessionBroadcasts();
                 Log.d(TAG, "Launching current game");
-                launchCurrentGame();
-                //
+//                launchCurrentGame();
             } else {
                 Log.d(TAG, "Doesn't have permission");
 
@@ -297,7 +304,7 @@ public class RunningGameActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.hide();
         }
-        mControlsView.setVisibility(View.GONE);
+//        mControlsView.setVisibility(View.GONE);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
@@ -336,7 +343,7 @@ public class RunningGameActivity extends AppCompatActivity {
     public void launchCurrentGame() {
         ServiceTools serviceTools = new ServiceTools();
         boolean isServiceRunning;
-        textView = findViewById(R.id.fullscreen_content);
+//        textView = findViewById(R.id.fullscreen_content);
         Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
         intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
         startService(intent);
@@ -454,4 +461,29 @@ public class RunningGameActivity extends AppCompatActivity {
         registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnMapFrag:
+//                    Opens fragment of map if there is none, closes it if there is
+                    mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
+                    if(mFrag != null){
+                        getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                    }
+                    else{
+                        getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
+                    }
+
+        }
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }
