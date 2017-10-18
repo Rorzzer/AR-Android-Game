@@ -469,6 +469,8 @@ public class RunningGameActivity extends AppCompatActivity implements
                     mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
                     if(mFrag != null){
                         getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                        getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
+
                     }
                     else{
                         getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();

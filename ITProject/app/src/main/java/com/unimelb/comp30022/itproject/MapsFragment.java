@@ -13,10 +13,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoQuery;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 
 /**
@@ -40,6 +48,12 @@ public class MapsFragment extends Fragment {
     private LatLng currentLocation;
     private Gson gson = new Gson();
     private Bundle locationAndAzimuthInputs = new Bundle();
+    private GoogleMap mMap;
+    private Map<String, Marker> markers;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mLastLocation;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     public MapsFragment() {
         // Required empty public constructor
