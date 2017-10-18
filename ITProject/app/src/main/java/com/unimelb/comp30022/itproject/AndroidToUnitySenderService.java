@@ -508,7 +508,6 @@ public class AndroidToUnitySenderService extends Service {
             finalCaptureList = gson.fromJson(gson.toJson(potentialCaptures), playerArrayListType);
             Player closestPlayer = null;
             double closestPlayerDistance = Double.MAX_VALUE;
-
             if (finalCaptureList.size() == 0) {
                 return;
             }
@@ -517,6 +516,7 @@ public class AndroidToUnitySenderService extends Service {
                 if (player.getCapturing() == true) {
                     finalCaptureList.remove(player);
                 } else if (player.getCapturing() == false) {
+                    Log.d(LOG_TAG, "Player" + player.getDisplayName() + " is available for capture");
                     //from players that aren't capturing determine the closest one
                     if (currentPlayer.getAbsLocation() != null && player.getAbsLocation() != null) {
                         dist = GameSession.distanceBetweenTwoPlayers(currentPlayer, player);
@@ -536,12 +536,9 @@ public class AndroidToUnitySenderService extends Service {
                 myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
                 myCapturedList.add(closestPlayer.getDisplayName());
                 Toast.makeText(AndroidToUnitySenderService.this, R.string.player + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
-
             }
         }
     }
-
-
     public void displayCapturedMessge(String capturedName) {
         Toast.makeText(AndroidToUnitySenderService.this, R.string.player + capturedName + R.string.has_been_captured, Toast.LENGTH_SHORT).show();
     }

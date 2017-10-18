@@ -64,7 +64,8 @@ public class ServiceListenerScript : MonoBehaviour {
 
     public CoordinateLocation cPos;
 
-    public float largestObjectSize = 10;
+    public float largestObjectSize = 15;
+    public float smallestObjectsSize = 5;
     public Transform escapingMember;
     public Transform capturingMember;
     public List<PlayerObject> players = new List<PlayerObject> ();
@@ -261,7 +262,6 @@ public class ServiceListenerScript : MonoBehaviour {
     }
 
     public LatLngClass getAbsLocation (int teamIdx, int playerIdx) {
-
         return new LatLngClass ((float) (double) playerData[teamList][teamIdx][playerList][playerIdx][abs][lon], (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][abs][lat],
             (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][abs][acc]);
     }
@@ -332,6 +332,9 @@ public class ServiceListenerScript : MonoBehaviour {
     public void resize(PlayerObject player, float size){
         if(size>largestObjectSize){
             size = largestObjectSize;
+        }
+        if(size < smallestObjectsSize){
+            size = smallestObjectsSize;
         }
         player.gameModel.transform.localScale = new  Vector3(size,size,size);
     }

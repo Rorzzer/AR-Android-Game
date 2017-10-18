@@ -1,7 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
 
-import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -33,7 +32,7 @@ public class GameSession {
     private String creator;
     private String sessionName;
     private String description;
-    private URI sessionImageUri;
+    private String sessionImageUri;
     private Float bearing;
     private boolean easyMode;
     private ArrayList<Team> teamArrayList ;
@@ -236,11 +235,11 @@ public class GameSession {
         this.description = description;
     }
 
-    public URI getSessionImageUri() {
+    public String getSessionImageUri() {
         return sessionImageUri;
     }
 
-    public void setSessionImageUri(URI sessionImageUri) {
+    public void setSessionImageUri(String sessionImageUri) {
         this.sessionImageUri = sessionImageUri;
     }
 

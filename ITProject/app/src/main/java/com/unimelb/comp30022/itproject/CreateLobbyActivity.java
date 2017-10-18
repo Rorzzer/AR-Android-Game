@@ -506,9 +506,14 @@ public class CreateLobbyActivity extends AppCompatActivity
         if (uri != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Uploading Image")
-                    .setCancelable(false);
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
             AlertDialog alert = builder.create();
             alert.show();
+
             uploadProgressBar.setVisibility(View.VISIBLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -616,8 +621,8 @@ public class CreateLobbyActivity extends AppCompatActivity
         maxTeamSizeSeekbar.setProgress((int) (gameSession.getMaxPlayers() / (2 * teamSeekBarUnit)));
         tvSelectedStartTime.setText(gameSession.getStartTimeString());
         if (gameSession.getSessionImageUri() != null) {
-            Uri imageUri = Uri.parse(gameSession.getSessionImageUri().toString());
-            Picasso.with(CreateLobbyActivity.this).load(imageUri).resize(60, 60).centerCrop().into(lobbyImage);
+            Uri uri = Uri.parse(gameSession.getSessionImageUri());
+            Picasso.with(CreateLobbyActivity.this).load(uri).resize(60, 60).centerCrop().into(lobbyImage);
         }
         etDescription.setText(gameSession.getDescription());
         if(gameSession.getPublicAccess() == true){
@@ -658,7 +663,7 @@ public class CreateLobbyActivity extends AppCompatActivity
             gameSession.setStartTime(startTime);
         }
         if (sessionImage != null) {
-            //gameSession.setSessionImageUri(sessionImage);
+            gameSession.setSessionImageUri(sessionImage.toString());
         }
         gameSession.setEndTime(new Long(gameSession.getStartTime().longValue() + gameSession.getDuration().longValue()));
         gameSession.setLocation(new DataGenerator().generateRandomLocation());
