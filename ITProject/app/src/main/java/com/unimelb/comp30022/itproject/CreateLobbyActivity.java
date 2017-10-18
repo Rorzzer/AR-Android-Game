@@ -2,12 +2,14 @@ package com.unimelb.comp30022.itproject;
 
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -80,8 +82,8 @@ public class CreateLobbyActivity extends AppCompatActivity
     private Boolean isPublic;
     private Uri sessionImage;
     private Long startTime;
-    private int durationInMinutes;
-    private Long durationInSeconds;
+    private long durationInMinutes;
+    private long durationInSeconds;
     private Integer gameRadius;
     private Integer maxTeamSize;
     private String sessionName;
@@ -197,7 +199,8 @@ public class CreateLobbyActivity extends AppCompatActivity
             isPublic = true;
             durationSeekBar.setProgress(durationSeekBarMaxValue / 2);
             tvDurationMinutes.setText(String.valueOf(durationSeekBarUnit * durationSeekBarMaxValue / 2));
-            durationInSeconds = new Long((int) (durationSeekBarUnit * durationSeekBarMaxValue / 2 * SECONDS_IN_MINUTE));
+            durationInSeconds = (int) (durationSeekBarUnit * durationSeekBarMaxValue / 2 * SECONDS_IN_MINUTE);
+            durationInMinutes = durationInSeconds / SECONDS_IN_MINUTE;
             maxTeamSizeSeekbar.setProgress(teamSeekBarMaxValue / 2);
             tvMaxTeamSize.setText(String.valueOf(teamSeekBarUnit * teamSeekBarMaxValue / 2));
             maxTeamSize = (int) teamSeekBarUnit * teamSeekBarMaxValue / 2;
@@ -213,8 +216,8 @@ public class CreateLobbyActivity extends AppCompatActivity
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean b) {
                 durationSeekBarUnit = MAX_GAME_DURATION_MINS / durationSeekBarMaxValue;
-                durationInMinutes = (int) durationSeekBarUnit * progressValue;
-                durationInSeconds = new Long(durationInMinutes * SECONDS_IN_MINUTE);
+                durationInMinutes = (long) (durationSeekBarUnit * progressValue);
+                durationInSeconds = durationInMinutes * SECONDS_IN_MINUTE;
                 tvDurationMinutes.setText(String.valueOf(durationInMinutes));
             }
             @Override
@@ -524,8 +527,6 @@ public class CreateLobbyActivity extends AppCompatActivity
                 }
             });
         }
-
-
     }
 
     /**
@@ -546,24 +547,6 @@ public class CreateLobbyActivity extends AppCompatActivity
         return false;
     }
 
-    /**
-     * updates data on the server if the lobby creator has altered the EditText fields
-     * */
-    private boolean updateLobbyInformation(){
-        //if lobby exists update the lobby that matches current lobby id
-        updateServerGameSession(gameSession);
-        return false;
-    }
-
-    /***
-     *
-     * updates the listview containing the members to invite
-     */
-    private boolean updateLobbyInvites(){
-        //add invite to listview
-        return false;
-    }
-
     private boolean checkFormFields() {
         String name, description, startTime;
         name = etSessionName.getText().toString();
@@ -579,13 +562,40 @@ public class CreateLobbyActivity extends AppCompatActivity
         }
         if (timeSelected == false) {
             btnSelectStartTime.setError("Start time required");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Start time is required")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
             return false;
         }
         if (durationInMinutes == 0) {
-
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Duration cannot be set to zero minutes")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+            return false;
         }
         if (maxTeamSize == 0) {
-
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Team size cannot be set to zero members")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+            return false;
         }
 
         Log.d(TAG, "all conditions in form met");
@@ -600,7 +610,8 @@ public class CreateLobbyActivity extends AppCompatActivity
         durationSeekBar.setProgress((int) (gameSession.getDuration().intValue() / (durationSeekBarUnit * SECONDS_IN_MINUTE)));
         maxTeamSizeSeekbar.setProgress((int) (gameSession.getMaxPlayers() / (2 * teamSeekBarUnit)));
         //tvSelectedStartTime.setText();
-        Picasso.with(CreateLobbyActivity.this).load(gameSession.getSessionImageUri()).resize(60, 60).centerCrop().into(lobbyImage);
+        Uri imageUri = Uri.parse(gameSession.getSessionImageUri().toString());
+        Picasso.with(CreateLobbyActivity.this).load(imageUri).resize(60, 60).centerCrop().into(lobbyImage);
         etDescription.setText(gameSession.getDescription());
         if(gameSession.getPublicAccess() == true){
             radioButtonPublicAccess.setChecked(true);
@@ -639,12 +650,8 @@ public class CreateLobbyActivity extends AppCompatActivity
                     + selectedHour * SECONDS_IN_HOUR + selectedMinute + SECONDS_IN_MINUTE;
             gameSession.setStartTime(startTime);
         }
-
-        for (Team team : gameSession.getTeamArrayList()) {
-            team.setMaxPlayers(maxTeamSize);
-        }
         if (sessionImage != null) {
-            gameSession.setSessionImageUri(sessionImage);
+            //gameSession.setSessionImageUri(sessionImage);
         }
         gameSession.setEndTime(new Long(gameSession.getStartTime().longValue() + gameSession.getDuration().longValue()));
         gameSession.setLocation(new DataGenerator().generateRandomLocation());
@@ -657,21 +664,6 @@ public class CreateLobbyActivity extends AppCompatActivity
         Intent sessionInformation = new Intent(CreateLobbyActivity.this, SessionInformationActivity.class);
         sessionInformation.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);
         startActivity(sessionInformation);
-    }
-
-    /*
-    * allows for faster invites of players for private sessions
-    *
-    */
-    private ArrayList<String> getAddressList(){
-        return null;
-    }
-
-    /*
-    * notifies selected  memebers on the address list
-    * */
-    private boolean inviteSelectedMembers(ArrayList<String> addressList){
-        return false;
     }
 
     /**
@@ -695,5 +687,28 @@ public class CreateLobbyActivity extends AppCompatActivity
         return gameSession;
     }
 
+    /*
+* allows for faster invites of players for private sessions
+*
+*/
+    private ArrayList<String> getAddressList() {
+        return null;
+    }
+
+    /*
+    * notifies selected  memebers on the address list
+    * */
+    private boolean inviteSelectedMembers(ArrayList<String> addressList) {
+        return false;
+    }
+
+    /***
+     *
+     * updates the listview containing the members to invite
+     */
+    private boolean updateLobbyInvites() {
+        //add invite to listview
+        return false;
+    }
 
 }

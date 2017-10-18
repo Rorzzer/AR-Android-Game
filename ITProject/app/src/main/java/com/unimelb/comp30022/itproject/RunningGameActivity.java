@@ -70,20 +70,6 @@ public class RunningGameActivity extends AppCompatActivity {
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
     private final Handler handler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     TextView textView;
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
@@ -149,6 +135,20 @@ public class RunningGameActivity extends AppCompatActivity {
             hide();
         }
     };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,7 +189,7 @@ public class RunningGameActivity extends AppCompatActivity {
             finish();
         } else {
 
-            if (hasFineLocationPermission) {
+            if (getCurrentPermissions()) {
                 Log.d(TAG, "Has Google play installed ");
                 ServiceTools serviceTools = new ServiceTools();
                 boolean isServiceRunning;
@@ -304,6 +304,7 @@ public class RunningGameActivity extends AppCompatActivity {
         isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
         Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
         startActivity(ar);
+        Log.d(TAG, "launching Ar");
     }
 
 
@@ -374,9 +375,6 @@ public class RunningGameActivity extends AppCompatActivity {
         }
 
     }
-
-
-
 
 
     private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {

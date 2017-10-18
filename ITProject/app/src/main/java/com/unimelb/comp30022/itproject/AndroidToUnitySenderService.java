@@ -60,11 +60,11 @@ public class AndroidToUnitySenderService extends Service {
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final String KEY_IS_CAPTURING = "capturing";
-    private final double MIN_CAPTURE_DIST = 4.0;
     private final Integer LATENCY = 500;
     private final int UPDATING_GAME_STARTED = 0;
     private final int UPDATING_LOCATION = 1;
     private final int UPDATING_CAPTURE = 2;
+    private final int FOOTSTEP_UPDATE_FREQUENCY = 5000;
     private final Handler handler = new Handler();
     private Bundle locationAndAzimuthInputs = new Bundle();
     private FirebaseAuth firebaseAuth;
@@ -91,7 +91,8 @@ public class AndroidToUnitySenderService extends Service {
     private User currentUserInfo;
     private String userId;
     private Player currentPlayer;
-    private double captureDistance = MIN_CAPTURE_DIST;
+    private double captureDistance = GameSession.EASY_CAPTURE_DISTANCE;
+    private int numberOfFootsteps = GameSession.NUMBER_OF_FOOTSTEPS;
     private ArrayList<Player> targetList = new ArrayList<Player>();
     private ArrayList<String> capturedList = new ArrayList<String>();
     private ArrayList<String> myCapturedList = new ArrayList<String>();
@@ -116,18 +117,15 @@ public class AndroidToUnitySenderService extends Service {
                     Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             //direct intent with string targeted by reciever and specitfy data format
             //---> post this information and update the database once after the latency is passed
-
             if (currentLocation != null && myGameSession != null) {
                 myGameSession.updatePlayerLocation(currentPlayer, currentLocation);
                 myGameSession.updateRelativeLocations(currentLocation);
                 senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT, gson.toJson(myGameSession));
                 //Log.d(LOG_TAG, "Sending to unity: "+gson.toJson(myGameSession));
-                Log.d(LOG_TAG, "------------------ ");
-                for (Player player : myGameSession.fetchAllPlayerInformation()) {
-                    if (player.getDisplayName() != null && player.getCoordinateLocation() != null) {
-                        //Log.d(LOG_TAG,"player : " + gson.toJson(player,playerType));
-                        //Log.d(LOG_TAG, player.getDisplayName() + " " +player.getAbsLocation().toString()+ " current player: "+currentPlayer.getDisplayName()+"-:"+ myGameSession.getPlayerDetails(currentPlayer.getDisplayName()).getAbsLocation().toString());
-                        Log.d(LOG_TAG, "distance " + String.valueOf(GameSession.distanceBetweenTwoPlayers(myGameSession.getPlayerDetails(currentPlayer.getDisplayName()), player)));
+                //Log.d(LOG_TAG, "------------------ ");
+                for (Player player : myGameSession.allPlayerArrayLists()) {
+                    if (player.getDisplayName() != null && player.getCoordinateLocation() != null && !player.getDisplayName().equals(currentPlayer.getDisplayName())) {
+                        Log.d(LOG_TAG, player.getDisplayName() + " distance " + String.valueOf(GameSession.distanceBetweenTwoPlayers(myGameSession.getPlayerDetails(currentPlayer.getDisplayName()), player)));
                     }
                 }
                 if (currentLocation.getAccuracy() > captureDistance * ACCURACY_TOLERANCE_FACTOR) {
@@ -141,6 +139,24 @@ public class AndroidToUnitySenderService extends Service {
 
             handler.removeCallbacks(this);
             handler.postDelayed(this, LATENCY);
+        }
+    };
+
+    private Runnable updateFootsteps = new Runnable() {
+        public void run() {
+            if (currentLocation != null && myGameSession != null) {
+                myGameSession.updatePlayerLocation(currentPlayer, currentLocation);
+                myGameSession.updatePaths(numberOfFootsteps);
+                myGameSession.updateRelativeLocations(currentLocation);
+                Log.d(LOG_TAG, "Updating footprints");
+
+            } else {
+                Log.d(LOG_TAG, "Not updating footprints");
+            }
+
+
+            handler.removeCallbacks(this);
+            handler.postDelayed(this, FOOTSTEP_UPDATE_FREQUENCY);
         }
     };
 
@@ -172,6 +188,8 @@ public class AndroidToUnitySenderService extends Service {
             startService(locationService);
             handler.removeCallbacks(sendData);
             handler.postDelayed(sendData, LATENCY);
+            handler.removeCallbacks(updateFootsteps);
+            handler.postDelayed(sendData, FOOTSTEP_UPDATE_FREQUENCY);
             //initiate the game session
             //Authorize the current user, fetch the game sessionInformation of
             //the information added to the intent on creation, set the game as started and
@@ -239,6 +257,8 @@ public class AndroidToUnitySenderService extends Service {
                                 //update player location on server for shared model
                                 myGameSession.updatePlayerLocation(currentPlayer, currentLocation);
                                 publicGameSession.updatePlayerLocation(currentPlayer, currentLocation);
+                                myGameSession.getPlayerDetails(currentPlayer.getDisplayName()).setLastPing(System.currentTimeMillis());
+                                publicGameSession.getPlayerDetails(currentPlayer.getDisplayName()).setLastPing(System.currentTimeMillis());
                                 updateServerGameSession(publicGameSession, UPDATING_LOCATION);
                             }
                         }
@@ -250,7 +270,6 @@ public class AndroidToUnitySenderService extends Service {
                             //new direction turned
                             prevBearing = currentBearing;
                             myGameSession.setBearing(currentBearing);
-                            publicGameSession.setBearing(currentBearing);
                         }
                     }
 
@@ -320,14 +339,16 @@ public class AndroidToUnitySenderService extends Service {
                 if (dataSnapshot.getChildrenCount() > 0) {
                     //assign fetched value
                     publicGameSession = dataSnapshot.child(gameSessionId).getValue(GameSession.class);
-                    currentPlayer = publicGameSession.getPlayerDetails(currentUserInfo.getEmail());
                 } else {
                     //return null value
                     Log.d(LOG_TAG, "Game Session does not exist");
                 }
                 if (gameInitializing) {
+                    currentPlayer = publicGameSession.getPlayerDetails(currentUserInfo.getEmail());
                     publicGameSession.setGameStarted(true);
+                    publicGameSession.getPlayerDetails(currentPlayer.getDisplayName()).setLastPing(System.currentTimeMillis());
                     myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
+                    Log.d(LOG_TAG, "Fetched fetchedServerObject " + gson.toJson(myGameSession));
                     receiveLocationBroadcasts();
                     receiveCaptureButtonSignal();
                     updateServerGameSession(publicGameSession, UPDATING_GAME_STARTED);
@@ -357,8 +378,19 @@ public class AndroidToUnitySenderService extends Service {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0) {
                     //update values
-
                     //gameSessionDbReference.child(gameSessionId).setValue(gameSession);
+                    Map<String, Object> pingUpdate = new HashMap<String, Object>();
+                    pingUpdate.put("lastPing", System.currentTimeMillis());
+                    int myTeamId = myGameSession.getTeamIndex(currentPlayer);
+                    int myPlayerId = myGameSession.getPlayerIndexInTeam(currentPlayer);
+                    //update ping value to recent ping
+                    gameSessionDbReference
+                            .child(gameSessionId)
+                            .child("teamArrayList")
+                            .child(String.valueOf(myTeamId))
+                            .child("playerArrayList")
+                            .child(String.valueOf(myPlayerId))
+                            .updateChildren(pingUpdate);
                     if (updateField == UPDATING_GAME_STARTED) {
                         Map<String, Object> startedUpdate = new HashMap<String, Object>();
                         startedUpdate.put("gameStarted", true);
@@ -367,8 +399,6 @@ public class AndroidToUnitySenderService extends Service {
                     if (updateField == UPDATING_LOCATION) {
                         Map<String, Object> locationUpdate = new HashMap<String, Object>();
                         locationUpdate.put("absLocation", currentLocation);
-                        int myTeamId = myGameSession.getTeamIndex(currentPlayer);
-                        int myPlayerId = myGameSession.getPlayerIndexInTeam(currentPlayer);
                         gameSessionDbReference
                                 .child(gameSessionId)
                                 .child("teamArrayList")
@@ -380,9 +410,7 @@ public class AndroidToUnitySenderService extends Service {
                     if (updateField == UPDATING_CAPTURE) {
                         if (myCapturedList.size() > 0) {
                             Map<String, Object> capturingPlayerUpdate = new HashMap<String, Object>();
-                            int myTeamId = myGameSession.getTeamIndex(currentPlayer);
-                            int myPlayerId = myGameSession.getPlayerIndexInTeam(currentPlayer);
-                            myCapturedList = myGameSession.getTeamArrayList().get(myTeamId).getPlayerArrayList().get(myPlayerId).getCapturedList();
+                            myCapturedList = myGameSession.getTeamArrayList().get(myTeamId).getPlayerArrayList().get(myPlayerId).getPlayerCapturedList();
                             capturingPlayerUpdate.put("capturedList", myCapturedList);
                             //update capturing
                             gameSessionDbReference
@@ -406,10 +434,7 @@ public class AndroidToUnitySenderService extends Service {
                                     .child("playerArrayList")
                                     .child(String.valueOf(capturedPlayerId))
                                     .updateChildren(capturedPlayerUpdate);
-
                         }
-
-
                     }
                 }
                 if (gameInitializing) {
@@ -441,11 +466,17 @@ public class AndroidToUnitySenderService extends Service {
 
                 if (currentLocation != null && myGameSession != null) {
                     //Log.d(LOG_TAG, " Recieved update from server");
+                    publicGameSession.refreshActivePlayers(System.currentTimeMillis(), 30000);
                     myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
                     myGameSession.updatePlayerLocation(currentPlayer, currentLocation);
                     myGameSession.setBearing(currentBearing);
-                    determineCapturedIndividualsFromServer(myGameSession, publicGameSession);
                     myGameSession.updateRelativeLocations(currentLocation);
+                    ArrayList<Player> newCaptures = GameSession.determineIndividualsCapturedFromUpdate(myGameSession, publicGameSession);
+                    if (newCaptures != null && newCaptures.size() > 0) {
+                        for (Player player : newCaptures) {
+                            displayCapturedMessge(player.getDisplayName());
+                        }
+                    }
                     Intent intent = new Intent(FILTER_GAME_SESSION_ATR);
                     intent.putExtra(KEY_GAMESESSION_DATA, gson.toJson(myGameSession));
                     sendBroadcast(intent);
@@ -469,24 +500,15 @@ public class AndroidToUnitySenderService extends Service {
     }
 
     public void captureUpdate() {
-        ArrayList<Player> potentialCaptures, finalCaptureList;
-        //if i'm a capturer
-        double minPlayerDistance = captureDistance;
-        double dist = Double.MAX_VALUE;
-
         currentPlayer = myGameSession.getPlayerDetails(currentPlayer.getDisplayName());
-        Log.d(LOG_TAG, "Going in  -------");
-        Log.d(LOG_TAG, "finalCaptureList going in " + gson.toJson(myGameSession));
-
-        for (String i : currentPlayer.getCapturedList()) {
-            Log.d(LOG_TAG, "currentPlayer " + currentPlayer.getDisplayName() + " has in his list " + i);
-        }
-        //Log.d(LOG_TAG, "Running Capture");
-        if (currentPlayer != null & currentPlayer.getCapturing() == true) {
+        if (currentPlayer != null && currentPlayer.getCapturing() == true) {
+            ArrayList<Player> potentialCaptures, finalCaptureList;
+            //if i'm a capturer
+            double dist;
             potentialCaptures = myGameSession.getPlayersWithinDistance(currentPlayer, captureDistance);
             finalCaptureList = gson.fromJson(gson.toJson(potentialCaptures), playerArrayListType);
-
             Player closestPlayer = null;
+            double closestPlayerDistance = Double.MAX_VALUE;
 
             if (finalCaptureList.size() == 0) {
                 return;
@@ -495,103 +517,37 @@ public class AndroidToUnitySenderService extends Service {
                 //determine who i can capture -> not capturing from both teams,
                 if (player.getCapturing() == true) {
                     finalCaptureList.remove(player);
-                    Log.d(LOG_TAG, "getcapturing for " + player.getDisplayName() + " is true");
                 } else if (player.getCapturing() == false) {
-                    Log.d(LOG_TAG, "getcapturing for " + player.getDisplayName() + " is false");
                     //from players that aren't capturing determine the closest one
                     if (currentPlayer.getAbsLocation() != null && player.getAbsLocation() != null) {
                         dist = GameSession.distanceBetweenTwoPlayers(currentPlayer, player);
-                        if (dist < minPlayerDistance) {
-                            minPlayerDistance = dist;
-                            closestPlayer = finalCaptureList.get(finalCaptureList.indexOf(player));
-                            Log.d(LOG_TAG, "Closest player is   " + player.getDisplayName());
-
+                        if (dist < captureDistance) {
+                            if (dist < closestPlayerDistance) {
+                                closestPlayerDistance = dist;
+                                closestPlayer = finalCaptureList.get(finalCaptureList.indexOf(player));
+                            }
                         }
                     }
                 }
             }
-            if (finalCaptureList.size() > 0) {
-                for (Player player : finalCaptureList) {
-
-                }
-            }
-            Log.d(LOG_TAG, "finalCaptureList going out " + gson.toJson(potentialCaptures));
-
-            //catch the closest player
-            if (closestPlayer != null && finalCaptureList.size() > 0) {
-                //if the closest player that can be catptured is not in the captured list
-                if (currentPlayer.getCapturedList().size() == 0 || !currentPlayer.getCapturedList().contains(closestPlayer.getDisplayName())) {
-                    Log.d(LOG_TAG, "able to capture" + closestPlayer.getDisplayName() + " at distance " + String.valueOf(dist));
-
-                    myCapturedList.add(closestPlayer.getDisplayName());
-                    myGameSession.capturePlayer(currentPlayer, closestPlayer);
-                    publicGameSession.capturePlayer(currentPlayer, closestPlayer);
-
-                    Log.d(LOG_TAG, "location of Current" + currentPlayer.getAbsLocation().toString());
-                    Log.d(LOG_TAG, "location of Closest" + closestPlayer.getAbsLocation().toString());
-                    Log.d(LOG_TAG, "player " + currentPlayer.getDisplayName() + " has captured " + closestPlayer.getDisplayName());
-                    for (String i : myCapturedList) {
-                        Log.d(LOG_TAG, " mycapturedlist has in his list " + i);
-                    }
-                    for (String i : currentPlayer.getCapturedList()) {
-                        Log.d(LOG_TAG, "currentPlayer " + currentPlayer.getDisplayName() + " has in his list " + i);
-                    }
-                    String capturestate = myGameSession.getPlayerDetails(closestPlayer.getDisplayName()).getCapturing() ? "capturing" : "notCapturing";
-                    Log.d(LOG_TAG, closestPlayer.getDisplayName() + " has his capture status " + capturestate);
-                    Log.d(LOG_TAG, "Game status " + gson.toJson(myGameSession));
-
-                    /*
-                    checkCapturedNumberChange();
-                    updateServerGameSession(publicGameSession,UPDATING_CAPTURE);
-                    */
-
-                    Toast.makeText(AndroidToUnitySenderService.this, "player " + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
-                }
+            //has found the closest player
+            if (closestPlayer != null) {
+                publicGameSession.capturePlayer(currentPlayer, closestPlayer);
+                updateServerGameSession(publicGameSession, UPDATING_CAPTURE);
+                myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
+                myCapturedList.add(closestPlayer.getDisplayName());
+                Toast.makeText(AndroidToUnitySenderService.this, R.string.player + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
 
             }
-
-        }
-        //runs at a frequency determined by the capture handler
-        //every iteration,(as determined by the capture handler
-        // runs every 200 ms, can capture 5 people a second
-    }
-
-    public void checkCapturedNumberChange() {
-        int count = 0;
-        for (Player player : publicGameSession.fetchAllPlayerInformation()) {
-            if (player.getHasBeenCaptured()) {
-                count++;
-            }
-
-        }
-        if (count > capturedNumber) {
-            String newlyCaptured = getCapturedPlayer();
-            displayCapturedMessge(newlyCaptured);
-            capturedNumber++;
         }
     }
+
 
     public void displayCapturedMessge(String capturedName) {
         Toast.makeText(AndroidToUnitySenderService.this, R.string.player + capturedName + R.string.has_been_captured, Toast.LENGTH_SHORT).show();
     }
-
     public void displayPoorSignalMessage() {
         Toast.makeText(AndroidToUnitySenderService.this, R.string.poor_gps_signal, Toast.LENGTH_SHORT).show();
-    }
-    public String getCapturedPlayer() {
-        return capturedList.get(capturedList.size() - 1);
-    }
-
-    public void determineCapturedIndividualsFromServer(GameSession client, GameSession server) {
-        ArrayList<Player> mySession = client.fetchAllPlayerInformation();
-        ArrayList<Player> publicSession = server.fetchAllPlayerInformation();
-        for (Player player : mySession) {
-            if (publicSession.get(publicSession.indexOf(player)).getCapturing() != mySession.get(mySession.indexOf(player)).getCapturing()) {
-                capturedNumber++;
-                capturedList.add(player.getDisplayName());
-                displayCapturedMessge(player.getDisplayName());
-            }
-        }
     }
 
     public float roundToOneDecimal(float f) {

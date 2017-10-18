@@ -1,8 +1,7 @@
 package com.unimelb.comp30022.itproject;
 
 
-import android.net.Uri;
-
+import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -14,6 +13,9 @@ public class GameSession {
     public static final Integer MAX_TEAMS_2 = 2;
     public static final Integer TEAM_CAPTURING = 0;
     public static final Integer TEAM_ESCAPING = 1;
+    public static final int HARD_CAPTURE_DISTANCE = 5;
+    public static final int EASY_CAPTURE_DISTANCE = 10;
+    public static final int NUMBER_OF_FOOTSTEPS = 15;
     private static final double EARTH_RADIUS_M = 6372797.560;
     private static final double RAD_TO_DEGREE = 0.017453292519943295769236907684886;
     private String sessionId;
@@ -30,8 +32,9 @@ public class GameSession {
     private String creator;
     private String sessionName;
     private String description;
-    private Uri sessionImageUri;
+    private URI sessionImageUri;
     private Float bearing;
+    private boolean easyMode;
     private ArrayList<Team> teamArrayList ;
     public GameSession()
     {
@@ -42,14 +45,21 @@ public class GameSession {
         this.isPublicAccess = true;
     }
 
-    public static boolean containsPlayer(GameSession gameSession, Player player) {
-        for (int i = 0; i < MAX_TEAMS_2; i++) {
-            if (gameSession.getTeamArrayList().get(i).getPlayerArrayList().contains(player)) {
-                return true;
+    public static ArrayList<Player> determineCapturedPlayersBetweenSessions(GameSession mySession, GameSession publicSession) {
+        ArrayList<Player> newlyCapturedPlayers = new ArrayList<>();
+        for (Player localPlayerCopy : mySession.allPlayerArrayLists()) {
+            if (publicSession.getPlayerDetails(localPlayerCopy.getDisplayName()).getCapturing() != localPlayerCopy.getCapturing()) {
+                newlyCapturedPlayers.add(localPlayerCopy);
             }
         }
-        return false;
+        return newlyCapturedPlayers;
     }
+
+    public static boolean containsPlayer(GameSession gameSession, Player player) {
+        return gameSession.fetchCapturingTeam().containsPlayer(player) ||
+                gameSession.fetchEscapingTeam().containsPlayer(player);
+    }
+
     public static double distanceBetweenPoints(LatLng origin, LatLng dest) {
         //havesine formula from http://www.movable-type.co.uk/scripts/latlong.html
         ///calculate distance
@@ -83,7 +93,6 @@ public class GameSession {
 
         } else {
             relativeLoc = new CoordinateLocation(dist * (xComponent / magnitude), 0.0, dist * (zComponent / magnitude), dest.getAccuracy());
-
         }
         return relativeLoc;
 
@@ -97,14 +106,21 @@ public class GameSession {
         return dist;
     }
 
-    public static boolean canCapturePlayer(Player chaser, Player unknown) {
-        //valid capturing individual
-        if (chaser.getLoggedOn() && chaser.getActive() && chaser.getCapturing()) {
-            if (unknown.getLoggedOn() && unknown.getActive() && !chaser.getCapturing()) {
-                return true;
+    public static ArrayList<Player>
+    determineIndividualsCapturedFromUpdate(GameSession local, GameSession server) {
+        //no difference
+        if (local.getCapturedList().size() == server.getCapturedList().size()) {
+            return null;
+        }
+        ArrayList<Player> newCaptures = new ArrayList<>();
+        ArrayList<Player> mySession = local.allPlayerArrayLists();
+        ArrayList<Player> publicSession = server.allPlayerArrayLists();
+        for (Player player : mySession) {
+            if (publicSession.get(publicSession.indexOf(player)).getCapturing() != mySession.get(mySession.indexOf(player)).getCapturing()) {
+                newCaptures.add(player);
             }
         }
-        return false;
+        return newCaptures;
     }
 
     public String getSessionId() {
@@ -211,11 +227,11 @@ public class GameSession {
         this.description = description;
     }
 
-    public Uri getSessionImageUri() {
+    public URI getSessionImageUri() {
         return sessionImageUri;
     }
 
-    public void setSessionImageUri(Uri sessionImageUri) {
+    public void setSessionImageUri(URI sessionImageUri) {
         this.sessionImageUri = sessionImageUri;
     }
 
@@ -243,6 +259,14 @@ public class GameSession {
         this.teamArrayList = teamArrayList;
     }
 
+    public boolean isEasyMode() {
+        return easyMode;
+    }
+
+    public void setEasyMode(boolean easyMode) {
+        this.easyMode = easyMode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null) {
@@ -260,6 +284,68 @@ public class GameSession {
     @Override
     public int hashCode() {
         return getSessionId().hashCode();
+    }
+
+    public int currentPlayerCount() {
+        return this.fetchCapturingTeam().getNumPlayers() + this.fetchEscapingTeam().getNumPlayers();
+    }
+
+    public int availableSpaces() {
+        return this.maxPlayers - this.currentPlayerCount();
+    }
+
+    public Team fetchEscapingTeam() {
+        return this.teamArrayList.get(GameSession.TEAM_ESCAPING);
+    }
+
+    public Team fetchCapturingTeam() {
+        return this.teamArrayList.get(GameSession.TEAM_CAPTURING);
+    }
+
+    public boolean addPlayerToCapturingTeam(Player player) {
+        if (this.availableSpaces() > 0) {
+            this.teamArrayList.get(TEAM_CAPTURING).addPlayer(player);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addPlayerToEscapingTeam(Player player) {
+        if (this.availableSpaces() > 0) {
+            this.teamArrayList.get(TEAM_ESCAPING).addPlayer(player);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removePlayerFromCapturingTeam(Player player) {
+        if (this.fetchCapturingTeam().containsPlayer(player)) {
+            this.fetchCapturingTeam().removePlayer(player);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removePlayerFromEscapingTeam(Player player) {
+        if (this.fetchEscapingTeam().containsPlayer(player)) {
+            this.fetchEscapingTeam().removePlayer(player);
+            return true;
+        }
+        return false;
+    }
+
+    public int getTeamIndex(Player player) {
+        if (this.fetchCapturingTeam().containsPlayer(player)) {
+            return GameSession.TEAM_CAPTURING;
+        } else if (this.fetchEscapingTeam().containsPlayer(player)) {
+            return GameSession.TEAM_ESCAPING;
+        }
+        return -1;
+    }
+
+    public int getPlayerIndexInTeam(Player player) {
+        int teamId = getTeamIndex(player);
+        return this.getTeamArrayList().get(teamId).getPlayerArrayList().indexOf(player);
     }
 
     public boolean addTeam(Team team) {
@@ -287,17 +373,94 @@ public class GameSession {
         return closePlayers;
     }
 
-    public void capturePlayer(Player capturing, Player captured) {
-        captured = this.getPlayerDetails(captured.getDisplayName());
-        if (!this.getPlayerDetails(capturing.getDisplayName()).getCapturedList().contains(captured.getDisplayName())) {
-            this.getPlayerDetails(capturing.getDisplayName()).getCapturedList().add(captured.getDisplayName());
+    public int capturingCount() {
+        int count = 0;
+        for (Team team : this.getTeamArrayList()) {
+            for (Player p : team.getPlayerArrayList()) {
+                if (p.getCapturing() == true) {
+                    count++;
+                }
+            }
         }
-        this.getPlayerDetails(captured.getDisplayName()).setCapturedBy(capturing.getDisplayName());
-        this.getPlayerDetails(captured.getDisplayName()).setCapturing(true);
-        this.getPlayerDetails(captured.getDisplayName()).setHasBeenCaptured(true);
+        return count;
     }
 
-    public boolean removeTeam(Team team){
+    public int capturedCount() {
+        int count = 0;
+        for (Team team : this.getTeamArrayList()) {
+            for (Player p : team.getPlayerArrayList()) {
+                if (p.getHasBeenCaptured() == true) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public void refreshActivePlayers(long currentTime, long maxAllowedInactivetime) {
+        for (Team team : this.getTeamArrayList()) {
+            for (Player p : team.getPlayerArrayList()) {
+                if ((currentTime - maxAllowedInactivetime) > p.getLastPing()) {
+                    p.setActive(false);
+                } else {
+                    p.setActive(true);
+                }
+            }
+        }
+    }
+
+    public long getRemainingTime(long currentTime) {
+        return this.getEndTime() - currentTime;
+    }
+
+    public boolean isGameOver(long currentTime) {
+        //no time left
+        if (this.capturingCount() == this.getMaxPlayers() || this.getRemainingTime(currentTime) <= 0) {
+            this.setGameCompleted(true);
+            return true;
+        }
+        this.setGameCompleted(false);
+        return false;
+    }
+
+    public ArrayList<Player> getCapturedList() {
+        ArrayList<Player> capturedList = new ArrayList<>();
+        for (Player player : this.allPlayerArrayLists()) {
+            if (player.getCapturing() == true && player.getHasBeenCaptured() == true) {
+                capturedList.add(player);
+            }
+        }
+        return capturedList;
+    }
+
+    public ArrayList<Player> fetchCapturingList() {
+        ArrayList<Player> capturedList = new ArrayList<>();
+        for (Player player : this.allPlayerArrayLists()) {
+            if (player.getCapturing() == true) {
+                capturedList.add(player);
+            }
+        }
+        return capturedList;
+    }
+
+    public boolean capturePlayer(Player capturing, Player captured) {
+        captured = this.getPlayerDetails(captured.getDisplayName());
+        capturing = this.getPlayerDetails(capturing.getDisplayName());
+        if (captured.getCapturing() == true) {
+            return false;
+        }
+        if (!capturing.getPlayerCapturedList().contains(captured.getDisplayName())) {
+            capturing.getPlayerCapturedList().add(captured.getDisplayName());
+            captured.setCapturedBy(capturing.getDisplayName());
+            captured.setCapturing(true);
+            captured.setHasBeenCaptured(true);
+
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeTeam(Team team) {
         if (teamArrayList != null && teamArrayList.size() > 0 && teamArrayList.contains(team)) {
             teamArrayList.remove(team);
             return true;
@@ -305,39 +468,13 @@ public class GameSession {
         return false;
     }
 
-    public void add2Teams(String gameSessionId, Player player){
-        for(int i = 0;i<MAX_TEAMS_2;i++){
+    public void add2Teams(String gameSessionId, Player player) {
+        for (int i = 0; i < MAX_TEAMS_2; i++) {
             //create 2 opposign teams
             this.addTeam(new Team("team_" + String.valueOf(i + 1),
                     "team_" + new Integer(i + 1).toString(), new Boolean(i == TEAM_CAPTURING), player.getDisplayName()));
         }
     }
-
-    public void addPlayerToCapturingTeam(Player player) {
-        this.teamArrayList.get(TEAM_CAPTURING).addPlayer(player);
-    }
-
-    public void addPlayerToEscapingTeam(Player player) {
-        this.teamArrayList.get(TEAM_ESCAPING).addPlayer(player);
-    }
-
-    public void removePlayerFromCapturingTeam(Player player) {
-        this.teamArrayList.get(TEAM_CAPTURING).removePlayer(player);
-    }
-
-    public void removePlayerFromEscapingTeam(Player player) {
-        this.teamArrayList.get(TEAM_ESCAPING).removePlayer(player);
-    }
-
-    public int getTeamIndex(Player player) {
-        return this.getTeamArrayList().indexOf(new Team(player.getTeamId()));
-    }
-
-    public int getPlayerIndexInTeam(Player player) {
-        int teamId = getTeamIndex(player);
-        return this.getTeamArrayList().get(teamId).getPlayerArrayList().indexOf(player);
-    }
-
 
     public void updateRelativeLocations(LatLng originPlayerLocation){
         //assuming the player_location is the origin
@@ -346,11 +483,12 @@ public class GameSession {
                 //generate relative coordinate from origin
                 if (player.getAbsLocation() != null) {
                     player.setCoordinateLocation(convertToCartesian(originPlayerLocation, player.getAbsLocation()));
+                    //update relative coordinates of the footsteps
                     int pathSize = player.getPath().size();
                     if (pathSize > 0) {
                         player.getRelativePath().clear();
                         for (int i = 0; i < pathSize; i++) {
-                            player.getRelativePath().add(convertToCartesian(player.getAbsLocation(), player.getPath().get(i)));
+                            player.getRelativePath().add(convertToCartesian(originPlayerLocation, player.getPath().get(i)));
                         }
                     }
                 }
@@ -363,22 +501,30 @@ public class GameSession {
         for(Team team : teamArrayList){
             for(Player player: team.getPlayerArrayList()){
                 player.setCoordinateLocation(null);
+                player.getRelativePath().clear();
             }
         }
+
     }
 
-    public void updatePlayerLocation(Player player, LatLng latLng) {
+    public boolean updatePlayerLocation(Player player, LatLng latLng) {
         if (player == null || latLng == null) {
-            return;
+            return false;
         }
-        for (int i = 0; i < MAX_TEAMS_2; i++) {
-            int pos;
-            Team team = teamArrayList.get(i);
-            if (team.containsPlayer(player)) {
-                pos = team.getPlayerArrayList().indexOf(player);
-                team.getPlayerArrayList().get(pos).setAbsLocation(latLng);
-            }
+        int pos;
+        ArrayList<Player> capturing = this.fetchCapturingTeam().getPlayerArrayList();
+        ArrayList<Player> escaping = this.fetchEscapingTeam().getPlayerArrayList();
+        if (capturing.contains(player)) {
+            pos = capturing.indexOf(player);
+            capturing.get(pos).setAbsLocation(latLng);
+            return true;
+        } else if (escaping.contains(player)) {
+            pos = escaping.indexOf(player);
+            escaping.get(pos).setAbsLocation(latLng);
+            return true;
         }
+
+        return false;
     }
 
     public void updatePaths(int maxSteps) {
@@ -388,16 +534,14 @@ public class GameSession {
                 if (path.size() >= maxSteps) {
                     //clear single element and update latest
                     path.remove(0);
-                    path.add(player.getAbsLocation());
-                } else {
-                    path.add(player.getAbsLocation());
                 }
+                path.add(player.getAbsLocation());
             }
         }
 
     }
 
-    public ArrayList<Player> fetchAllPlayerInformation() {
+    public ArrayList<Player> allPlayerArrayLists() {
         //concatenate player arraylists
         ArrayList<Player> allTeams = new ArrayList<Player>();
         ArrayList<Player> team1 = this.getTeamArrayList().get(0).getPlayerArrayList();
@@ -408,7 +552,7 @@ public class GameSession {
     }
 
     public Player getPlayerDetails(String displayname) {
-        ArrayList<Player> players = this.fetchAllPlayerInformation();
+        ArrayList<Player> players = this.allPlayerArrayLists();
         Player newPlayer = new Player(displayname);
         if (players.contains(newPlayer)) {
             return players.get(players.indexOf(newPlayer));
@@ -416,7 +560,6 @@ public class GameSession {
             return null;
         }
     }
-
 
 
 

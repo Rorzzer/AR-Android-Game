@@ -522,23 +522,21 @@ public class SessionInformationActivity extends AppCompatActivity
 
     }
 
-
     public boolean addCurrentPlayerToGameSession() {
         if (spacesAvailable > 0) {
             boolean success = false;
             //create Player and join
-            Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
-            Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
-            if (capturingTeam.getPlayerArrayList().size()
-                    < publicGameSession.getMaxPlayers() / 2 && escapingTeam.getPlayerArrayList().size() >=
-                    capturingTeam.getPlayerArrayList().size()) {
+            Team capturingTeam = publicGameSession.fetchCapturingTeam();
+            Team escapingTeam = publicGameSession.fetchEscapingTeam();
+            if (capturingTeam.getTeamSize() < publicGameSession.getMaxPlayers() / 2 &&
+                    escapingTeam.getPlayerArrayList().size() >= capturingTeam.getTeamSize()) {
                 Player player = getNewCurrentPlayer();
                 setCurrentPlayerDetails(player, true);
                 capturingTeam.addPlayer(player);
             }
             //add to escapping team if it has space or is smaller than the capturing team
-            else if (escapingTeam.getPlayerArrayList().size() < publicGameSession.getMaxPlayers() / 2 &&
-                    capturingTeam.getPlayerArrayList().size() >= escapingTeam.getPlayerArrayList().size()) {
+            else if (escapingTeam.getTeamSize() < publicGameSession.getMaxPlayers() / 2 &&
+                    capturingTeam.getTeamSize() >= escapingTeam.getTeamSize()) {
                 Player player = getNewCurrentPlayer();
                 setCurrentPlayerDetails(player, false);
                 escapingTeam.addPlayer(player);
@@ -555,8 +553,8 @@ public class SessionInformationActivity extends AppCompatActivity
 
     public void removePlayerFromGameSession(Player player) {
         if (hasPlayerJoinedSession(player)) {
-            Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
-            Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
+            Team capturingTeam = publicGameSession.fetchCapturingTeam();
+            Team escapingTeam = publicGameSession.fetchEscapingTeam();
             if (capturingTeam.containsPlayer(player)) {
                 capturingTeam.removePlayer(player);
             } else if (escapingTeam.containsPlayer(player)) {
