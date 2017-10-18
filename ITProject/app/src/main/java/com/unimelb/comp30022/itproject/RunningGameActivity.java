@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -104,6 +105,7 @@ public class RunningGameActivity extends AppCompatActivity {
     private Boolean canFetchLocations;
     private boolean caputringBtnPressed;
     private String gameSessionId;
+    private GoogleApiClient mGoogleAPIClient;
     private Gson gson = new Gson();
     private Type gameSessionType = new TypeToken<GameSession>() {
     }.getType();
@@ -208,23 +210,31 @@ public class RunningGameActivity extends AppCompatActivity {
 
             if (hasFineLocationPermission) {
                 Log.d(TAG, "Has Google play installed ");
-                createAndSpecifyLocationRequest();
+               // createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
-                googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+
+                textView = findViewById(R.id.fullscreen_content);
+
+               /* googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
                 boolean isServiceRunning;
-                textView = (TextView) findViewById(R.id.fullscreen_content);
+                textView = (TextView) findViewById(R.id.fullscreen_content);*/
+
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameInputHashmap);
+                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
                 startService(intent);
-                isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+
+               // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
 
                 caputringBtnPressed = true;
                 handler.removeCallbacks(capturingButtonListener);
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
                 receiveMyGameSessionBroadcasts();
+                Log.d(TAG, "Launching current game");
                 launchCurrentGame();
        //       
             } else {
+                Log.d(TAG, "Doesn't have permission");
+
                 shouldRequestPermissions();
             }
 
@@ -249,7 +259,7 @@ public class RunningGameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(currentGameStateReciever);
+        //unregisterReceiver(currentGameStateReciever);
         if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
             Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
             stopService(intent);
@@ -323,8 +333,8 @@ public class RunningGameActivity extends AppCompatActivity {
         intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
         startService(intent);
         isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-        startActivity(ar);
+        //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+        //startActivity(ar);
     }
 
 
@@ -357,7 +367,6 @@ public class RunningGameActivity extends AppCompatActivity {
 
         }
 
-        canFetchLocations = true;
         return false;
     }
 
@@ -406,7 +415,7 @@ public class RunningGameActivity extends AppCompatActivity {
     }
 
     private void stopLocationUpdate() {
-        if (googleApiClient.isConnected()) {
+        if (mGoogleAPIClient.isConnected()) {
             //Permission required
             //mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
