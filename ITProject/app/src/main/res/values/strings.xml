@@ -25,5 +25,9 @@
 
     <string name="title_activity_tst">tst</string>
     <string name="title_activity_permissionstest">Permissionstest</string>
-    <string name="title_activity_location_service_test">LocationServiceTest</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

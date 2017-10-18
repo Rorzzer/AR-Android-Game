@@ -76,7 +76,9 @@
         <activity android:name=".FindLobbyActivity" />
         <activity android:name=".SessionInformationActivity" />
         <activity android:name=".ChatActivity" />
+
         <!--
+
         <activity
             android:name=".arcamera.UnityPlayerActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
@@ -120,6 +122,7 @@
             android:name=".RunningGameActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/FullscreenTheme" />
+        <fragment android:name=".ChatFragment" />
 
         <service
             android:name=".AndroidToUnitySenderService"
