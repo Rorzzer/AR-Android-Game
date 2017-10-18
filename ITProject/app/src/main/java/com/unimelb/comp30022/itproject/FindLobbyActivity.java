@@ -55,8 +55,8 @@ public class FindLobbyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_lobby);
-        activeGamesList = findViewById(R.id.lvAvailableLobbies);
-        progressBar = findViewById(R.id.loadingProgressBar);
+        activeGamesList = (ListView) findViewById(R.id.lvAvailableLobbies);
+        progressBar = (ProgressBar) findViewById(R.id.loadingProgressBar);
 
         Context context = getApplicationContext();
         FirebaseApp.initializeApp(context);

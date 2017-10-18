@@ -81,17 +81,18 @@ public class SessionInformationActivity extends AppCompatActivity
         setContentView(R.layout.activity_session_information);
         Context context = getApplicationContext();
 
-        tvSessionName = findViewById(R.id.tvNameContent);
-        tvCreator = findViewById(R.id.tvCreatorContent);
-        tvLocation = findViewById(R.id.tvLocationContent);
-        tvAddress = findViewById(R.id.tvAddressContent);
-        lvLoggedInMembers = findViewById(R.id.lvPlayerListView);
-        btnJoinGame = findViewById(R.id.btnJoinLeaveLobby);
-        btnEditGame = findViewById(R.id.btnEditLobby);
-        btnDeleteGame = findViewById(R.id.btnDeleteLobby);
-        btnStartGame = findViewById(R.id.btnStartGame);
+        tvSessionName = (TextView) findViewById(R.id.tvNameContent);
+        tvCreator = (TextView)findViewById(R.id.tvCreatorContent);
+        tvLocation = (TextView)findViewById(R.id.tvLocationContent);
+        tvAddress = (TextView)findViewById(R.id.tvAddressContent);
+        lvLoggedInMembers = (ListView) findViewById(R.id.lvPlayerListView);
+        btnJoinGame = (Button) findViewById(R.id.btnJoinLeaveLobby);
+        btnEditGame = (Button)findViewById(R.id.btnEditLobby);
+        btnDeleteGame = (Button)findViewById(R.id.btnDeleteLobby);
+        btnStartGame = (Button)findViewById(R.id.btnStartGame);
         findViewById(R.id.sessionContent).setVisibility(View.INVISIBLE);
         findViewById(R.id.loadingProgressLobby).setVisibility(View.VISIBLE);
+
 
         btnJoinGame.setOnClickListener(this);
         btnDeleteGame.setOnClickListener(this);

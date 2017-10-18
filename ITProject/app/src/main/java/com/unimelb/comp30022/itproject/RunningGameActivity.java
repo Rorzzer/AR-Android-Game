@@ -212,10 +212,19 @@ public class RunningGameActivity extends AppCompatActivity {
                 Log.d(TAG, "Has Google play installed ");
                // createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
+
                 textView = findViewById(R.id.fullscreen_content);
+
+               /* googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+                boolean isServiceRunning;
+                textView = (TextView) findViewById(R.id.fullscreen_content);*/
+
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
                 startService(intent);
+
+               // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+
                 caputringBtnPressed = true;
                 handler.removeCallbacks(capturingButtonListener);
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
