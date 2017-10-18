@@ -28,6 +28,10 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
         findViewById(R.id.btnChat).setOnClickListener(this);
+
+        //Launch Location services
+        Intent LocationService = new Intent(this, LocationService.class);
+        startService(LocationService);
     }
 
     /**
@@ -48,9 +52,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume(){
         super.onResume();
-        Button btnCreateLobby = findViewById(R.id.btnCreateOrUpdateLobby);
-        Button btnFindLobby = findViewById(R.id.btnFindLobby);
-        Button btnChat = findViewById(R.id.btnChat);
+        Button btnCreateLobby = (Button)findViewById(R.id.btnCreateOrUpdateLobby);
+        Button btnFindLobby = (Button)findViewById(R.id.btnFindLobby);
+        Button btnChat = (Button)findViewById(R.id.btnChat);
         if (FirebaseAuth.getInstance().getCurrentUser()!= null){
             btnCreateLobby.setVisibility(View.VISIBLE);
             btnFindLobby.setVisibility(View.VISIBLE);
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateStatus(String stat) {
-        TextView tvStat = findViewById(R.id.tvStatus);
+        TextView tvStat = (TextView) findViewById(R.id.tvStatus);
         tvStat.setText(stat);
     }
 

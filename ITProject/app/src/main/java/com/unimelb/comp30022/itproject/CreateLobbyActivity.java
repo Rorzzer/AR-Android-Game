@@ -1,10 +1,14 @@
 package com.unimelb.comp30022.itproject;
 
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+
+import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -27,9 +31,11 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,11 +45,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,14 +58,18 @@ import java.util.GregorianCalendar;
 
 public class CreateLobbyActivity extends AppCompatActivity
                 implements View.OnClickListener{
+    private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
+    private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
     private static final int CAMERA_REQUEST_CODE = 1;
     private static String TAG = CreateLobbyActivity.class.getName();
     private static int SECONDS_IN_MINUTE = 60;
     private static int SECONDS_IN_HOUR = 3600;
+    private static int MILLISECONDS_IN_MINUTE = 60000;
     private static double MAX_GAME_DURATION_MINS = 60;
     private static int MAX_TEAM_SIZE = 30;
     private static int MIN_GAME_DURATION = 5;
     private static int MAX_GAME_RADIUS = 500;
+    private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
@@ -116,8 +127,13 @@ public class CreateLobbyActivity extends AppCompatActivity
     private ArrayList list = new ArrayList();
     private ArrayAdapter adapter;
     private Handler handler;
-    private ProgressBar uploadProgressBar;
-
+    private BroadcastReceiver currentLocationReciever;
+    private LatLng currentLocation;
+    private Gson gson = new Gson();
+    private Type locationType = new TypeToken<Location>() {
+    }.getType();
+    private DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
+    private GeoFire geoFire = new GeoFire(GeoRef);
     public static long getTomorrowMidnightInEpochTime(long timestamp) {
         Calendar givenDate = Calendar.getInstance();
         givenDate.setTimeInMillis(timestamp);
@@ -138,28 +154,27 @@ public class CreateLobbyActivity extends AppCompatActivity
         givenDate.set(Calendar.MILLISECOND, 0);
         return givenDate.getTimeInMillis();
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_lobby);
         Context context = getApplicationContext();
-
-        etSessionName = findViewById(R.id.etLobbyName);
-        tvSelectedStartTime = findViewById(R.id.tvSelectedStartTime);
-        etDescription = findViewById(R.id.etDescription);
-        listView = findViewById(R.id.lvPlayerListView);
+        receiveLocationBroadcasts();
         lobbyImage = findViewById(R.id.ivUploadImagePreview);
-        tvDurationMinutes = findViewById(R.id.tvSelectedDuration);
-        tvMaxTeamSize = findViewById(R.id.tvSelectedMaxSize);
-        btnCreateOrEdit = findViewById(R.id.btnCreateOrUpdateLobby);
-        btnDeleteOrCancel = findViewById(R.id.btnDeleteOrCancelLobby);
+        etSessionName = (EditText) findViewById(R.id.etLobbyName);
+        tvSelectedStartTime = (TextView) findViewById(R.id.tvSelectedStartTime);
+        etDescription = (EditText) findViewById(R.id.etDescription);
+        listView = (ListView) findViewById(R.id.lvPlayerListView);
+        tvDurationMinutes = (TextView) findViewById(R.id.tvSelectedDuration);
+        tvMaxTeamSize = (TextView) findViewById(R.id.tvSelectedMaxSize);
+        btnCreateOrEdit = (Button)findViewById(R.id.btnCreateOrUpdateLobby);
+        btnDeleteOrCancel = (Button)findViewById(R.id.btnDeleteOrCancelLobby);
         btnSelectStartTime = findViewById(R.id.btnSelectStartTime);
         addImage = findViewById(R.id.addImageButton);
         btnCreateOrEdit.setOnClickListener(this);
         btnDeleteOrCancel.setOnClickListener(this);
         addImage.setOnClickListener(this);
-        btnSelectStartTime.setOnClickListener(this);
+        findViewById(R.id.btnSelectStartTime).setOnClickListener(this);
         durationSeekBar = findViewById(R.id.durationSlider);
         maxTeamSizeSeekbar = findViewById(R.id.teamSizeSlider);
         radioButtonPublicAccess = findViewById(R.id.btnPublic);
@@ -190,6 +205,7 @@ public class CreateLobbyActivity extends AppCompatActivity
             inEditMode = false;
             gameSessionId = gameSessionDbReference.push().getKey();
         }
+
         //view controls to match the mode(edit / create)
         teamSeekBarUnit = MAX_TEAM_SIZE / teamSeekBarMaxValue;
         durationSeekBarUnit = (int) MAX_GAME_DURATION_MINS / durationSeekBarMaxValue;
@@ -210,6 +226,7 @@ public class CreateLobbyActivity extends AppCompatActivity
             btnCreateOrEdit.setText("Update");
             btnDeleteOrCancel.setText("Delete");
         }
+        FirebaseApp.initializeApp(context);
         uploadProgressBar.setVisibility(View.GONE);
         //slider bar listeners
         durationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -270,6 +287,7 @@ public class CreateLobbyActivity extends AppCompatActivity
                 }
             }
         };
+
         /**
          * Fetch current user details
          * */
@@ -666,7 +684,17 @@ public class CreateLobbyActivity extends AppCompatActivity
             gameSession.setSessionImageUri(sessionImage.toString());
         }
         gameSession.setEndTime(new Long(gameSession.getStartTime().longValue() + gameSession.getDuration().longValue()));
-        gameSession.setLocation(new DataGenerator().generateRandomLocation());
+        if(currentLocation != null){
+
+            //Currently storing utilising the creators userID, should be fine, users shouldnt create more than 1 session anyway
+            gameSession.setLocation(currentLocation);
+            geoFire.setLocation(firebaseAuth.getCurrentUser().getUid(), new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()));
+        }
+        else{
+            Log.d(TAG, "Curent Location is null");
+        }
+
+
     }
 
     /**
@@ -698,7 +726,6 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.add2Teams(gameSession.getSessionId(),creator);
         return gameSession;
     }
-
     /*
 * allows for faster invites of players for private sessions
 *
@@ -721,6 +748,31 @@ public class CreateLobbyActivity extends AppCompatActivity
     private boolean updateLobbyInvites() {
         //add invite to listview
         return false;
+    }
+    private void receiveLocationBroadcasts() {
+        if (currentLocationReciever == null) {
+            currentLocationReciever = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String input = intent.getStringExtra(KEY_LOCATION_DATA);
+                    Log.d(TAG, "Recieving Broadcast");
+                    Location recentLocation = gson.fromJson(input, locationType);
+                    if (recentLocation != null) {
+                        LatLng absLocation = new LatLng(recentLocation.getLatitude(), recentLocation.getLongitude(), recentLocation.getAccuracy());
+                        currentLocation = absLocation;
+                        if(currentLocation != null){
+
+                            Log.d(TAG, "Location Retrieved" + currentLocation.toString());
+                        }
+                        else{
+                            Log.d(TAG, "Location Failure");
+                        }
+
+                    }
+                }
+            };
+        }
+        registerReceiver(currentLocationReciever, new IntentFilter(FILTER_LOCATION));
     }
 
 }

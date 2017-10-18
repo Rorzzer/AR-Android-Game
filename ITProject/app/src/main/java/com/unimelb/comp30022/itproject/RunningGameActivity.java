@@ -7,8 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +27,18 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
@@ -70,6 +84,20 @@ public class RunningGameActivity extends AppCompatActivity {
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
     private final Handler handler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     TextView textView;
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
@@ -77,6 +105,7 @@ public class RunningGameActivity extends AppCompatActivity {
     private Boolean canFetchLocations;
     private boolean caputringBtnPressed;
     private String gameSessionId;
+    private GoogleApiClient mGoogleAPIClient;
     private Gson gson = new Gson();
     private Type gameSessionType = new TypeToken<GameSession>() {
     }.getType();
@@ -150,6 +179,10 @@ public class RunningGameActivity extends AppCompatActivity {
         }
     };
 
+    LocationRequest mLocationRequest;
+    Location mLastLocation;
+    FusedLocationProviderClient mFusedLocationClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,20 +224,31 @@ public class RunningGameActivity extends AppCompatActivity {
 
             if (getCurrentPermissions()) {
                 Log.d(TAG, "Has Google play installed ");
+               // createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
-                boolean isServiceRunning;
+
                 textView = findViewById(R.id.fullscreen_content);
+
+               /* googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+                boolean isServiceRunning;
+                textView = (TextView) findViewById(R.id.fullscreen_content);*/
+
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
                 startService(intent);
-                isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+
+               // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
+
                 caputringBtnPressed = true;
                 handler.removeCallbacks(capturingButtonListener);
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
                 receiveMyGameSessionBroadcasts();
+                Log.d(TAG, "Launching current game");
                 launchCurrentGame();
        //       
             } else {
+                Log.d(TAG, "Doesn't have permission");
+
                 shouldRequestPermissions();
             }
 
@@ -231,6 +275,10 @@ public class RunningGameActivity extends AppCompatActivity {
         super.onDestroy();
         if (currentGameStateReciever != null) {
             unregisterReceiver(currentGameStateReciever);
+        }
+        if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
+            Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+            stopService(intent);
         }
 
     }
@@ -377,6 +425,21 @@ public class RunningGameActivity extends AppCompatActivity {
     }
 
 
+    @SuppressWarnings("MissingPermission")
+    private void startLocationUpdate() {
+
+
+        Task<Void> pending =
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    }
+
+    private void stopLocationUpdate() {
+        if (mGoogleAPIClient.isConnected()) {
+            //Permission required
+            //mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        }
+    }
+
     private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {
         Snackbar.make(findViewById(android.R.id.content),
                 mainText,
@@ -401,6 +464,15 @@ public class RunningGameActivity extends AppCompatActivity {
         registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
     }
 
+    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            for (Location location : locationResult.getLocations()) {
 
+                //TODO: whatever was happening with the location data
+
+            }
+        }
+    };
 
 }

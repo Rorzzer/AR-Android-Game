@@ -16,9 +16,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.firebase.geofire.GeoFire;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,6 +44,10 @@ public class SessionInformationActivity extends AppCompatActivity
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
+
+    private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
+    private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
+
     ArrayList<Player> playerArrayList;
     ArrayList<Team> teamArrayList;
     ArrayList<String> joinedPlayers = new ArrayList<String>();
@@ -75,21 +79,25 @@ public class SessionInformationActivity extends AppCompatActivity
     private Button btnDeleteGame;
     private Button btnStartGame;
     private ListView lvLoggedInMembers;
+
+    private DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
+    private GeoFire geoFire = new GeoFire(GeoRef);
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session_information);
         Context context = getApplicationContext();
 
-        tvSessionName = findViewById(R.id.tvNameContent);
-        tvCreator = findViewById(R.id.tvCreatorContent);
-        tvLocation = findViewById(R.id.tvLocationContent);
-        tvAddress = findViewById(R.id.tvAddressContent);
-        lvLoggedInMembers = findViewById(R.id.lvPlayerListView);
-        btnJoinGame = findViewById(R.id.btnJoinLeaveLobby);
-        btnEditGame = findViewById(R.id.btnEditLobby);
-        btnDeleteGame = findViewById(R.id.btnDeleteLobby);
-        btnStartGame = findViewById(R.id.btnStartGame);
+        tvSessionName = (TextView) findViewById(R.id.tvNameContent);
+        tvCreator = (TextView)findViewById(R.id.tvCreatorContent);
+        tvLocation = (TextView)findViewById(R.id.tvLocationContent);
+        tvAddress = (TextView)findViewById(R.id.tvAddressContent);
+        lvLoggedInMembers = (ListView) findViewById(R.id.lvPlayerListView);
+        btnJoinGame = (Button) findViewById(R.id.btnJoinLeaveLobby);
+        btnEditGame = (Button)findViewById(R.id.btnEditLobby);
+        btnDeleteGame = (Button)findViewById(R.id.btnDeleteLobby);
+        btnStartGame = (Button)findViewById(R.id.btnStartGame);
         findViewById(R.id.sessionContent).setVisibility(View.INVISIBLE);
         findViewById(R.id.loadingProgressLobby).setVisibility(View.VISIBLE);
 
@@ -500,6 +508,7 @@ public class SessionInformationActivity extends AppCompatActivity
                     //value exists on server
                     gameSessionId = gameSession.getSessionId();
                     gameSessionDbReference.child(gameSession.getSessionId()).removeValue();
+                    geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
                     Log.d(TAG, " Successfully Deleted Game Session");
                 }
                 else{
@@ -516,7 +525,7 @@ public class SessionInformationActivity extends AppCompatActivity
     public void loadDataToForm(){
         tvSessionName.setText(publicGameSession.getSessionName());
         tvCreator.setText(publicGameSession.getCreator());
-        //tvLocation.setText(publicGameSession.getLocation().toString());
+       // tvLocation.setText(publicGameSession.getLocation().toString());
         tvAddress.setText("Generated from location");
         refreshPlayerList(joinedPlayers);
 
@@ -640,6 +649,7 @@ public class SessionInformationActivity extends AppCompatActivity
     private void launchGameSession() {
         Toast.makeText(getApplicationContext(), R.string.game_started_prompt, Toast.LENGTH_SHORT).show();
         Intent activeGame = new Intent(SessionInformationActivity.this, RunningGameActivity.class);
+        geoFire.removeLocation(firebaseAuth.getCurrentUser().getUid());
         activeGame.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);
         startActivity(activeGame);
     }
