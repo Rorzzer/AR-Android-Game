@@ -136,7 +136,6 @@ public class AndroidToUnitySenderService extends Service {
                 Log.d(LOG_TAG, "Not sending information");
             }
 
-
             handler.removeCallbacks(this);
             handler.postDelayed(this, LATENCY);
         }

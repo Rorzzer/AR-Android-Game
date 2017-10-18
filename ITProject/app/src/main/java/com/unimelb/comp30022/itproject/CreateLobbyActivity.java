@@ -504,6 +504,11 @@ public class CreateLobbyActivity extends AppCompatActivity
 
     private void uploadImage(Uri uri) {
         if (uri != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Uploading Image")
+                    .setCancelable(false);
+            AlertDialog alert = builder.create();
+            alert.show();
             uploadProgressBar.setVisibility(View.VISIBLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -609,9 +614,11 @@ public class CreateLobbyActivity extends AppCompatActivity
         etSessionName.setText(gameSession.getSessionName());
         durationSeekBar.setProgress((int) (gameSession.getDuration().intValue() / (durationSeekBarUnit * SECONDS_IN_MINUTE)));
         maxTeamSizeSeekbar.setProgress((int) (gameSession.getMaxPlayers() / (2 * teamSeekBarUnit)));
-        //tvSelectedStartTime.setText();
-        Uri imageUri = Uri.parse(gameSession.getSessionImageUri().toString());
-        Picasso.with(CreateLobbyActivity.this).load(imageUri).resize(60, 60).centerCrop().into(lobbyImage);
+        tvSelectedStartTime.setText(gameSession.getStartTimeString());
+        if (gameSession.getSessionImageUri() != null) {
+            Uri imageUri = Uri.parse(gameSession.getSessionImageUri().toString());
+            Picasso.with(CreateLobbyActivity.this).load(imageUri).resize(60, 60).centerCrop().into(lobbyImage);
+        }
         etDescription.setText(gameSession.getDescription());
         if(gameSession.getPublicAccess() == true){
             radioButtonPublicAccess.setChecked(true);
@@ -620,7 +627,6 @@ public class CreateLobbyActivity extends AppCompatActivity
             radiobuttonPrivateAccess.setChecked(true);
         }
     }
-
     /***
      * updates information from entered fields
      */
@@ -632,6 +638,7 @@ public class CreateLobbyActivity extends AppCompatActivity
         gameSession.setMaxPlayers(new Integer(maxTeamSize * 2));
         gameSession.setPublicAccess(isPublic);
         gameSession.setDescription(etDescription.getText().toString());
+        gameSession.setStartTimeString(tvSelectedStartTime.getText().toString());
         String[] time = tvSelectedStartTime.getText().toString().replaceAll(" ", "").split(":");
         int selectedHour = Integer.valueOf(time[0]);
         int selectedMinute = Integer.valueOf(time[1]);

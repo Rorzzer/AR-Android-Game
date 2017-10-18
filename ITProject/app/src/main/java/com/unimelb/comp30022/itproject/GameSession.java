@@ -19,6 +19,7 @@ public class GameSession {
     private static final double EARTH_RADIUS_M = 6372797.560;
     private static final double RAD_TO_DEGREE = 0.017453292519943295769236907684886;
     private String sessionId;
+    private String startTimeString;
     private Long startTime;
     private Long endTime;
     private Integer maxPlayers;
@@ -161,6 +162,14 @@ public class GameSession {
 
     public void setTimeSessionCreated(Long timeSessionCreated) {
         this.timeSessionCreated = timeSessionCreated;
+    }
+
+    public String getStartTimeString() {
+        return startTimeString;
+    }
+
+    public void setStartTimeString(String startTimeString) {
+        this.startTimeString = startTimeString;
     }
 
     public Integer getMaxPlayers() {
@@ -560,7 +569,6 @@ public class GameSession {
             return null;
         }
     }
-
 
 
 }
