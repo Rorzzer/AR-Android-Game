@@ -40,7 +40,6 @@ public class MapsFragment extends Fragment {
     private static String TAG = MapsFragment.class.getName();
     private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
 
-
     private OnFragmentInteractionListener mListener;
     private BroadcastReceiver currentLocationReciever;
     private Type locationType = new TypeToken<Location>() {

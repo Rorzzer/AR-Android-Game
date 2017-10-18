@@ -25,6 +25,7 @@ import android.support.fragment.BuildConfig;
 
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.firebase.auth.FirebaseAuth;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import static android.app.PendingIntent.getActivity;
 
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
         findViewById(R.id.btnChat).setOnClickListener(this);
+        findViewById(R.id.testAR).setOnClickListener(this);
 
         //Launch Location services
         checkLocationPermission();
@@ -173,6 +175,14 @@ public class MainActivity extends AppCompatActivity
 
                     transaction.commit();
                     chatOpen = !chatOpen;
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
+            case R.id.testAR:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Intent unity = new Intent(getApplicationContext(), UnityPlayerActivity.class);
+                    startActivity(unity);
                 } else {
                     updateStatus("You must be signed in to access this feature.");
                 }

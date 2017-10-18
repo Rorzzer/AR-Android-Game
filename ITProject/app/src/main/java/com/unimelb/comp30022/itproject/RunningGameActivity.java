@@ -184,6 +184,7 @@ public class RunningGameActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_running_game);
         findViewById(R.id.btnMapFrag).setOnClickListener(this);
+        findViewById(R.id.btnAR).setOnClickListener(this);
 
 //        ActionBar actionBar = getSupportActionBar();
 //        if (actionBar != null) {
@@ -230,9 +231,9 @@ public class RunningGameActivity extends AppCompatActivity implements
                 boolean isServiceRunning;
                 textView = (TextView) findViewById(R.id.fullscreen_content);*/
 
-//                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-//                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
-//                startService(intent);
+                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
+                startService(intent);
 
                // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
 
@@ -449,16 +450,15 @@ public class RunningGameActivity extends AppCompatActivity implements
             currentGameStateReciever = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    String input = intent.getStringExtra(FILTER_GAME_SESSION_ATR);
+                    String input = intent.getStringExtra(KEY_GAMESESSION_DATA);
                     if (input != null) {
                         currentGameState = gson.fromJson(input, gameSessionType);
                         Log.d(TAG, input);
                     }
-
                 }
             };
         }
-        registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
+        registerReceiver(currentGameStateReciever, new IntentFilter(FILTER_GAME_SESSION_ATR));
     }
 
     @Override
@@ -475,6 +475,17 @@ public class RunningGameActivity extends AppCompatActivity implements
                     else{
                         getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
                     }
+            case R.id.btnAR:
+//                    Opens fragment of map if there is none, closes it if there is
+                mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
+                if(mFrag != null){
+                    getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                    getFragmentManager().beginTransaction().replace(R.id.FragContainer,new UnityPlayerFragment()).commit();
+                }
+                else{
+                    getFragmentManager().beginTransaction().replace(R.id.FragContainer,new UnityPlayerFragment()).commit();
+                }
+
 
         }
     }
