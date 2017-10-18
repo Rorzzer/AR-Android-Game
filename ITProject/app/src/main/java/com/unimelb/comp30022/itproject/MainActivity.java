@@ -26,6 +26,8 @@ import android.support.fragment.BuildConfig;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Date;
+
 import static android.app.PendingIntent.getActivity;
 
 public class MainActivity extends AppCompatActivity
@@ -163,7 +165,7 @@ public class MainActivity extends AppCompatActivity
 
                     //getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,new ChatFragment()).commit();
 
-                    Fragment fragment = new ChatFragment();
+                    Fragment fragment = new ChatFragment().newInstance("PUBLIC_CHAT");
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     if (chatOpen) {
                         transaction.remove(fragment);

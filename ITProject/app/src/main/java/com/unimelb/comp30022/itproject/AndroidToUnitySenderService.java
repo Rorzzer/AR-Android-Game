@@ -277,6 +277,7 @@ public class AndroidToUnitySenderService extends Service {
                     Intent i = new Intent(FILTER_GAME_SESSION_ATR);
                     i.putExtra(KEY_GAMESESSION_DATA, gson.toJson(myGameSession));
                     sendBroadcast(i);
+                    Log.d(LOG_TAG,"sending information to all activities" + gson.toJson(myGameSession));
                 }
             };
         }
