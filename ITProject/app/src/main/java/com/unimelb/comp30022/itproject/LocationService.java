@@ -74,6 +74,8 @@ public class LocationService extends Service implements
     private Gson gson = new Gson();
     private Type locationtype = new TypeToken<Location>() {
     }.getType();
+
+    //Location callback function
     private LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
         @Override
         public void onLocationResult(LocationResult locationResult) {

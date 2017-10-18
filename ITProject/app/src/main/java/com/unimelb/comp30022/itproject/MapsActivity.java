@@ -48,28 +48,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
     private static final int QUERY_DISTANCE = 1;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     private static String TAG = MapsActivity.class.getName();
-
 
     private GoogleMap mMap;
     private Map<String, Marker> markers;
     private GeoQuery geoQuery;
     private GeoFire geoFire;
-
-    GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
-    Location mLastLocation;
-    FusedLocationProviderClient mFusedLocationClient;
-    GeoLocation QueryCenter = new GeoLocation(-37.7988847, 144.964109);
-
-
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mLastLocation;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private GeoLocation QueryCenter = new GeoLocation(-37.7988847, 144.964109);
 
     //GeoFire database connection
-    DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
-
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
 
     //Upon map activity creation
     @Override
@@ -78,10 +72,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {    //compare SDK requirements
-            checkLocationPermission();                                      //Then check if location permission has been granted
-        }
+//
+//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {    //compare SDK requirements
+//            checkLocationPermission();                                      //Then check if location permission has been granted
+//        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
