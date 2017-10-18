@@ -145,6 +145,14 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
+            case R.id.btnTestUnity:
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+
+                } else {
+                    updateStatus("You must be signed in to access this feature.");
+                }
+                break;
+
         }
     }
 

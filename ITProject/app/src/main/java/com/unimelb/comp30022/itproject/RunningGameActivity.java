@@ -27,21 +27,15 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-//import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.lang.reflect.Type;
 
@@ -79,7 +73,7 @@ public class RunningGameActivity extends AppCompatActivity {
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;//ms
     private final int UPDATE_INTERVAL = 1000;
-    private final int CAPTURING_LATENCY = 500;
+    private final int CAPTURING_LATENCY = 2000;
 
     private final Integer LATENCY = 500;
     private final Handler mHideHandler = new Handler();
@@ -99,6 +93,19 @@ public class RunningGameActivity extends AppCompatActivity {
         }
     };
     TextView textView;
+    LocationRequest mLocationRequest;
+    Location mLastLocation;
+    FusedLocationProviderClient mFusedLocationClient;
+    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            for (Location location : locationResult.getLocations()) {
+
+                //TODO: whatever was happening with the location data
+
+            }
+        }
+    };
     private BroadcastReceiver currentGameStateReciever;
     private GameSession currentGameState;
     private boolean hasFineLocationPermission;
@@ -165,10 +172,6 @@ public class RunningGameActivity extends AppCompatActivity {
         }
     };
 
-    LocationRequest mLocationRequest;
-    Location mLastLocation;
-    FusedLocationProviderClient mFusedLocationClient;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -204,11 +207,11 @@ public class RunningGameActivity extends AppCompatActivity {
 
         //Verify that location settings are enabled before start game
         if (!hasGooglePlay()) {
-            Toast.makeText(RunningGameActivity.this, "Google play Unavailable", Toast.LENGTH_LONG).show();
+            Toast.makeText(RunningGameActivity.this, R.string.google_play_unavailable, Toast.LENGTH_SHORT).show();
             finish();
         } else {
 
-            if (hasFineLocationPermission) {
+            if (getCurrentPermissions()) {
                 Log.d(TAG, "Has Google play installed ");
                // createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
@@ -231,7 +234,7 @@ public class RunningGameActivity extends AppCompatActivity {
                 receiveMyGameSessionBroadcasts();
                 Log.d(TAG, "Launching current game");
                 launchCurrentGame();
-       //       
+                //
             } else {
                 Log.d(TAG, "Doesn't have permission");
 
@@ -259,11 +262,14 @@ public class RunningGameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //unregisterReceiver(currentGameStateReciever);
+        if (currentGameStateReciever != null) {
+            unregisterReceiver(currentGameStateReciever);
+        }
         if (ServiceTools.isServiceRunning(getApplicationContext(), AndroidToUnitySenderService.class)) {
             Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
             stopService(intent);
         }
+
     }
 
     @Override
@@ -310,6 +316,7 @@ public class RunningGameActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHidePart2Runnable);
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
+
     /**
      * Schedules a call to hide() in [delay] milliseconds, canceling any
      * previously scheduled calls.
@@ -318,6 +325,7 @@ public class RunningGameActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
     //verify that the location and connectivity are enabled
     private boolean getCurrentPermissions() {
         hasFineLocationPermission = (PackageManager.PERMISSION_GRANTED ==
@@ -333,10 +341,10 @@ public class RunningGameActivity extends AppCompatActivity {
         intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
         startService(intent);
         isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-        //startActivity(ar);
+        Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+        startActivity(ar);
+        Log.d(TAG, "launching Ar");
     }
-
 
     //whether the applications should request for permisssions
     public boolean shouldRequestPermissions() {
@@ -367,6 +375,7 @@ public class RunningGameActivity extends AppCompatActivity {
 
         }
 
+        canFetchLocations = true;
         return false;
     }
 
@@ -394,6 +403,7 @@ public class RunningGameActivity extends AppCompatActivity {
 
         }
     }
+
     private boolean hasGooglePlay() {
         int availability = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
         if (availability == ConnectionResult.SUCCESS) {
@@ -404,7 +414,6 @@ public class RunningGameActivity extends AppCompatActivity {
         }
 
     }
-
 
     @SuppressWarnings("MissingPermission")
     private void startLocationUpdate() {
@@ -444,16 +453,5 @@ public class RunningGameActivity extends AppCompatActivity {
         }
         registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
     }
-
-    LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            for (Location location : locationResult.getLocations()) {
-
-                //TODO: whatever was happening with the location data
-
-            }
-        }
-    };
 
 }

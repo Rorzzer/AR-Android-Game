@@ -11,7 +11,6 @@ public class Team {
     private String teamName;
     private Long timeTeamCreated;
     private String creator;
-    private Integer maxPlayers;
     private Integer numPlayers;
     private Boolean isActive;
     private Boolean isCapturing;
@@ -24,10 +23,19 @@ public class Team {
         this.creator = creator;
         this.timeTeamCreated = System.currentTimeMillis();
         this.isActive = true;
+        this.numPlayers = 0;
         this.isCapturing = isCapturing;
         playerArrayList = new ArrayList<Player>();
     }
+
+    public Team(String teamId) {
+        this.timeTeamCreated = System.currentTimeMillis();
+        this.teamId = teamId;
+        this.numPlayers = 0;
+        playerArrayList = new ArrayList<Player>();
+    }
     public Team (){
+        this.numPlayers = 0;
         this.timeTeamCreated = System.currentTimeMillis();
         playerArrayList = new ArrayList<Player>();
 
@@ -41,31 +49,31 @@ public class Team {
         this.teamId = teamId;
     }
 
-    public Integer getMaxPlayers() {
-        return maxPlayers;
-    }
-
-    public void setMaxPlayers(Integer maxPlayers) {
-        this.maxPlayers = maxPlayers;
-    }
 
     //add players if space is available
     public boolean addPlayer(Player player){
-        if( maxPlayers != null && maxPlayers > playerArrayList.size() ){
-            if (playerArrayList == null) {
-                this.playerArrayList = new ArrayList<Player>();
-            }
-            this.playerArrayList.add(player);
-            this.numPlayers = new Integer(this.playerArrayList.size());
-            return true;
-        }
-        else{
+        if (this.playerArrayList.contains(player)) {
             return false;
         }
+        this.playerArrayList.add(player);
+        this.numPlayers = new Integer(this.playerArrayList.size());
+        return true;
+    }
+
+    public int getTeamSize() {
+        return this.playerArrayList.size();
+    }
+
+    public Integer getNumPlayers() {
+        return numPlayers;
+    }
+
+    public void setNumPlayers(Integer numPlayers) {
+        this.numPlayers = numPlayers;
     }
 
     public boolean removePlayer(Player player){
-        if (this.playerArrayList != null && this.playerArrayList.size() > 0 && this.playerArrayList.contains(player)) {
+        if (this.playerArrayList.size() > 0 && this.playerArrayList.contains(player)) {
             this.playerArrayList.remove(player);
             this.numPlayers = new Integer(this.playerArrayList.size());
             return true;

@@ -1,9 +1,13 @@
 package com.unimelb.comp30022.itproject;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +16,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.firebase.geofire.GeoFire;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +37,7 @@ import java.util.ArrayList;
 
 public class SessionInformationActivity extends AppCompatActivity
                                         implements View.OnClickListener {
+    public static int PERMISSION_CODE = 99;
     private static String TAG = SessionInformationActivity.class.getName();
     private static String joinText = "Join";
     private static String leaveText = "Leave";
@@ -60,6 +66,8 @@ public class SessionInformationActivity extends AppCompatActivity
     private int sumActivePlayers = 0;
     private boolean isValidGame = false;
     private boolean isInitialising = true;
+    private boolean hasFineLocationPermission = false;
+    private Boolean canFetchLocations;
 
     private ArrayAdapter<String> adapter;
     private TextView tvSessionName;
@@ -92,7 +100,6 @@ public class SessionInformationActivity extends AppCompatActivity
         btnStartGame = (Button)findViewById(R.id.btnStartGame);
         findViewById(R.id.sessionContent).setVisibility(View.INVISIBLE);
         findViewById(R.id.loadingProgressLobby).setVisibility(View.VISIBLE);
-
 
         btnJoinGame.setOnClickListener(this);
         btnDeleteGame.setOnClickListener(this);
@@ -171,15 +178,30 @@ public class SessionInformationActivity extends AppCompatActivity
                         btnJoinGame.setText(joinText);
                     } else {
                         //add player to session
-                        addCurrentPlayerToGameSession();
-                        Gson gson = new Gson();
-                        Type gameSessionType = new TypeToken<GameSession>() {
-                        }.getType();
-                        Log.d(TAG, gson.toJson(publicGameSession, gameSessionType));
-                        updateServerGameSession(publicGameSession);
-                        loadDataToForm();
-                        adapter.notifyDataSetChanged();
-                        btnJoinGame.setText(leaveText);
+                        if (!hasGooglePlay()) {
+                            Toast.makeText(SessionInformationActivity.this, R.string.google_play_unavailable, Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            if (!getCurrentPermissions()) {
+                                Log.d(TAG, "Doesn't have permissions requesting ");
+                                //don't allow player to join the session until permissions are granted
+                                shouldRequestPermissions();
+                            } else {
+                                //
+                                Log.d(TAG, "hasPermissions is" + String.valueOf(hasFineLocationPermission));
+                                addCurrentPlayerToGameSession();
+                                Gson gson = new Gson();
+                                Type gameSessionType = new TypeToken<GameSession>() {
+                                }.getType();
+                                Log.d(TAG, gson.toJson(publicGameSession, gameSessionType));
+                                updateServerGameSession(publicGameSession);
+                                loadDataToForm();
+                                adapter.notifyDataSetChanged();
+                                btnJoinGame.setText(leaveText);
+                            }
+
+                        }
+
                     }
                 }
                 else{
@@ -202,7 +224,7 @@ public class SessionInformationActivity extends AppCompatActivity
                 if (currentUserInfo != null) {
                     deleteServerGameSessionObj(publicGameSession);
                     inactivatePage();
-                    Toast.makeText(SessionInformationActivity.this, " Game Deleted!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SessionInformationActivity.this, R.string.successful_game_deleted, Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d(TAG, "User not authenticated");
                 }
@@ -258,6 +280,88 @@ public class SessionInformationActivity extends AppCompatActivity
             return;
         }
     }
+
+    private boolean getCurrentPermissions() {
+        hasFineLocationPermission = (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        return hasFineLocationPermission;
+    }
+
+    private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {
+        Snackbar.make(findViewById(android.R.id.content),
+                mainText,
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction(actionText, listener).show();
+    }
+
+    private boolean hasGooglePlay() {
+        int availability = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+        if (availability == ConnectionResult.SUCCESS) {
+            return true;
+        } else {
+            GooglePlayServicesUtil.showErrorDialogFragment(availability, this, 0);
+            return false;
+        }
+
+    }
+
+    //whether the applications should request for permisssions
+    public boolean shouldRequestPermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            //Post snackbar to explain permission request
+            //request for permissions
+            Log.d(TAG, "Explaining permissins request");
+
+            canFetchLocations = false;
+            locationRequestRationaleSnackbar(getResources().getString(R.string.permission_rationale),
+                    getResources().getString(R.string.Ok), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // Request permission
+                            ActivityCompat.requestPermissions(SessionInformationActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    PERMISSION_CODE);
+                        }
+                    });
+            return true;
+        } else {
+            //
+            Log.d(TAG, "shouldn't show rationale just ask for permission");
+
+            ActivityCompat.requestPermissions(SessionInformationActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_CODE);
+
+        }
+
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_CODE) {
+            if (grantResults.length <= 0) {
+                //failed permissions request
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                canFetchLocations = true;
+            } else {
+                //notify why permissions are being requested
+                locationRequestRationaleSnackbar(getResources().getString(R.string.denied_permission_rationale),
+                        getResources().getString(R.string.Ok), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // Request permission
+                                ActivityCompat.requestPermissions(SessionInformationActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        PERMISSION_CODE);
+                            }
+                        });
+            }
+
+        }
+    }
     /**
      * launches publicGameSession and passes the information necessary to launch the AR activity to unity.
      * */
@@ -265,7 +369,7 @@ public class SessionInformationActivity extends AppCompatActivity
         //ensure players have been added to the session on the server
         generateAvailableLobbyInformation();
         if(!isValidGame){
-            Toast.makeText(SessionInformationActivity.this,"Too few Members to Start Game",Toast.LENGTH_LONG).show();
+            Toast.makeText(SessionInformationActivity.this, R.string.too_few_to_start, Toast.LENGTH_SHORT).show();
         }
         else{
             //identifier that the game is starting
@@ -289,22 +393,19 @@ public class SessionInformationActivity extends AppCompatActivity
                     findViewById(R.id.sessionContent).setVisibility(View.VISIBLE);
                     findViewById(R.id.loadingProgressLobby).setVisibility(View.GONE);
                     if (publicGameSession.getCreator().equals(currentUserInfo.getEmail())) {
-                        btnDeleteGame.setVisibility(View.VISIBLE);
-                        btnEditGame.setVisibility(View.VISIBLE);
-                        btnStartGame.setVisibility(View.VISIBLE);
-                        btnJoinGame.setVisibility(View.VISIBLE);
+                        showCreatorPage();
                     } else {
-                        btnJoinGame.setVisibility(View.VISIBLE);
-                        btnEditGame.setVisibility(View.GONE);
-                        btnStartGame.setVisibility(View.GONE);
-                        btnDeleteGame.setVisibility(View.GONE);
+                        showPlayerPage();
                     }
                     if (hasPlayerJoinedSession(getNewCurrentPlayer())) {
                         btnJoinGame.setText(leaveText);
                     }
-
+                    if (publicGameSession.getGameStarted() == true) {
+                        inactivatePage();
+                        Toast.makeText(SessionInformationActivity.this, R.string.game_unable_to_join_started_prompt, Toast.LENGTH_SHORT).show();
+                    }
                     generateAvailableLobbyInformation();
-                    //loadDataToForm();
+                    loadDataToForm();
                     adapter.notifyDataSetChanged();
                     listenToServerForGameSessionChanges();
                     Log.d(TAG, " Successfully Fetched Game Session");
@@ -370,17 +471,16 @@ public class SessionInformationActivity extends AppCompatActivity
                         if (!currentUserInfo.getEmail().equals(publicGameSession.getCreator()) &&
                                 isInitialising) {
                             launchGameSession();
-                            Toast.makeText(SessionInformationActivity.this, "Game Launching Now!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SessionInformationActivity.this, R.string.game_started_prompt, Toast.LENGTH_SHORT).show();
                             isInitialising = false;
+                            inactivatePage();
                         }
-
                     }
                 }
-
             }
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Toast.makeText(SessionInformationActivity.this, "The Session Was Deleted, Joining is not allowed", Toast.LENGTH_LONG).show();
+                Toast.makeText(SessionInformationActivity.this, R.string.game_deleted_prompt, Toast.LENGTH_SHORT).show();
                 inactivatePage();
             }
             @Override
@@ -431,23 +531,21 @@ public class SessionInformationActivity extends AppCompatActivity
 
     }
 
-
     public boolean addCurrentPlayerToGameSession() {
         if (spacesAvailable > 0) {
             boolean success = false;
             //create Player and join
-            Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
-            Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
-            if (capturingTeam.getPlayerArrayList().size()
-                    < publicGameSession.getMaxPlayers() / 2 && escapingTeam.getPlayerArrayList().size() >=
-                    capturingTeam.getPlayerArrayList().size()) {
+            Team capturingTeam = publicGameSession.fetchCapturingTeam();
+            Team escapingTeam = publicGameSession.fetchEscapingTeam();
+            if (capturingTeam.getTeamSize() < publicGameSession.getMaxPlayers() / 2 &&
+                    escapingTeam.getPlayerArrayList().size() >= capturingTeam.getTeamSize()) {
                 Player player = getNewCurrentPlayer();
                 setCurrentPlayerDetails(player, true);
                 capturingTeam.addPlayer(player);
             }
             //add to escapping team if it has space or is smaller than the capturing team
-            else if (escapingTeam.getPlayerArrayList().size() < publicGameSession.getMaxPlayers() / 2 &&
-                    capturingTeam.getPlayerArrayList().size() >= escapingTeam.getPlayerArrayList().size()) {
+            else if (escapingTeam.getTeamSize() < publicGameSession.getMaxPlayers() / 2 &&
+                    capturingTeam.getTeamSize() >= escapingTeam.getTeamSize()) {
                 Player player = getNewCurrentPlayer();
                 setCurrentPlayerDetails(player, false);
                 escapingTeam.addPlayer(player);
@@ -464,8 +562,8 @@ public class SessionInformationActivity extends AppCompatActivity
 
     public void removePlayerFromGameSession(Player player) {
         if (hasPlayerJoinedSession(player)) {
-            Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
-            Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
+            Team capturingTeam = publicGameSession.fetchCapturingTeam();
+            Team escapingTeam = publicGameSession.fetchEscapingTeam();
             if (capturingTeam.containsPlayer(player)) {
                 capturingTeam.removePlayer(player);
             } else if (escapingTeam.containsPlayer(player)) {
@@ -534,8 +632,22 @@ public class SessionInformationActivity extends AppCompatActivity
         btnEditGame.setClickable(false);
     }
 
+    private void showCreatorPage() {
+        btnDeleteGame.setVisibility(View.VISIBLE);
+        btnEditGame.setVisibility(View.VISIBLE);
+        btnStartGame.setVisibility(View.VISIBLE);
+        btnJoinGame.setVisibility(View.VISIBLE);
+    }
+
+    private void showPlayerPage() {
+        btnJoinGame.setVisibility(View.VISIBLE);
+        btnEditGame.setVisibility(View.GONE);
+        btnStartGame.setVisibility(View.GONE);
+        btnDeleteGame.setVisibility(View.GONE);
+    }
+
     private void launchGameSession() {
-        Toast.makeText(getApplicationContext(), "Launching AR Camera", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), R.string.game_started_prompt, Toast.LENGTH_SHORT).show();
         Intent activeGame = new Intent(SessionInformationActivity.this, RunningGameActivity.class);
         geoFire.removeLocation(firebaseAuth.getCurrentUser().getUid());
         activeGame.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);

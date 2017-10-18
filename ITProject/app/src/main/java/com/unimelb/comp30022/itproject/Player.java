@@ -41,7 +41,6 @@ public class Player  {
         path = new ArrayList<LatLng>();
         relativePath = new ArrayList<CoordinateLocation>();
     }
-
     public Player() {
         this.isLoggedOn = false;
         this.score = 0;
@@ -79,7 +78,7 @@ public class Player  {
         return isLoggedOn;
     }
 
-    public void setLoggedOn(Boolean loggedOn) {
+    public void setLoggedOn(boolean loggedOn) {
         isLoggedOn = loggedOn;
     }
 
@@ -141,11 +140,11 @@ public class Player  {
         this.skillLevel = skillLevel;
     }
 
-    public Boolean getActive() {
+    public boolean getActive() {
         return isActive;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         isActive = active;
     }
 
@@ -153,7 +152,7 @@ public class Player  {
         return isCapturing;
     }
 
-    public void setCapturing(Boolean capturing) {
+    public void setCapturing(boolean capturing) {
         isCapturing = capturing;
     }
 
@@ -161,16 +160,12 @@ public class Player  {
         return hasBeenCaptured;
     }
 
-    public void setHasBeenCaptured(Boolean hasBeenCaptured) {
+    public void setHasBeenCaptured(boolean hasBeenCaptured) {
         this.hasBeenCaptured = hasBeenCaptured;
     }
 
-    public ArrayList<String> getCapturedList() {
+    public ArrayList<String> getPlayerCapturedList() {
         return capturedList;
-    }
-
-    public void setCapturedList(ArrayList<String> capturedList) {
-        this.capturedList = capturedList;
     }
 
     public ArrayList<LatLng> getPath() {
@@ -206,15 +201,6 @@ public class Player  {
             } else {
                 //add new item in queue
                 path.add(getAbsLocation());
-            }
-        }
-    }
-
-    public void updateRelativePaths(LatLng reference) {
-        relativePath.clear();
-        if (this.path.size() > 0) {
-            for (LatLng latLng : this.path) {
-                GameSession.convertToCartesian(reference, this.getAbsLocation());
             }
         }
     }

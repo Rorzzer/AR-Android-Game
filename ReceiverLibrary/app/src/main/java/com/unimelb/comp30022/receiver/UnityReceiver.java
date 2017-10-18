@@ -19,11 +19,9 @@ public class UnityReceiver extends BroadcastReceiver {
         }
 
     }
-
     public static void createInstance() {
         if(instance == null) {
             instance = new UnityReceiver();
         }
-
     }
 }

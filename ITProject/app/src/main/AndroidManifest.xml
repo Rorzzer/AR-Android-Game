@@ -75,9 +75,8 @@
         <activity android:name=".CreateLobbyActivity" />
         <activity android:name=".FindLobbyActivity" />
         <activity android:name=".SessionInformationActivity" />
-        <activity android:name=".ChatActivity" />
 
-        <!--
+        <activity android:name=".ChatActivity" />
 
         <activity
             android:name=".arcamera.UnityPlayerActivity"
@@ -97,7 +96,7 @@
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen"
             android:label="@string/app_name"
             android:screenOrientation="portrait" />
-        -->
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -131,13 +130,12 @@
             android:name=".LocationService"
             android:enabled="true" />
 
-            <!--
         <receiver android:name="com.unimelb.comp30022.receiver.UnityReceiver">
             <intent-filter>
                 <action android:name="com.unimelb.comp30022.ITProject.sendintent.IntentToUnity" />
             </intent-filter>
         </receiver>
-        -->
+
         <uses-library
             android:name="com.ti.s3d"
             android:required="false" />
@@ -146,9 +144,7 @@
             android:name="com.osterhoutgroup.api.ext"
             android:required="false" />
 
-        <activity
-            android:name=".LocationServiceTest"
-            android:label="@string/title_activity_location_service_test"></activity>
+        <activity android:name=".TestPermissions"></activity>
     </application>
 
 </manifest>
