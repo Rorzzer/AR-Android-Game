@@ -124,18 +124,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.btnMap:
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
-//                    Intent MapsAct = new Intent(getApplicationContext(), MapsActivity.class);
-//                    startActivity(MapsAct);
+                    Intent MapsAct = new Intent(getApplicationContext(), MapsActivity.class);
+                    startActivity(MapsAct);
 
-//                    Opens fragment of map if there is none, closes it if there is
-                    mFrag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                    if(mFrag != null){
-                        getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
-                    }
-                    else{
-                        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,new MapsFragment()).commit();
-
-                    }
 
 
                 } else {
