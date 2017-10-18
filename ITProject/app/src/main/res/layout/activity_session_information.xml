@@ -195,8 +195,15 @@
                 android:id="@+id/lvPlayerListView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-        </LinearLayout>
 
+
+        </LinearLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/editDeleteButtonGroup">
+
+            </FrameLayout>
         </LinearLayout>
     </RelativeLayout>
 </ScrollView>
