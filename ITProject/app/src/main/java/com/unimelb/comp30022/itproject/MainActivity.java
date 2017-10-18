@@ -28,6 +28,10 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
         findViewById(R.id.btnChat).setOnClickListener(this);
+
+        //Launch Location services
+        Intent LocationService = new Intent(this, LocationService.class);
+        startService(LocationService);
     }
 
     /**
