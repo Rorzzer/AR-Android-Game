@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +38,10 @@ public class SessionInformationActivity extends AppCompatActivity
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
+
+    private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
+    private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
+
     ArrayList<Player> playerArrayList;
     ArrayList<Team> teamArrayList;
     ArrayList<String> joinedPlayers = new ArrayList<String>();
@@ -66,6 +71,10 @@ public class SessionInformationActivity extends AppCompatActivity
     private Button btnDeleteGame;
     private Button btnStartGame;
     private ListView lvLoggedInMembers;
+
+    private DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
+    private GeoFire geoFire = new GeoFire(GeoRef);
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -398,6 +407,7 @@ public class SessionInformationActivity extends AppCompatActivity
                     //value exists on server
                     gameSessionId = gameSession.getSessionId();
                     gameSessionDbReference.child(gameSession.getSessionId()).removeValue();
+                    geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
                     Log.d(TAG, " Successfully Deleted Game Session");
                 }
                 else{
@@ -526,6 +536,7 @@ public class SessionInformationActivity extends AppCompatActivity
     private void launchGameSession() {
         Toast.makeText(getApplicationContext(), "Launching AR Camera", Toast.LENGTH_SHORT).show();
         Intent activeGame = new Intent(SessionInformationActivity.this, RunningGameActivity.class);
+        geoFire.removeLocation(firebaseAuth.getCurrentUser().getUid());
         activeGame.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);
         startActivity(activeGame);
     }
