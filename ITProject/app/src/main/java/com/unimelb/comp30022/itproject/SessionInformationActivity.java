@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +33,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -73,11 +76,12 @@ public class SessionInformationActivity extends AppCompatActivity
     private TextView tvSessionName;
     private TextView tvCreator;
     private TextView tvLocation;
-    private TextView tvAddress;
+    private TextView tvDescription;
     private Button btnJoinGame;
     private Button btnEditGame;
     private Button btnDeleteGame;
     private Button btnStartGame;
+    private ImageView lobbyImage;
     private ListView lvLoggedInMembers;
 
     private DatabaseReference GeoRef = FirebaseDatabase.getInstance().getReferenceFromUrl(GEO_FIRE_REF);
@@ -88,11 +92,10 @@ public class SessionInformationActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session_information);
         Context context = getApplicationContext();
-
         tvSessionName = (TextView) findViewById(R.id.tvNameContent);
         tvCreator = (TextView)findViewById(R.id.tvCreatorContent);
         tvLocation = (TextView)findViewById(R.id.tvLocationContent);
-        tvAddress = (TextView)findViewById(R.id.tvAddressContent);
+        tvDescription = (TextView)findViewById(R.id.tvDescriptionContent);
         lvLoggedInMembers = (ListView) findViewById(R.id.lvPlayerListView);
         btnJoinGame = (Button) findViewById(R.id.btnJoinLeaveLobby);
         btnEditGame = (Button)findViewById(R.id.btnEditLobby);
@@ -525,10 +528,13 @@ public class SessionInformationActivity extends AppCompatActivity
     public void loadDataToForm(){
         tvSessionName.setText(publicGameSession.getSessionName());
         tvCreator.setText(publicGameSession.getCreator());
-       // tvLocation.setText(publicGameSession.getLocation().toString());
-        tvAddress.setText("Generated from location");
+       tvLocation.setText(publicGameSession.getLocation().toString());
+        tvDescription.setText(publicGameSession.getDescription());
+        if (publicGameSession.getSessionImageUri() != null) {
+            Uri uri = Uri.parse(publicGameSession.getSessionImageUri());
+            Picasso.with(SessionInformationActivity.this).load(uri).resize(60, 60).centerCrop().into(lobbyImage);
+        }
         refreshPlayerList(joinedPlayers);
-
     }
 
     public boolean addCurrentPlayerToGameSession() {
@@ -542,6 +548,7 @@ public class SessionInformationActivity extends AppCompatActivity
                 Player player = getNewCurrentPlayer();
                 setCurrentPlayerDetails(player, true);
                 capturingTeam.addPlayer(player);
+                Toast.makeText(SessionInformationActivity.this,R.string.joined_capturing_team,Toast.LENGTH_SHORT).show();
             }
             //add to escapping team if it has space or is smaller than the capturing team
             else if (escapingTeam.getTeamSize() < publicGameSession.getMaxPlayers() / 2 &&
@@ -549,6 +556,8 @@ public class SessionInformationActivity extends AppCompatActivity
                 Player player = getNewCurrentPlayer();
                 setCurrentPlayerDetails(player, false);
                 escapingTeam.addPlayer(player);
+                Toast.makeText(SessionInformationActivity.this,R.string.joined_escaping_team,Toast.LENGTH_SHORT).show();
+
             }
             //update the player list
             loadDataToForm();
@@ -569,6 +578,7 @@ public class SessionInformationActivity extends AppCompatActivity
             } else if (escapingTeam.containsPlayer(player)) {
                 escapingTeam.removePlayer(player);
             }
+            Toast.makeText(SessionInformationActivity.this,R.string.left_current_lobby,Toast.LENGTH_SHORT).show();
         }
     }
 

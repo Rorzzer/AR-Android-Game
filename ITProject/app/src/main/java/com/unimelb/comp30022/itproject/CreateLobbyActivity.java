@@ -125,8 +125,8 @@ public class CreateLobbyActivity extends AppCompatActivity
     private Button btnDeleteOrCancel;
     private Button btnSelectStartTime;
     private ImageButton addImage;
-    private ImageView lobbyImage;
     private ListView  listView;
+    private ImageView lobbyImage;
     private ArrayList list = new ArrayList();
     private ArrayAdapter adapter;
     private Handler handler;

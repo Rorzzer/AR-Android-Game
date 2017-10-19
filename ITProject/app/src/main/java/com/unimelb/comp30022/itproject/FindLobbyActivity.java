@@ -66,7 +66,14 @@ public class FindLobbyActivity extends AppCompatActivity {
         gameSessionDbReference = firebaseDatabase.getReference("gameSessions");
         fbuser = firebaseAuth.getCurrentUser();
         userId = fbuser.getUid();
-        adapter = new ArrayAdapter<String>(FindLobbyActivity.this, android.R.layout.simple_list_item_1, availableGames);
+        findViewById(R.id.findMapView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent map = new Intent(FindLobbyActivity.this,MapsActivity.class);
+                startActivity(map);
+            }
+        });
+                adapter = new ArrayAdapter<String>(FindLobbyActivity.this, android.R.layout.simple_list_item_1, availableGames);
         activeGamesList.setAdapter(adapter);
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override

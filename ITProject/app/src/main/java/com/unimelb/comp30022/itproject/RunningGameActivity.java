@@ -230,9 +230,9 @@ public class RunningGameActivity extends AppCompatActivity implements
                 boolean isServiceRunning;
                 textView = (TextView) findViewById(R.id.fullscreen_content);*/
 
-//                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-//                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
-//                startService(intent);
+                Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
+                intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
+                startService(intent);
 
                // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
 
@@ -454,7 +454,6 @@ public class RunningGameActivity extends AppCompatActivity implements
                         currentGameState = gson.fromJson(input, gameSessionType);
                         Log.d(TAG, input);
                     }
-
                 }
             };
         }
@@ -466,16 +465,14 @@ public class RunningGameActivity extends AppCompatActivity implements
         switch (v.getId()) {
             case R.id.btnMapFrag:
 //                    Opens fragment of map if there is none, closes it if there is
-                    mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
-                    if(mFrag != null){
-                        getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
-                        getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
+                mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
+                if (mFrag != null) {
+                    getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                    getSupportFragmentManager().beginTransaction().add(R.id.FragContainer, new MapsFragment()).commit();
 
-                    }
-                    else{
-                        getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
-                    }
-
+                } else {
+                    getSupportFragmentManager().beginTransaction().add(R.id.FragContainer, new MapsFragment()).commit();
+                }
         }
     }
 

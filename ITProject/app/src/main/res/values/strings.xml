@@ -38,6 +38,9 @@
     <string name="successful_game_created">Game successfully created</string>
     <string name="successful_game_deleted">Game successfully deleted</string>
     <string name="too_few_to_start">At least 2 people needed to start game.</string>
+    <string name="joined_capturing_team">Successfully joined capturing team</string>
+    <string name="joined_escaping_team">Successfully joined escaping team</string>
+    <string name="left_current_lobby">Successfully left the lobby</string>
 
     <string name="lobby_unable_to_edit_started">A running game cannot be edited</string>
     <string name="lobby_unable_to_delete_started">A running game cannot be deleted</string>

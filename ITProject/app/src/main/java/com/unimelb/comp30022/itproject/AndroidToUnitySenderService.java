@@ -60,6 +60,7 @@ public class AndroidToUnitySenderService extends Service {
     private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final String KEY_IS_CAPTURING = "capturing";
+    private final Integer AR_FREQUENCY = 50;
     private final Integer LATENCY = 500;
     private final int UPDATING_GAME_STARTED = 0;
     private final int UPDATING_LOCATION = 1;
@@ -121,7 +122,7 @@ public class AndroidToUnitySenderService extends Service {
                 myGameSession.updatePlayerLocation(currentPlayer, currentLocation);
                 myGameSession.updateRelativeLocations(currentLocation);
                 senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT, gson.toJson(myGameSession));
-                //Log.d(LOG_TAG, "Sending to unity: "+gson.toJson(myGameSession));
+                Log.d(LOG_TAG, "Sending to unity: "+gson.toJson(myGameSession));
                 //Log.d(LOG_TAG, "------------------ ");
                 for (Player player : myGameSession.allPlayerArrayLists()) {
                     if (player.getDisplayName() != null && player.getCoordinateLocation() != null && !player.getDisplayName().equals(currentPlayer.getDisplayName())) {
@@ -137,7 +138,7 @@ public class AndroidToUnitySenderService extends Service {
             }
 
             handler.removeCallbacks(this);
-            handler.postDelayed(this, LATENCY);
+            handler.postDelayed(this, AR_FREQUENCY);
         }
     };
 
@@ -186,7 +187,7 @@ public class AndroidToUnitySenderService extends Service {
                     Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             startService(locationService);
             handler.removeCallbacks(sendData);
-            handler.postDelayed(sendData, LATENCY);
+            handler.postDelayed(sendData, AR_FREQUENCY);
             handler.removeCallbacks(updateFootsteps);
             handler.postDelayed(sendData, FOOTSTEP_UPDATE_FREQUENCY);
             //initiate the game session
@@ -199,7 +200,6 @@ public class AndroidToUnitySenderService extends Service {
         } else {
             Log.d(LOG_TAG, "Intent Launched without game session information");
         }
-
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -259,6 +259,8 @@ public class AndroidToUnitySenderService extends Service {
                                 myGameSession.getPlayerDetails(currentPlayer.getDisplayName()).setLastPing(System.currentTimeMillis());
                                 publicGameSession.getPlayerDetails(currentPlayer.getDisplayName()).setLastPing(System.currentTimeMillis());
                                 updateServerGameSession(publicGameSession, UPDATING_LOCATION);
+                                Log.d(LOG_TAG,"receiving location "+ currentLocation.toString());
+
                             }
                         }
                     }
@@ -269,6 +271,7 @@ public class AndroidToUnitySenderService extends Service {
                             //new direction turned
                             prevBearing = currentBearing;
                             myGameSession.setBearing(currentBearing);
+                            Log.d(LOG_TAG,"receiving bearing "+ String.valueOf(currentBearing));
                         }
                     }
 
