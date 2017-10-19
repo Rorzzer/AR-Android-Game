@@ -475,6 +475,7 @@ public class RunningGameActivity extends AppCompatActivity implements
                     else{
                         getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
                     }
+                    break;
             case R.id.btnAR:
 //                    Opens fragment of map if there is none, closes it if there is
                 mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
@@ -485,6 +486,7 @@ public class RunningGameActivity extends AppCompatActivity implements
                 else{
                     getFragmentManager().beginTransaction().replace(R.id.FragContainer,new UnityPlayerFragment()).commit();
                 }
+                break;
 
 
         }

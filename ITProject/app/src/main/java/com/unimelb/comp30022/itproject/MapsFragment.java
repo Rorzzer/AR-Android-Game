@@ -93,10 +93,10 @@ public class MapsFragment extends Fragment {
                 // For showing a move to my location button
                 googleMap.setMyLocationEnabled(true);
                 Log.d(TAG, "Current player count ->" + currentGameState.currentPlayerCount());
-                for(int i=0; i <= currentGameState.currentPlayerCount(); i++ ){
+                for(int i=0; i < currentGameState.currentPlayerCount(); i++ ){
                     Log.d(TAG, "Currently Player ->" + i);
 
-                    if(currentGameState.allPlayerArrayLists().get(i).getDisplayName() != FirebaseAuth.getInstance().getCurrentUser().getDisplayName()){
+                   // if(currentGameState.allPlayerArrayLists().get(i).getDisplayName() != FirebaseAuth.getInstance().getCurrentUser().getDisplayName()){
                         Marker marker = markers.get(currentGameState.allPlayerArrayLists().get(i).getDisplayName());
                         if(marker != null){
                             marker.remove();
@@ -106,7 +106,7 @@ public class MapsFragment extends Fragment {
                         markers.put(currentGameState.allPlayerArrayLists().get(i).getDisplayName(), marker);
                     }
                 }
-            }
+  //          }
         });
 
         return rootView;
