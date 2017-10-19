@@ -76,7 +76,7 @@
         <activity android:name=".FindLobbyActivity" />
         <activity android:name=".SessionInformationActivity" />
 
-        <activity android:name=".ChatActivity" />
+        <!--<activity android:name=".ChatActivity" />-->
 
         <activity
             android:name=".arcamera.UnityPlayerActivity"
