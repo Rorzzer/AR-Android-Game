@@ -88,6 +88,12 @@
             android:layout_below="@+id/btnMap"
             android:text="Chat" />
 
+        <Button
+            android:id="@+id/testAR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AR" />
+
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
