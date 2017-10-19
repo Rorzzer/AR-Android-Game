@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
     implements View.OnClickListener, MapsFragment.OnFragmentInteractionListener {
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final String PUBLIC_CHAT = "PUBLIC_CHAT";
 
     private Boolean chatOpen = false;
     private Fragment mFrag;
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity
 
                     //getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,new ChatFragment()).commit();
 
-                    Fragment fragment = new ChatFragment().newInstance("PUBLIC_CHAT");
+                    Fragment fragment = new ChatFragment().newInstance(PUBLIC_CHAT);
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     if (chatOpen) {
                         transaction.remove(fragment);

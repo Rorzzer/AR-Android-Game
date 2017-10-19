@@ -44,15 +44,19 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private final String DUMMYGAMEID = "123456";
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final String FILTER_GAME_SESSION_ATR = "com.unimelb.comp30022.ITProject.sendintent.GameSessionToRunningGameActivity";
+    public static final String PUBLIC_CHAT = "PUBLIC_CHAT";
 
 
     private User userInfo = null;
+    private GameSession gameSession = null;
+    private Player player = null;
 
     private FirebaseUser fUser;
 
     private String uID;
     private String username;
     //private String message;
+    private int teamInt;
     private String team;
     private String gameSessionId;
 
@@ -156,7 +160,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference("users");
+        mDatabase = database.getReference();
         chatRef = database.getReference("chat").child(gameSessionId);
         receiveMyGameSessionBroadcasts();
         updateFirebaseUser(mAuth);
@@ -183,7 +187,21 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
                         Log.d(TAG, "User ID is: " + uID);
 
-                        userInfo = dataSnapshot.child(uID).getValue(User.class);
+                        userInfo = dataSnapshot.child("users").child(uID).getValue(User.class);
+                        if (!gameSessionId.equals(PUBLIC_CHAT)) {
+                            gameSession = dataSnapshot.child("gameSessions").child(gameSessionId).getValue(GameSession.class);
+
+                            Log.d(TAG, "creator: " + gameSession.getCreator());
+                            player = gameSession.getPlayerDetails(userInfo.getEmail());
+                            //player = gameSession.getPlayerDetails("rory@student.unimelb.edu.au");
+
+                            team = player.getTeamId();
+                            //Log.d(TAG, "team int: " + team);
+
+
+                            Log.d(TAG, "team: " + team);
+                            //team = teamString;
+                        }
                         if (userInfo.getUsername().equals("Empty")) {
                             validUser = false;
                         } else {
