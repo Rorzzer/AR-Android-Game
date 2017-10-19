@@ -500,7 +500,8 @@ public class RunningGameActivity extends AppCompatActivity implements
                 else{
                     getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new ChatFragment().newInstance(gameSessionId)).commit();
                 }
-                break;
+             break;
+
         }
     }
 
