@@ -134,8 +134,11 @@ public class LocationService extends Service implements
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             mgoogleApiClient.disconnect();
         }
-        sensorManager.unregisterListener(this, magnetometerSensor);
-        sensorManager.unregisterListener(this, accelerometerSensor);
+        if(magnetometerSensor != null && accelerometerSensor != null){
+            sensorManager.unregisterListener(this, magnetometerSensor);
+            sensorManager.unregisterListener(this, accelerometerSensor);
+        }
+
 
     }
 
