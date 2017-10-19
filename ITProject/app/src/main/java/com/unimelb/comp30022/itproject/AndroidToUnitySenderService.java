@@ -129,9 +129,7 @@ public class AndroidToUnitySenderService extends Service {
                         Log.d(LOG_TAG, player.getDisplayName() + " distance " + String.valueOf(GameSession.distanceBetweenTwoPlayers(myGameSession.getPlayerDetails(currentPlayer.getDisplayName()), player)));
                     }
                 }
-                if (currentLocation.getAccuracy() > captureDistance * ACCURACY_TOLERANCE_FACTOR) {
-                    displayPoorSignalMessage();
-                }
+
                 sendBroadcast(senderIntent);            //send the current game state to the AR fiewfinder
             } else {
                 Log.d(LOG_TAG, "Not sending information");

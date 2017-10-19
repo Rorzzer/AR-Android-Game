@@ -126,8 +126,7 @@ public class SignInActivity extends AppCompatActivity
 
             case R.id.btnSignOut:
                 signUserOut();
-                Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(i);
+                Toast.makeText(SignInActivity.this,R.string.user_successfuly_signed_out,Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -188,6 +187,9 @@ public class SignInActivity extends AppCompatActivity
                         if (task.isSuccessful()){
                             Toast.makeText(SignInActivity.this, R.string.user_successfuly_signed_in,
                                     Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(i);
+
                         }
                         else {
                             Toast.makeText(SignInActivity.this, R.string.user_unsuccessfuly_signed_in,

@@ -60,13 +60,12 @@ public class LocationService extends Service implements
     private float[] accelerometerReadings = new float[4];
     private boolean magnetometerReceived = false;
     private boolean accelerometerReceived = false;
-    private float cOrientation = 0f;
     private Float currentBearing;
     private Float prevBearing;
     private float[] orientationArray = new float[4];
     private float[] rotationMatrix = new float[9];
     private float radAzimuth =0;
-    private float degAzimuth;
+    private float degAzimuth =0;
     private Bundle locationAndAzimuthOutputs = new Bundle();
     private GoogleApiClient mgoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -98,6 +97,8 @@ public class LocationService extends Service implements
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         Log.d(TAG, "Started Location Service");
         setLocationUpdateSettings();
@@ -183,7 +184,6 @@ public class LocationService extends Service implements
                 locationAndAzimuthOutputs.putString(KEY_AZIMUTH_DATA, String.valueOf(degAzimuth));
                 intent.putExtras(locationAndAzimuthOutputs);
                 sendBroadcast(intent);
-                Log.d(TAG,"upating bearing");
             }
         }
     }
