@@ -499,4 +499,8 @@ public class RunningGameActivity extends AppCompatActivity implements
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+    public GameSession getCurrentGameState(){
+        return currentGameState;
+    }
 }
