@@ -449,7 +449,7 @@ public class RunningGameActivity extends AppCompatActivity implements
             currentGameStateReciever = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    String input = intent.getStringExtra(FILTER_GAME_SESSION_ATR);
+                    String input = intent.getStringExtra(KEY_GAMESESSION_DATA);
                     if (input != null) {
                         currentGameState = gson.fromJson(input, gameSessionType);
                         Log.d(TAG, input);
@@ -457,7 +457,7 @@ public class RunningGameActivity extends AppCompatActivity implements
                 }
             };
         }
-        registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
+        registerReceiver(currentGameStateReciever, new IntentFilter(FILTER_GAME_SESSION_ATR));
     }
 
     @Override

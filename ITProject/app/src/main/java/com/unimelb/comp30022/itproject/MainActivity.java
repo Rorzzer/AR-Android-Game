@@ -26,6 +26,7 @@ import android.support.fragment.BuildConfig;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.firebase.auth.FirebaseAuth;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import static android.app.PendingIntent.getActivity;
 

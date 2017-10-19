@@ -277,6 +277,7 @@ public class AndroidToUnitySenderService extends Service {
 
                     //update session for player's game model
                     //pass new game information to the activity that called it(running game)
+                    Log.d(LOG_TAG,"Broadcasting gamesession to runningGame"+ gson.toJson(myGameSession));
                     Intent i = new Intent(FILTER_GAME_SESSION_ATR);
                     i.putExtra(KEY_GAMESESSION_DATA, gson.toJson(myGameSession));
                     sendBroadcast(i);
