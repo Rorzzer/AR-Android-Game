@@ -54,7 +54,6 @@
      <Compile Include="Assets\Scripts\PlayerObject.cs" />
      <Compile Include="Assets\Scripts\ServiceListenerScript.cs" />
      <Compile Include="Assets\Scripts\StartMessage.cs" />
-     <Compile Include="Assets\Scripts\test.cs" />
      <Compile Include="Assets\Vuforia\Scripts\BackgroundPlaneBehaviour.cs" />
      <Compile Include="Assets\Vuforia\Scripts\CloudRecoBehaviour.cs" />
      <Compile Include="Assets\Vuforia\Scripts\CylinderTargetBehaviour.cs" />

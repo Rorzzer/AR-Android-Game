@@ -123,7 +123,6 @@ public class ServiceListenerScript : MonoBehaviour {
             counter -= Time.fixedDeltaTime;
         } else {
             displayingSessionInfo = false;
-            GetComponent<TextMesh> ().text = "";
         }
 
         updatePlayerLocations (receiverMessage);
@@ -131,10 +130,7 @@ public class ServiceListenerScript : MonoBehaviour {
         getRemainingTime (receiverMessage);
         getClosestEscaper (receiverMessage);
     }
-    void changeText (string newText) {
-        GetComponent<TextMesh> ().text = displayString;
 
-    }
     
     public void generatePlayers (string gameString) {
         //iterate and spawn all objects at relative position
@@ -171,7 +167,6 @@ public class ServiceListenerScript : MonoBehaviour {
                         colorCapturing (play);
                         resize (play, a);
                         players.Add (play);
-                        displayString += play.id.ToString () + "@" + pos.x.ToString () + "," + pos.y.ToString () + "," + pos.z.ToString () + "\n";
 
                     } else if (!getCapturing (teamIdx, playerIdx)) {
                         //spawn runners
@@ -183,7 +178,6 @@ public class ServiceListenerScript : MonoBehaviour {
                         colorEscaping (play);
                         resize (play, a);
                         players.Add (play);
-                        displayString += play.id.ToString () + "@" + pos.x.ToString () + "," + pos.y.ToString () + "," + pos.z.ToString () + "\n";
 
                     }
 

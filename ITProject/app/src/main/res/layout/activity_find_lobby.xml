@@ -56,24 +56,41 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvActiveLobbies"
+        <LinearLayout
+            android:id="@+id/ActiveLobbiesGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/filterSelectionGroup"
-            android:text="Active Lobbies:"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvActiveLobbies"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/filterSelectionGroup"
+                android:layout_weight="1"
+                android:text="Active Lobbies:"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <Button
+                android:id="@+id/findMapView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvActiveLobbies"
+                android:layout_weight="1"
+                android:text="View on map" />
+
+        </LinearLayout>
 
         <ProgressBar
             android:id="@+id/loadingProgressBar"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvActiveLobbies"
+            android:layout_below="@+id/ActiveLobbiesGroup"
             android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
             android:layout_centerVertical="true" />
-
         <ListView
             android:id="@+id/lvAvailableLobbies"
             android:layout_width="match_parent"
@@ -81,11 +98,6 @@
             android:layout_below="@+id/loadingProgressBar"
             android:layout_marginTop="18dp">
         </ListView>
-        <Button
-            android:id="@+id/findMapView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/lvAvailableLobbies"
-            android:text="Map View" />
+
     </RelativeLayout>
 </ScrollView>
