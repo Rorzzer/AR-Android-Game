@@ -30,7 +30,6 @@ public class SignInActivity extends AppCompatActivity
     private final String TAG = "FB_SIGNIN";
     private final String EMPTY = "Empty";
 
-    // TODO: Add Auth members
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
@@ -52,7 +51,7 @@ public class SignInActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         Context context = getApplicationContext();
-        FirebaseApp.initializeApp(context);
+        //FirebaseApp.initializeApp(context);
         // Set up click handlers and view item references
           btnSignIn = (Button)findViewById(R.id.btnSignInReg);
           btnSignOut = (Button)findViewById(R.id.btnSignOut);
@@ -64,15 +63,15 @@ public class SignInActivity extends AppCompatActivity
         btnSignIn.setVisibility(View.GONE);
         btnCreateAcc.setVisibility(View.GONE);
 
-        etEmail = findViewById(R.id.etEmailAddr);
-        etPass = findViewById(R.id.etPassword);
+        etEmail = (EditText) findViewById(R.id.etEmailAddr);
+        etPass = (EditText) findViewById(R.id.etPassword);
 
-        // TODO: Get a reference to the Firebase auth object
+
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference("users");
 
-        // TODO: Attach a new AuthListener to detect sign in and out
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -98,7 +97,6 @@ public class SignInActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        // TODO: add the AuthListener
         mAuth.addAuthStateListener(mAuthListener);
 
     }
@@ -106,7 +104,6 @@ public class SignInActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
-        // TODO: Remove the AuthListener
         if (mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -117,14 +114,19 @@ public class SignInActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSignInReg:
+                Log.d(TAG, "Sign in button pressed");
                 signUserIn();
                 break;
 
             case R.id.btnCreate:
+                Log.d(TAG, "Create button pressed");
+
                 createUserAccount();
                 break;
 
             case R.id.btnSignOut:
+                Log.d(TAG, "Sign Out button pressed");
+
                 signUserOut();
                 Toast.makeText(SignInActivity.this,R.string.user_successfuly_signed_out,Toast.LENGTH_SHORT).show();
                 break;
@@ -139,9 +141,13 @@ public class SignInActivity extends AppCompatActivity
 
         if (email.isEmpty()) {
             etEmail.setError("Email Required");
+            Log.d(TAG, "Email is empty");
+
             return false;
         }
         if (password.isEmpty()){
+            Log.d(TAG, "Password is empty");
+
             etPass.setError("Password Required");
             return false;
         }
@@ -171,12 +177,14 @@ public class SignInActivity extends AppCompatActivity
     }
 
     private void signUserIn() {
-        if (!checkFormFields())
+        if (!checkFormFields()){
+            Log.d(TAG, "Form Fields false");
+
             return;
+        }
         String email = etEmail.getText().toString();
         String password = etPass.getText().toString();
 
-        // TODO: sign the user in with email and password credentials
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new
                         OnCompleteListener<AuthResult>() {
@@ -203,8 +211,12 @@ public class SignInActivity extends AppCompatActivity
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof FirebaseAuthInvalidCredentialsException){
                     updateStatus("Invalid Password.");
+                    Log.d(TAG, "Invalid password");
+
                 } else if (e instanceof FirebaseAuthInvalidUserException){
                     updateStatus("No account with this email.");
+                    Log.d(TAG, "No account with this email");
+
                 } else {
                     updateStatus(e.getLocalizedMessage());
                 }
@@ -219,9 +231,9 @@ public class SignInActivity extends AppCompatActivity
     }
 
     private void createUserAccount() {
-        if (!checkFormFields())
+        if (!checkFormFields()) {
             return;
-
+        }
         //get the email and password strings
         String email = etEmail.getText().toString();
         String password = etPass.getText().toString();

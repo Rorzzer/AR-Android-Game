@@ -1,7 +1,10 @@
 package com.unimelb.comp30022.itproject;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -26,7 +29,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 
@@ -36,18 +42,25 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
     private final String TAG = ChatFragment.class.getName();
     private final String DUMMYGAMEID = "123456";
-//    private final Context context = getActivity().getApplicationContext();
+    private final String KEY_GAMESESSION_DATA = "gameSession";
+    private final String FILTER_GAME_SESSION_ATR = "com.unimelb.comp30022.ITProject.sendintent.GameSessionToRunningGameActivity";
+    public static final String PUBLIC_CHAT = "PUBLIC_CHAT";
+
 
     private User userInfo = null;
+    private GameSession gameSession = null;
+    private Player player = null;
 
     private FirebaseUser fUser;
 
     private String uID;
     private String username;
     //private String message;
+    private int teamInt;
     private String team;
+    private String gameSessionId;
 
-    private Boolean validUser;
+    private Boolean validUser = false;
 
     private DatabaseReference mDatabase;
     private DatabaseReference chatRef;
@@ -72,10 +85,17 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private ArrayAdapter<String> publicChatAdapter;
     private ArrayAdapter<String> teamChatAdapter;
 
+    private BroadcastReceiver currentGameStateReciever;
+
+
     private ListView lvChat;
 
     private StringBuilder teamChatBuilder;
     private StringBuilder publicChatBuilder;
+    private GameSession currentGameState;
+    private Gson gson = new Gson();
+    private Type gameSessionType = new TypeToken<GameSession>() {
+    }.getType();
 
 
 
@@ -84,11 +104,25 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    public static ChatFragment newInstance() {
+    public static ChatFragment newInstance(String gameSessionId) {
+
+        Bundle bundle = new Bundle();
+        bundle.putString("gameSessionId", gameSessionId);
+
         ChatFragment fragment = new ChatFragment();
+        fragment.setArguments(bundle);
+
         return fragment;
+
+//        ChatFragment fragment = new ChatFragment();
+//        return fragment;
     }
 
+    private void readBundle(Bundle bundle) {
+        if (bundle != null) {
+            gameSessionId = bundle.getString("gameSessionId");
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,6 +133,10 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         //getActivity().setContentView(v);
 
         final Activity activity = getActivity();
+
+        readBundle(getArguments());
+        Log.d(TAG, "GameSessionId: " + gameSessionId);
+
 
         //Context context = getActivity().getApplicationContext();
 
@@ -122,9 +160,9 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference("users");
-        chatRef = database.getReference("chat").child(DUMMYGAMEID);
-
+        mDatabase = database.getReference();
+        chatRef = database.getReference("chat").child(gameSessionId);
+        receiveMyGameSessionBroadcasts();
         updateFirebaseUser(mAuth);
 
         mAuthListener = new FirebaseAuth.AuthStateListener(){
@@ -149,7 +187,21 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
                         Log.d(TAG, "User ID is: " + uID);
 
-                        userInfo = dataSnapshot.child(uID).getValue(User.class);
+                        userInfo = dataSnapshot.child("users").child(uID).getValue(User.class);
+                        if (!gameSessionId.equals(PUBLIC_CHAT)) {
+                            gameSession = dataSnapshot.child("gameSessions").child(gameSessionId).getValue(GameSession.class);
+
+                            Log.d(TAG, "creator: " + gameSession.getCreator());
+                            player = gameSession.getPlayerDetails(userInfo.getEmail());
+                            //player = gameSession.getPlayerDetails("rory@student.unimelb.edu.au");
+
+                            team = player.getTeamId();
+                            //Log.d(TAG, "team int: " + team);
+
+
+                            Log.d(TAG, "team: " + team);
+                            //team = teamString;
+                        }
                         if (userInfo.getUsername().equals("Empty")) {
                             validUser = false;
                         } else {
@@ -160,6 +212,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
                     } else {
 
                         Log.d(TAG, "fUser is null");
+                        validUser = false;
                         updateFirebaseUser(mAuth);
                     }
 
@@ -370,7 +423,25 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    private void receiveMyGameSessionBroadcasts() {
+        Log.d(TAG, "creating reciever");
+        if (currentGameStateReciever == null) {
+            currentGameStateReciever = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String input = intent.getStringExtra(FILTER_GAME_SESSION_ATR);
+                    if (input != null) {
+                        currentGameState = gson.fromJson(input, gameSessionType);
+                        Log.d(TAG, "game type:" + gson.toJson(currentGameState));
+                        //currentGameState.getTeamIndex(new Player(currentUser.getemail()));
+                        Log.d(TAG, input);
+                    }
 
+                }
+            };
+        }
+        getActivity().getApplicationContext().registerReceiver(currentGameStateReciever, new IntentFilter(KEY_GAMESESSION_DATA));
+    }
 
 
     public EditText getEtMessage() {

@@ -33,13 +33,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
+import java.util.Date;
+
 import static android.app.PendingIntent.getActivity;
 
 public class MainActivity extends AppCompatActivity
     implements View.OnClickListener, MapsFragment.OnFragmentInteractionListener {
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final String TAG = MainActivity.class.getName();
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final String PUBLIC_CHAT = "PUBLIC_CHAT";
+
     private Boolean chatOpen = false;
     private Fragment mFrag;
     TextView statusText;

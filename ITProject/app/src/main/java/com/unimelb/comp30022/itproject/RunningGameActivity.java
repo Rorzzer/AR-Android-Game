@@ -39,7 +39,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+//import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.lang.reflect.Type;
 
@@ -184,6 +184,8 @@ public class RunningGameActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_running_game);
         findViewById(R.id.btnMapFrag).setOnClickListener(this);
+        findViewById(R.id.btnChatFrag).setOnClickListener(this);
+        findViewById(R.id.btnAR).setOnClickListener(this);
 
 //        ActionBar actionBar = getSupportActionBar();
 //        if (actionBar != null) {
@@ -229,6 +231,7 @@ public class RunningGameActivity extends AppCompatActivity implements
                /* googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
                 boolean isServiceRunning;
                 textView = (TextView) findViewById(R.id.fullscreen_content);*/
+
 
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
@@ -348,8 +351,8 @@ public class RunningGameActivity extends AppCompatActivity implements
         intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
         startService(intent);
         isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-        startActivity(ar);
+        //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
+        //startActivity(ar);
         Log.d(TAG, "launching Ar");
     }
 
@@ -465,14 +468,39 @@ public class RunningGameActivity extends AppCompatActivity implements
         switch (v.getId()) {
             case R.id.btnMapFrag:
 //                    Opens fragment of map if there is none, closes it if there is
-                mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
-                if (mFrag != null) {
-                    getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
-                    getSupportFragmentManager().beginTransaction().add(R.id.FragContainer, new MapsFragment()).commit();
+                    mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
+                    if(mFrag != null){
+                        getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                        getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
 
-                } else {
-                    getSupportFragmentManager().beginTransaction().add(R.id.FragContainer, new MapsFragment()).commit();
+                    }
+                    else{
+                        getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
+                    }
+                    break;
+            case R.id.btnAR:
+//                    Opens fragment of map if there is none, closes it if there is
+                mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
+                if(mFrag != null){
+                    getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                    getFragmentManager().beginTransaction().replace(R.id.FragContainer,new UnityPlayerFragment()).commit();
                 }
+                else{
+                    getFragmentManager().beginTransaction().replace(R.id.FragContainer,new UnityPlayerFragment()).commit();
+                }
+            break;
+            case R.id.btnChatFrag:
+    ///            Opens fragment of map if there is none, closes it if there is
+                mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
+                if(mFrag != null){
+                    getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
+                    getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new ChatFragment().newInstance(gameSessionId)).commit();
+                }
+                else{
+                    getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new ChatFragment().newInstance(gameSessionId)).commit();
+                }
+             break;
+
         }
     }
 
@@ -484,5 +512,9 @@ public class RunningGameActivity extends AppCompatActivity implements
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    public GameSession getCurrentGameState(){
+        return currentGameState;
     }
 }
