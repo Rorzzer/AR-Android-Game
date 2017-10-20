@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,8 +37,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class SessionInformationActivity extends AppCompatActivity
                                         implements View.OnClickListener {
@@ -101,6 +106,7 @@ public class SessionInformationActivity extends AppCompatActivity
         btnEditGame = (Button)findViewById(R.id.btnEditLobby);
         btnDeleteGame = (Button)findViewById(R.id.btnDeleteLobby);
         btnStartGame = (Button)findViewById(R.id.btnStartGame);
+        lobbyImage = findViewById(R.id.sessionInfoImage);
         findViewById(R.id.sessionContent).setVisibility(View.INVISIBLE);
         findViewById(R.id.loadingProgressLobby).setVisibility(View.VISIBLE);
 
@@ -528,11 +534,22 @@ public class SessionInformationActivity extends AppCompatActivity
     public void loadDataToForm(){
         tvSessionName.setText(publicGameSession.getSessionName());
         tvCreator.setText(publicGameSession.getCreator());
-       tvLocation.setText(publicGameSession.getLocation().toString());
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(publicGameSession.getLocation().getLatitude(),
+                    publicGameSession.getLocation().getLongitude(),1);
+            String addressText = addresses.get(0).getAddressLine(0) + "\n"+addresses.get(0).getLocality();
+            tvLocation.setText(addressText);
+        } catch (IOException e) {
+            tvLocation.setText(publicGameSession.getLocation().toString());
+        }
         tvDescription.setText(publicGameSession.getDescription());
         if (publicGameSession.getSessionImageUri() != null) {
             Uri uri = Uri.parse(publicGameSession.getSessionImageUri());
-            Picasso.with(SessionInformationActivity.this).load(uri).resize(60, 60).centerCrop().into(lobbyImage);
+            Log.d(TAG,"attempting to load image"+ publicGameSession.getSessionImageUri());
+            Picasso.with(SessionInformationActivity.this).load(uri).resize(512, 256).centerCrop().into(lobbyImage);
         }
         refreshPlayerList(joinedPlayers);
     }

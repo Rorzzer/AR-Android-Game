@@ -1,11 +1,15 @@
 package com.unimelb.comp30022.itproject;
 
 import android.app.DialogFragment;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +34,8 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.Address;
+
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -51,17 +57,21 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
 public class CreateLobbyActivity extends AppCompatActivity
                 implements View.OnClickListener{
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
     private static final int CAMERA_REQUEST_CODE = 1;
+
     private static String TAG = CreateLobbyActivity.class.getName();
     private static int SECONDS_IN_MINUTE = 60;
     private static int SECONDS_IN_HOUR = 3600;
@@ -411,7 +421,6 @@ public class CreateLobbyActivity extends AppCompatActivity
             //valid image capture
             uri = data.getData();
             uploadImage(uri);
-
         }
     }
 
@@ -685,6 +694,7 @@ public class CreateLobbyActivity extends AppCompatActivity
             gameSession.setStartTime(startTime);
         }
         if (sessionImage != null) {
+            Log.d(TAG,"session image is not null for new event");
             gameSession.setSessionImageUri(sessionImage.toString());
         }
         gameSession.setEndTime(new Long(gameSession.getStartTime().longValue() + gameSession.getDuration().longValue()));
@@ -693,6 +703,7 @@ public class CreateLobbyActivity extends AppCompatActivity
             //Currently storing utilising the creators userID, should be fine, users shouldnt create more than 1 session anyway
             gameSession.setLocation(currentLocation);
             geoFire.setLocation(firebaseAuth.getCurrentUser().getUid(), new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()));
+
         }
         else{
             Log.d(TAG, "Curent Location is null");
