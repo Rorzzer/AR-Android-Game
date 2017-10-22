@@ -409,6 +409,8 @@ public class RunningGameActivity extends AppCompatActivity implements
         registerReceiver(currentGameStateReciever, new IntentFilter(FILTER_GAME_SESSION_ATR));
     }
 
+    //OnClick method launches various fragments within the game depending upon pressed button
+    //Removes any fragment currently there, and replaces it with fragments as required.
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -424,7 +426,6 @@ public class RunningGameActivity extends AppCompatActivity implements
                     }
                     break;
             case R.id.btnAR:
-//                    Opens fragment of map if there is none, closes it if there is
                 mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
                 if(mFrag != null){
                     getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
@@ -435,7 +436,6 @@ public class RunningGameActivity extends AppCompatActivity implements
                 }
             break;
             case R.id.btnChatFrag:
-    ///            Opens fragment of map if there is none, closes it if there is
                 mFrag = getSupportFragmentManager().findFragmentById(R.id.FragContainer);
                 if(mFrag != null){
                     getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
@@ -459,6 +459,7 @@ public class RunningGameActivity extends AppCompatActivity implements
 
     }
 
+    //Current game state getter, required for working map fragment
     public GameSession getCurrentGameState(){
         return currentGameState;
     }

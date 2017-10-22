@@ -7,7 +7,7 @@ package com.unimelb.comp30022.itproject;
  * it was passed via intent when it is launched
  *
  * Edited by Connor Mclean, replaced deprecated fusedlocationapi as of 3/10, with more
- * modern FusedLocationProviderClientAPI.
+ * modern FusedLocationProviderClientAPI. Also implemented Callback method as required.
  */
 
 import android.app.Service;

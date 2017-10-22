@@ -40,6 +40,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *Map Activity, used to show location of nearby lobbies within a 1km radius.
+ * Also implements it's own location services.
+ * Created by: Connor McLean
+ */
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, GeoQueryEventListener
@@ -72,10 +78,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-//
-//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {    //compare SDK requirements
-//            checkLocationPermission();                                      //Then check if location permission has been granted
-//        }
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {    //compare SDK requirements
+            checkLocationPermission();                                      //Then check if location permission has been granted
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -209,16 +215,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onPause() {
         super.onPause();
-       // geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     //OnDestroy//
     @Override
     public void onDestroy(){
         super.onDestroy();
-      //  geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
+    //Callback method for location update request
      LocationCallback mLocationCallback = new LocationCallback() {    //Call back loop
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -233,11 +238,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mLastLocation = location;
                 Log.d(TAG, "Maps Callback");
                 geoQuery.setCenter(new GeoLocation(location.getLatitude(), location.getLongitude()));
-
-                //move map camera
-                //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-               // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-
 
             }
         }
@@ -258,9 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onKeyMoved(String key, GeoLocation location) {
-
         Marker marker = markers.get(key);
-
         if (marker != null) {
             marker.setPosition(new LatLng(location.latitude, location.longitude));
         }
@@ -269,12 +267,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onGeoQueryReady() {
-
     }
 
     @Override
     public void onGeoQueryError(DatabaseError error) {
-
     }
 
 }

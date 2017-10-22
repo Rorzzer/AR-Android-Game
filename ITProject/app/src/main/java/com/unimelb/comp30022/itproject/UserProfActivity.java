@@ -1,5 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+/**
+ * Created by RoryPowell.
+ * This class manages the users profile, users create a username
+ * and fill their name and preferred email address in.
+ * this information is placed in the database as a User.class object
+ */
 
 public class UserProfActivity extends AppCompatActivity
         implements View.OnClickListener{
@@ -40,7 +47,6 @@ public class UserProfActivity extends AppCompatActivity
     private EditText etEmail;
 
     private User userInfo = null;
-
     private FirebaseUser fUser;
 
     private DatabaseReference mDatabase;
@@ -63,7 +69,6 @@ public class UserProfActivity extends AppCompatActivity
         hideUserPage();
 
         //get a reference to the database
-        // Write a message to the database
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference("users");
@@ -90,7 +95,9 @@ public class UserProfActivity extends AppCompatActivity
                     Log.d(TAG, "Datasnapshot exists");
 
                     if (fUser != null) {
+                        // load the userInfo if it exists
                         userInfo = dataSnapshot.child(uID).getValue(User.class);
+
                     } else {
                         Log.d(TAG, "fUser is null");
                         updateFirebaseUser(mAuth);
@@ -110,8 +117,6 @@ public class UserProfActivity extends AppCompatActivity
                 }
             }
 
-
-
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
@@ -120,6 +125,9 @@ public class UserProfActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Update the firebase user information
+     */
     private void updateFirebaseUser(FirebaseAuth firebaseAuth) {
         fUser = firebaseAuth.getCurrentUser();
         if (fUser != null) {
@@ -146,10 +154,11 @@ public class UserProfActivity extends AppCompatActivity
         if (mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
         }
-
-
     }
 
+    /**
+     * Button click methods
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -161,17 +170,22 @@ public class UserProfActivity extends AppCompatActivity
                 username = etUsername.getText().toString();
 
                 if (validateEmail(email) && validateName(firstName) && validateName(lastName)){
-                    writeNewUser(uID, username, firstName, lastName, email);
+                    // if the information is valid, write it to the database
+                    writeNewUser(username, firstName, lastName, email);
                 }
                 break;
 
             case R.id.btnCancel:
                 Log.d(TAG, "btnCancel");
-                finish();
+                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(i);
                 break;
         }
     }
 
+    /**
+     *  Validation methods below, rules are defined per method
+     */
     private boolean validateUsername(String username){
         // if the username is more than 4 letters it is considered valid
         if (username.length() > 3) {
@@ -182,9 +196,7 @@ public class UserProfActivity extends AppCompatActivity
             return false;
         }
     }
-
     private boolean validateName(String name){
-
         if (name.length() > 2) {
             return true;
         } else {
@@ -194,9 +206,8 @@ public class UserProfActivity extends AppCompatActivity
             return false;
         }
     }
-
     private boolean validateEmail(String email){
-
+        // validate for a unimelb email address
         if (email.contains("@") && email.endsWith("unimelb.edu.au")) {
             return true;
         } else {
@@ -206,14 +217,17 @@ public class UserProfActivity extends AppCompatActivity
         }
     }
 
-    // Add new user method
-    private void writeNewUser(String userId, String etUsername, String etFirstname, String etLastname, String etEmail) {
+    /**
+     * Add a new user to the database
+     */
+    private void writeNewUser(String etUsername, String etFirstname, String etLastname, String etEmail) {
 
         final String username = etUsername;
         final String firstName = etFirstname;
         final String lastName = etLastname;
         final String email = etEmail;
 
+        // Check if the username entered is unique by querying the database
         Query usernameQuery = mDatabase.orderByChild("username").equalTo(username);
         usernameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -221,6 +235,7 @@ public class UserProfActivity extends AppCompatActivity
                 if (dataSnapshot.getChildrenCount() > 0 && !username.equals(userInfo.getUsername())){
                     Toast.makeText(UserProfActivity.this, R.string.username_already_used, Toast.LENGTH_SHORT).show();
                     loadUserData();
+
                 } else if (validateUsername(username)) {
                     // commit the information to the database
                     User user = new User(username, firstName, lastName, email);
@@ -236,7 +251,9 @@ public class UserProfActivity extends AppCompatActivity
         });
     }
 
-
+    /**
+     * Fill the edit texts with the users information.
+     */
     private void loadUserData(){
 
         //Fill the edit texts with the users information.

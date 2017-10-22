@@ -1,10 +1,13 @@
 package com.unimelb.comp30022.itproject;
 
 /**
- * Created by RoryPowell on 14/9/17.
+ * Created by RoryPowell.
+ * Class to be stored in the database as a user object.
+ * It holds information of each user entered into the database.
  */
 
 public class User {
+
 
     private String username;
     private String firstname;
@@ -16,18 +19,20 @@ public class User {
     }
 
     public User(String userName, String firstName, String lastName, String Email) {
+
+        // each value is a line stored in the database, they are assigned by the constructor
         this.username = userName;
         this.firstname = firstName;
         this.lastname = lastName;
         this.email = Email;
     }
 
+    // getters and setters
     public String getEmail() {
         return this.email;
     }
 
     public String getUsername() {
-        //return "user class test";
         return this.username;
     }
 
