@@ -446,35 +446,32 @@ public class AndroidToUnitySenderService extends Service {
                     if (updateField == UPDATING_CAPTURE) {
                         if (myCapturedList.size() > 0) {
                             Map<String, Object> capturingPlayerUpdate = new HashMap<String, Object>();
-                            myCapturedList = myGameSession.getTeamArrayList()
+                            //update capturing player's captured list on the server
+                            myGameSession.getTeamArrayList()
                                     .get(myTeamId)
                                     .getPlayerArrayList()
                                     .get(myPlayerId)
                                     .getPlayerCapturedList();
                             capturingPlayerUpdate.put("capturedList", myCapturedList);
-                            //update capturing player's details(capured list)
-                            gameSessionDbReference
-                                    .child(gameSessionId)
-                                    .child("teamArrayList")
-                                    .child(String.valueOf(myTeamId))
-                                    .child("playerArrayList")
-                                    .child(String.valueOf(myPlayerId))
-                                    .updateChildren(capturingPlayerUpdate);
+                            if(myCapturedList.size()>0){
+                                //update player that has been captured
+                                String recentCapture = myCapturedList.get(myCapturedList.size() - 1);
+                                int capturedTeamId = myGameSession.getTeamIndex(new Player(recentCapture));
+                                int capturedPlayerId = myGameSession.getPlayerIndexInTeam(new Player(recentCapture));
+                                Map<String, Object> capturedPlayerUpdate = new HashMap<String, Object>();
+                                capturedPlayerUpdate.put("hasBeencaptured", true);
+                                capturedPlayerUpdate.put("isCapturing", true);
+                                //update the captured player's details to is capturing and has been captured
+                                gameSessionDbReference
+                                        .child(gameSessionId)
+                                        .child("teamArrayList")
+                                        .child(String.valueOf(capturedTeamId))
+                                        .child("playerArrayList")
+                                        .child(String.valueOf(capturedPlayerId))
+                                        .updateChildren(capturedPlayerUpdate);
+                            }
 
-                            String recentCapture = myCapturedList.get(myCapturedList.size() - 1);
-                            int capturedTeamId = myGameSession.getTeamIndex(new Player(recentCapture));
-                            int capturedPlayerId = myGameSession.getPlayerIndexInTeam(new Player(recentCapture));
-                            Map<String, Object> capturedPlayerUpdate = new HashMap<String, Object>();
-                            capturedPlayerUpdate.put("hasBeencaptured", true);
-                            capturedPlayerUpdate.put("isCapturing", true);
-                            //update the captured player's details to is capturing and has been captured
-                            gameSessionDbReference
-                                    .child(gameSessionId)
-                                    .child("teamArrayList")
-                                    .child(String.valueOf(capturedTeamId))
-                                    .child("playerArrayList")
-                                    .child(String.valueOf(capturedPlayerId))
-                                    .updateChildren(capturedPlayerUpdate);
+
                         }
                     }
                 }
@@ -579,9 +576,9 @@ public class AndroidToUnitySenderService extends Service {
             //has found the closest player
             if (closestPlayer != null) {
                 publicGameSession.capturePlayer(currentPlayer, closestPlayer);
+                myCapturedList.add(closestPlayer.getDisplayName());
                 updateServerGameSession(publicGameSession, UPDATING_CAPTURE);
                 myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
-                myCapturedList.add(closestPlayer.getDisplayName());
                 Toast.makeText(AndroidToUnitySenderService.this, "Player " + currentPlayer.getDisplayName() + " has captured " + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
 
                 //Toast.makeText(AndroidToUnitySenderService.this, R.string.player + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
