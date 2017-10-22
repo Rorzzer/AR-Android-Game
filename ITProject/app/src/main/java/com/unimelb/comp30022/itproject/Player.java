@@ -3,13 +3,12 @@ package com.unimelb.comp30022.itproject;
 
 /**
  * Created by Kiptenai on 20/09/2017.
+ * used to contain player identification information and variables as
+ * part of the current game state
  */
 
 import java.util.ArrayList;
 
-/**
- * Class to mediate player interactions and data
- * */
 public class Player  {
     private String displayName;
     private LatLng absLocation;
@@ -29,7 +28,6 @@ public class Player  {
     private ArrayList<String> capturedList;
     private ArrayList<LatLng> path;
     private ArrayList<CoordinateLocation> relativePath;
-    //mutator & acessor methods
     public Player( String displayName){
         this.displayName = displayName;
         this.isLoggedOn = false;
@@ -51,6 +49,8 @@ public class Player  {
         path = new ArrayList<LatLng>();
         relativePath = new ArrayList<CoordinateLocation>();
     }
+    //mutator & acessor methods
+
     public String getDisplayName() {
         return displayName;
     }
@@ -190,19 +190,6 @@ public class Player  {
 
     public void setCapturedBy(String capturedBy) {
         this.capturedBy = capturedBy;
-    }
-
-    public void updatePaths(int maxSteps) {
-        if (this.absLocation != null) {
-            if (path.size() >= maxSteps) {
-                //remove last item in queue and add new item
-                path.remove(0);
-                path.add(getAbsLocation());
-            } else {
-                //add new item in queue
-                path.add(getAbsLocation());
-            }
-        }
     }
 
 

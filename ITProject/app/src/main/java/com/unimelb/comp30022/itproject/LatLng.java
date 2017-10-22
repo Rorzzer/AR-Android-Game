@@ -19,7 +19,9 @@ public class LatLng {
     public LatLng(){
 
     }
-
+    /****
+     * Basic acessor and mutator methods
+     * */
     public double getLatitude() {
         return latitude;
     }
@@ -44,6 +46,11 @@ public class LatLng {
         this.accuracy = accuracy;
     }
 
+    /**
+     * Comparison based on the latitude, and longitude
+     * @param var1 location with which the current location is compared
+     * */
+
     public final boolean equals(Object var1) {
         if(this == var1) {
             return true;
@@ -54,6 +61,9 @@ public class LatLng {
             return Double.doubleToLongBits(this.latitude) == Double.doubleToLongBits(var2.latitude) && Double.doubleToLongBits(this.longitude) == Double.doubleToLongBits(var2.longitude);
         }
     }
+    /****
+     * string conversion method
+     * */
     public final String toString() {
         double var1 = this.latitude;
         double var2 = this.longitude;

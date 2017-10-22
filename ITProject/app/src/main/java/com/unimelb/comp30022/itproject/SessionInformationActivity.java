@@ -43,8 +43,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/***
+ * Created by Kiptenai on 14/09/17
+ * Allows players to view information about the particular lobby that was selected and
+ * join the lobby if they desire. The game also gets launched from this page by the creator
+ * */
+
 public class SessionInformationActivity extends AppCompatActivity
                                         implements View.OnClickListener {
+    //initalize constants
     public static int PERMISSION_CODE = 99;
     private static String TAG = SessionInformationActivity.class.getName();
     private static String joinText = "Join";
@@ -56,15 +63,14 @@ public class SessionInformationActivity extends AppCompatActivity
     private static final String GEO_FIRE_DB = "https://itproject-43222.firebaseio.com/";
     private static final String GEO_FIRE_REF = GEO_FIRE_DB + "/GeoFireData";
 
-    ArrayList<Player> playerArrayList;
-    ArrayList<Team> teamArrayList;
-    ArrayList<String> joinedPlayers = new ArrayList<String>();
+    //initialize firebase members
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference userDbReference;
     private DatabaseReference gameSessionDbReference;
     private FirebaseDatabase firebaseDatabase;
     private FirebaseUser fbuser ;
+    //local vars
     private String gameSessionId;
     private GameSession publicGameSession;
     private GameSession myGameSession;
@@ -76,7 +82,10 @@ public class SessionInformationActivity extends AppCompatActivity
     private boolean isInitialising = true;
     private boolean hasFineLocationPermission = false;
     private Boolean canFetchLocations;
-
+    ArrayList<Player> playerArrayList;
+    ArrayList<Team> teamArrayList;
+    ArrayList<String> joinedPlayers = new ArrayList<String>();
+    //UI elements
     private ArrayAdapter<String> adapter;
     private TextView tvSessionName;
     private TextView tvCreator;
@@ -122,7 +131,7 @@ public class SessionInformationActivity extends AppCompatActivity
         gameSessionDbReference = firebaseDatabase.getReference("gameSessions");
         fbuser = firebaseAuth.getCurrentUser();
         userId = fbuser.getUid();
-
+        //before page load user should see only progress bar
         btnDeleteGame.setVisibility(View.INVISIBLE);
         btnEditGame.setVisibility(View.INVISIBLE);
         btnStartGame.setVisibility(View.INVISIBLE);
@@ -131,7 +140,7 @@ public class SessionInformationActivity extends AppCompatActivity
         adapter = new ArrayAdapter<String>(SessionInformationActivity.this, android.R.layout.simple_list_item_1, joinedPlayers);
         lvLoggedInMembers.setAdapter(adapter);
 
-        //update data from calling activity
+        //update gamesessionId from calling activity to fetch information about current game
         gameSessionId = getIntent().getStringExtra("gameSessionId");
         Log.d(TAG, gameSessionId);
 
@@ -196,7 +205,7 @@ public class SessionInformationActivity extends AppCompatActivity
                                 //don't allow player to join the session until permissions are granted
                                 shouldRequestPermissions();
                             } else {
-                                //
+                                //user has permissions and can join. updte server indicating user join
                                 Log.d(TAG, "hasPermissions is" + String.valueOf(hasFineLocationPermission));
                                 addCurrentPlayerToGameSession();
                                 Gson gson = new Gson();
@@ -256,6 +265,10 @@ public class SessionInformationActivity extends AppCompatActivity
 
     /***
      * method that gets the game details for use in joining teams and launching gamesession
+     * These are based on the number of people that have joined, spaces available and the maximum
+     * limits imposed on the game, and are based on the local data on the client device.
+     *
+     *
      */
     public void generateAvailableLobbyInformation() {
         //fetch data about the game session using the information from the intent
@@ -268,7 +281,7 @@ public class SessionInformationActivity extends AppCompatActivity
                 }
             }
             spacesAvailable = publicGameSession.getMaxPlayers() - sumActivePlayers;
-            //exist games
+            //e
             if (teamArrayList.get(GameSession.TEAM_CAPTURING).getPlayerArrayList() == null ||
                     teamArrayList.get(GameSession.TEAM_ESCAPING).getPlayerArrayList() == null) {
                 isValidGame = false;
@@ -289,13 +302,19 @@ public class SessionInformationActivity extends AppCompatActivity
             return;
         }
     }
-
+    /**
+     * Determines whether the user has location permissions
+     * @return the whether the permissions are allowed or not
+     * **/
     private boolean getCurrentPermissions() {
         hasFineLocationPermission = (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         return hasFineLocationPermission;
     }
-
+    /**
+     * displays a snackbar depending on whether a rationale is needed to turn on locations
+     * or when a user denies location settings
+     * */
     private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {
         Snackbar.make(findViewById(android.R.id.content),
                 mainText,
@@ -313,14 +332,17 @@ public class SessionInformationActivity extends AppCompatActivity
         }
 
     }
-
+    /**
+     * determines whether uuser should be shown a notification requesting location services
+     * @return returns true if the user's permission should be requested
+     * */
     //whether the applications should request for permisssions
     public boolean shouldRequestPermissions() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)) {
             //Post snackbar to explain permission request
             //request for permissions
-            Log.d(TAG, "Explaining permissins request");
+            Log.d(TAG, "Explaining permissions request");
 
             canFetchLocations = false;
             locationRequestRationaleSnackbar(getResources().getString(R.string.permission_rationale),
@@ -341,12 +363,12 @@ public class SessionInformationActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(SessionInformationActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_CODE);
-
         }
-
         return false;
     }
-
+    /***
+     * Override method that handles permissions requests
+     * */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -373,12 +395,14 @@ public class SessionInformationActivity extends AppCompatActivity
     }
     /**
      * launches publicGameSession and passes the information necessary to launch the AR activity to unity.
+     * updates the Gamestarted element to true and initiates other waiting members to start ther session
      * */
     public void startGameSession(){
         //ensure players have been added to the session on the server
         generateAvailableLobbyInformation();
         if(!isValidGame){
-            Toast.makeText(SessionInformationActivity.this, R.string.too_few_to_start, Toast.LENGTH_SHORT).show();
+            Toast.makeText(SessionInformationActivity.this, R.string.too_few_to_start,
+                    Toast.LENGTH_SHORT).show();
         }
         else{
             //identifier that the game is starting
@@ -388,7 +412,9 @@ public class SessionInformationActivity extends AppCompatActivity
         }
     }
     /**
-     * Fetch game sesion object if it already exists on the server
+     * Fetch game sesion object if it already exists on the server. Method is async, therefore loads
+     * its information on its callback method
+     * @param gameSessionId the unique identifier of the game
      * */
     private void getServerGameSessionObj(final String gameSessionId) {
         GameSession fetchedGameSession = null ;
@@ -397,18 +423,21 @@ public class SessionInformationActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0){
-                    //assign fetched value
+                    //assign fetched value to the public gameSession
                     publicGameSession = dataSnapshot.child(gameSessionId).getValue(GameSession.class);
                     findViewById(R.id.sessionContent).setVisibility(View.VISIBLE);
                     findViewById(R.id.loadingProgressLobby).setVisibility(View.GONE);
                     if (publicGameSession.getCreator().equals(currentUserInfo.getEmail())) {
+                        //user is creator
                         showCreatorPage();
                     } else {
+                        //user is just joining
                         showPlayerPage();
                     }
                     if (hasPlayerJoinedSession(getNewCurrentPlayer())) {
                         btnJoinGame.setText(leaveText);
                     }
+                    //block entry to sessions if the session has already started
                     if (publicGameSession.getGameStarted() == true) {
                         inactivatePage();
                         Toast.makeText(SessionInformationActivity.this, R.string.game_unable_to_join_started_prompt, Toast.LENGTH_SHORT).show();
@@ -432,6 +461,7 @@ public class SessionInformationActivity extends AppCompatActivity
     }
     /***
      * updates a game session information for a specific value from local device to server
+     * @param gameSession the gamesession object to be sent to the server as an update
      * */
     private void updateServerGameSession(final GameSession gameSession){
         if(gameSession == null){
@@ -503,6 +533,7 @@ public class SessionInformationActivity extends AppCompatActivity
 
     /**
      * Delete GameSession object if it has been created on the server
+     * only performed by the session's creator as limited by the UI
      */
     private void deleteServerGameSessionObj(final GameSession gameSession) {
         if (gameSession == null || gameSession.getSessionId() == null) {
@@ -514,8 +545,9 @@ public class SessionInformationActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0){
-                    //value exists on server
+                    //session exists on server
                     gameSessionId = gameSession.getSessionId();
+                    //remove session and location reference
                     gameSessionDbReference.child(gameSession.getSessionId()).removeValue();
                     geoFire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
                     Log.d(TAG, " Successfully Deleted Game Session");
@@ -531,6 +563,11 @@ public class SessionInformationActivity extends AppCompatActivity
             }
         });
     }
+    /****
+     *
+     * loads data from the fetched gamesesssion to the UserInterface
+     *
+     * */
     public void loadDataToForm(){
         tvSessionName.setText(publicGameSession.getSessionName());
         tvCreator.setText(publicGameSession.getCreator());
@@ -538,6 +575,7 @@ public class SessionInformationActivity extends AppCompatActivity
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
         try {
+            //attempt to fetch the user's address from the gps coordinate
             addresses = geocoder.getFromLocation(publicGameSession.getLocation().getLatitude(),
                     publicGameSession.getLocation().getLongitude(),1);
             String addressText = addresses.get(0).getAddressLine(0) + "\n"+addresses.get(0).getLocality();
@@ -551,15 +589,19 @@ public class SessionInformationActivity extends AppCompatActivity
             Log.d(TAG,"attempting to load image"+ publicGameSession.getSessionImageUri());
             Picasso.with(SessionInformationActivity.this).load(uri).resize(512, 256).centerCrop().into(lobbyImage);
         }
+        //refresh the players that have joined
         refreshPlayerList(joinedPlayers);
     }
-
+    /**
+     * Adds the current player to the sessoin and updates the server
+     * */
     public boolean addCurrentPlayerToGameSession() {
         if (spacesAvailable > 0) {
             boolean success = false;
-            //create Player and join
+            //create Player and join the available team
             Team capturingTeam = publicGameSession.fetchCapturingTeam();
             Team escapingTeam = publicGameSession.fetchEscapingTeam();
+            //Space exists in capturing team
             if (capturingTeam.getTeamSize() < publicGameSession.getMaxPlayers() / 2 &&
                     escapingTeam.getPlayerArrayList().size() >= capturingTeam.getTeamSize()) {
                 Player player = getNewCurrentPlayer();
@@ -585,9 +627,13 @@ public class SessionInformationActivity extends AppCompatActivity
         }
 
     }
-
+    /***
+     *removes the player from his current team in the gamesession
+     * @param player the individual to be removed, usually the logged in player
+     * */
     public void removePlayerFromGameSession(Player player) {
         if (hasPlayerJoinedSession(player)) {
+            //remove player from sessoin
             Team capturingTeam = publicGameSession.fetchCapturingTeam();
             Team escapingTeam = publicGameSession.fetchEscapingTeam();
             if (capturingTeam.containsPlayer(player)) {
@@ -598,14 +644,23 @@ public class SessionInformationActivity extends AppCompatActivity
             Toast.makeText(SessionInformationActivity.this,R.string.left_current_lobby,Toast.LENGTH_SHORT).show();
         }
     }
-
+    /***
+     *
+     * determines whether the given player exists in the current gamesession
+     * @param player the individual to be checked for joining
+     * @return returns true if the player is in the session or false if not
+     * */
     public boolean hasPlayerJoinedSession(Player player) {
         Team capturingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_CAPTURING);
         Team escapingTeam = publicGameSession.getTeamArrayList().get(GameSession.TEAM_ESCAPING);
         return capturingTeam.getPlayerArrayList().contains(player) ||
                 escapingTeam.getPlayerArrayList().contains(player);
     }
-
+    /***
+     * creates a new player object depending on which team the player has joined
+     * @param player a mostly empty player Object to be assigned
+     * @param isCapturing whether the player is joining the capturing team or escaping team
+     * */
     public void setCurrentPlayerDetails(Player player, Boolean isCapturing) {
         if (isCapturing) {
             player.setCapturing(true);
@@ -628,15 +683,18 @@ public class SessionInformationActivity extends AppCompatActivity
         player.setHasBeenCaptured(false);
     }
 
-    /*
+    /**
     * Acquire the player's key information for use in the game session
+    * @return an empty player instance
     * **/
     public Player getNewCurrentPlayer() {
         Player player = new Player(currentUserInfo.getEmail());
         return player;
     }
-
-    //loads data into an arraylist for listview purposes, requries a Gamesession object declared in the scope
+    /**
+     * loads data into an arraylist for that is used to display the listview , requries a Gamesession
+     * object declared in the scope
+     * */
     public void refreshPlayerList(ArrayList<String> list) {
         list.clear();
         for (int i = 0; i < GameSession.MAX_TEAMS_2; i++) {
@@ -651,20 +709,29 @@ public class SessionInformationActivity extends AppCompatActivity
             }
         }
     }
-
+    /***
+     * sets all clickable elements as false, so the page cannot be interacted with except from
+     * leaving
+     * */
     private void inactivatePage() {
         btnJoinGame.setClickable(false);
         btnStartGame.setClickable(false);
         btnDeleteGame.setClickable(false);
         btnEditGame.setClickable(false);
     }
-
+    /**
+     * changes the UI elements to allow for session editing and deletion and starting games
+     * */
     private void showCreatorPage() {
         btnDeleteGame.setVisibility(View.VISIBLE);
         btnEditGame.setVisibility(View.VISIBLE);
         btnStartGame.setVisibility(View.VISIBLE);
         btnJoinGame.setVisibility(View.VISIBLE);
     }
+    /***
+     *
+     * sets the UI elements to only allow for Joining and leaving
+     */
 
     private void showPlayerPage() {
         btnJoinGame.setVisibility(View.VISIBLE);
@@ -672,7 +739,9 @@ public class SessionInformationActivity extends AppCompatActivity
         btnStartGame.setVisibility(View.GONE);
         btnDeleteGame.setVisibility(View.GONE);
     }
-
+    /**
+     * starts the game when the creator launches it and transitions to the next activity
+     * */
     private void launchGameSession() {
         Toast.makeText(getApplicationContext(), R.string.game_started_prompt, Toast.LENGTH_SHORT).show();
         Intent activeGame = new Intent(SessionInformationActivity.this, RunningGameActivity.class);

@@ -79,7 +79,7 @@ public class LocationService extends Service implements
         @Override
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
-
+                //new location received. Broadcast to listening activity
                 Intent intent = new Intent(FILTER_LOCATION);
                 locationAndAzimuthOutputs.putString(KEY_LOCATION_DATA, gson.toJson(location, locationtype));
                 intent.putExtras(locationAndAzimuthOutputs);
@@ -90,7 +90,7 @@ public class LocationService extends Service implements
         }
     };
 
-    //Builds google API client
+    //Builds google API client and initiates accelerometer and magnetometers for orientation readings
     @Override
     public void onCreate() {
         super.onCreate();
@@ -131,6 +131,7 @@ public class LocationService extends Service implements
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             mgoogleApiClient.disconnect();
         }
+        //if sensor initialization did not fail
         if(magnetometerSensor != null && accelerometerSensor != null){
             sensorManager.unregisterListener(this, magnetometerSensor);
             sensorManager.unregisterListener(this, accelerometerSensor);
@@ -161,10 +162,12 @@ public class LocationService extends Service implements
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        //first magnetometer reading
         if (sensorEvent.sensor == magnetometerSensor) {
             magnetometerReceived = true;
             System.arraycopy(sensorEvent.values, 0, magnetometerReadings, 0, sensorEvent.values.length);
         }
+        //accelerometer currently reading
         if (sensorEvent.sensor == accelerometerSensor) {
             accelerometerReceived = true;
             System.arraycopy(sensorEvent.values, 0, accelerometerReadings, 0, sensorEvent.values.length);
@@ -178,7 +181,7 @@ public class LocationService extends Service implements
             degAzimuth = (float) (Math.toDegrees(radAzimuth) + 360) % 360;
             currentBearing = (float) (((int) (degAzimuth) / 10) * 10);
             if (prevBearing == null || !prevBearing.equals(currentBearing)) {
-                //new direction turned
+                //new direction turned broadcast to the listening activiy
                 prevBearing = currentBearing;
                 Intent intent = new Intent(FILTER_LOCATION);
                 locationAndAzimuthOutputs.putString(KEY_AZIMUTH_DATA, String.valueOf(degAzimuth));
@@ -198,7 +201,7 @@ public class LocationService extends Service implements
         return (PackageManager.PERMISSION_GRANTED ==
                 ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION));
     }
-
+    //settings for ratea of location update
     private void setLocationUpdateSettings() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
