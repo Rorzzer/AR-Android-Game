@@ -5,13 +5,13 @@ import java.util.Date;
 
 /**
  * Created by RoryPowell on 5/10/17.
+ * Class to be stored in the database as a chat object.
+ * It holds information of each chat message sent.
  */
 
 public class Chat {
 
     private String username;
-    //private String gameID;
-    //private String messageID;
     private String message;
     private String dateTime;
     private Date date;
@@ -24,15 +24,17 @@ public class Chat {
     }
 
     public Chat(String userName, String message, String team, boolean teamOnly) {
+
+        // each value is a line stored in the database, they are assigned by the constructor
         this.username = userName;
-        //this.gameID = gameID;
-        //this.messageID = messageID;
         this.message = message;
         this.date = new Date();
         this.time = date.getTime();
         this.team = team;
         this.teamOnly = teamOnly;
 
+        //the class saves the date, the value is not used but can be viewed in the database
+        // if needed
         Date dNow = new Date( );
         SimpleDateFormat ft =
                 new SimpleDateFormat ("hh:mm:ss a zzz E dd.MM..yyyy");
@@ -41,40 +43,14 @@ public class Chat {
 
     }
 
+    // getters and setters
+
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-//    public String getGameID() {
-//        return gameID;
-//    }
-
-//    public void setGameID(String gameID) {
-//        this.gameID = gameID;
-//    }
-
-//    public String getMessageID() {
-//        return messageID;
-//    }
-
-//    public void setMessageID(String messageID) {
-//        this.messageID = messageID;
-//    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getDateTime() {
-        return dateTime;
     }
 
     public long getTime() {
@@ -95,9 +71,5 @@ public class Chat {
 
     public boolean isTeamOnly() {
         return teamOnly;
-    }
-
-    public void setTeamOnly(boolean teamOnly) {
-        this.teamOnly = teamOnly;
     }
 }

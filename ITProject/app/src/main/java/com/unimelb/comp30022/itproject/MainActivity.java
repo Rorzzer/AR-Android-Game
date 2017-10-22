@@ -25,7 +25,7 @@ import android.support.fragment.BuildConfig;
 
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.firebase.auth.FirebaseAuth;
-import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+//import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 
 import java.util.Date;
 
@@ -70,9 +70,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        // TODO: add the AuthListener
-        // mAuth.addAuthStateListener(mAuthListener);
-
     }
     /**
      * When the Activity resumes, the application should check authentication
@@ -100,12 +97,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
-        /*
-        // TODO: Remove the AuthListener
-        if (mAuthListener != null){
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-        */
     }
 
     @Override
@@ -154,10 +145,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnChat:
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-//                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
-//                    startActivity(chat);
 
-                    //getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,new ChatFragment()).commit();
 
                     Fragment fragment = new ChatFragment().newInstance(PUBLIC_CHAT);
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -175,8 +163,8 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.testAR:
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    Intent unity = new Intent(getApplicationContext(), UnityPlayerActivity.class);
-                    startActivity(unity);
+                    //Intent unity = new Intent(getApplicationContext(), UnityPlayerActivity.class);
+                    //startActivity(unity);
                 } else {
                     updateStatus("You must be signed in to access this feature.");
                 }
@@ -221,7 +209,5 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
     }
-
-
 }
 
