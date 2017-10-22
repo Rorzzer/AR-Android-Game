@@ -19,6 +19,8 @@
     <string name="account_creation_failed">Account creation failed</string>
     <string name="user_successfully_created">User was created</string>
     <string name="user_successfuly_signed_in">Signed in</string>
+    <string name="user_successfuly_signed_out">Signed out</string>
+
     <string name="user_unsuccessfuly_signed_in">Sign in failed</string>
     <string name="requires_unimelb_email">Must be a Unimelb Email</string>
     <string name="username_already_used">Username already in use.</string>
@@ -35,9 +37,14 @@
     <string name="player"> Player </string>
     <string name="has_captured"> has captured </string>
     <string name="has_been_captured"> has been captured </string>
-    <string name="successful_game_created">Game successfully created</string>
+    <string name="successful_game_created">Game successfully saved</string>
     <string name="successful_game_deleted">Game successfully deleted</string>
+    <string name="unable_to_crop">Image could not be cropped</string>
+
     <string name="too_few_to_start">At least 2 people needed to start game.</string>
+    <string name="joined_capturing_team">Successfully joined capturing team</string>
+    <string name="joined_escaping_team">Successfully joined escaping team</string>
+    <string name="left_current_lobby">Successfully left the lobby</string>
 
     <string name="lobby_unable_to_edit_started">A running game cannot be edited</string>
     <string name="lobby_unable_to_delete_started">A running game cannot be deleted</string>

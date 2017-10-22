@@ -2,6 +2,7 @@ package com.unimelb.comp30022.itproject;
 
 import android.*;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -11,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -23,9 +25,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.fragment.BuildConfig;
 
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.firebase.auth.FirebaseAuth;
-import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Date;
 
@@ -33,12 +38,19 @@ import static android.app.PendingIntent.getActivity;
 
 public class MainActivity extends AppCompatActivity
     implements View.OnClickListener, MapsFragment.OnFragmentInteractionListener {
-
+    public static final String TAG = MainActivity.class.getName();
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final String PUBLIC_CHAT = "PUBLIC_CHAT";
 
     private Boolean chatOpen = false;
     private Fragment mFrag;
+    TextView statusText;
+    Button btnCreateLobby ;
+    Button btnFindLobby;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    FirebaseUser user ;
+
     /**
      * Standard Activity lifecycle methods
      */
@@ -51,18 +63,27 @@ public class MainActivity extends AppCompatActivity
         // Set up click handlers and view item references
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnUser).setOnClickListener(this);
-        findViewById(R.id.btnMap).setOnClickListener(this);
         findViewById(R.id.btnCreateOrUpdateLobby).setOnClickListener(this);
         findViewById(R.id.btnFindLobby).setOnClickListener(this);
-        findViewById(R.id.btnChat).setOnClickListener(this);
-        findViewById(R.id.testAR).setOnClickListener(this);
+        btnCreateLobby = (Button)findViewById(R.id.btnCreateOrUpdateLobby);
+        btnFindLobby = (Button)findViewById(R.id.btnFindLobby);
+        statusText = (TextView)findViewById(R.id.tvStatus);
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    Log.d(TAG, "Signed in: " + user.getUid());
+                }
+                else{
+                    Log.d(TAG, "Currently Signed Out");
+                }
+            }
+        };
 
         //Launch Location services
-        checkLocationPermission();
-        Intent LocationService = new Intent(this, LocationService.class);
-        startService(LocationService);
     }
-
     /**
      * When the Activity starts and stops, the app needs to connect and
      * disconnect the AuthListener
@@ -70,9 +91,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        // TODO: add the AuthListener
-        // mAuth.addAuthStateListener(mAuthListener);
-
+        mAuth.addAuthStateListener(mAuthListener);
     }
     /**
      * When the Activity resumes, the application should check authentication
@@ -81,31 +100,32 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume(){
         super.onResume();
-        Button btnCreateLobby = (Button)findViewById(R.id.btnCreateOrUpdateLobby);
-        Button btnFindLobby = (Button)findViewById(R.id.btnFindLobby);
-        Button btnChat = (Button)findViewById(R.id.btnChat);
-        if (FirebaseAuth.getInstance().getCurrentUser()!= null){
-            btnCreateLobby.setVisibility(View.VISIBLE);
-            btnFindLobby.setVisibility(View.VISIBLE);
-            btnChat.setVisibility(View.VISIBLE);
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
-
-        }else{
-            btnCreateLobby.setVisibility(View.GONE);
-            btnFindLobby.setVisibility(View.GONE);
-            btnChat.setVisibility(View.GONE);
+        if (user != null) {
+            showGameMenus();
+            statusText.setText( user.getEmail());
+            checkLocationPermission();
+            Intent LocationService = new Intent(MainActivity.this, LocationService.class);
+            startService(LocationService);
         }
+        else{
+            hideGameMenus();
+            Intent signIn = new Intent(MainActivity.this, SignInActivity.class);
+            startActivity(signIn);
+        }
+
+
+
 
     }
     @Override
     public void onStop() {
         super.onStop();
-        /*
-        // TODO: Remove the AuthListener
         if (mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
         }
-        */
+
     }
 
     @Override
@@ -121,18 +141,6 @@ public class MainActivity extends AppCompatActivity
                     Intent userProf = new Intent(getApplicationContext(), UserProfActivity.class);
                     startActivity(userProf);
                 }else{
-                    updateStatus("You must be signed in to access this feature.");
-                }
-                break;
-            case R.id.btnMap:
-                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-
-                    Intent MapsAct = new Intent(getApplicationContext(), MapsActivity.class);
-                    startActivity(MapsAct);
-
-
-
-                } else {
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
@@ -152,36 +160,6 @@ public class MainActivity extends AppCompatActivity
                     updateStatus("You must be signed in to access this feature.");
                 }
                 break;
-            case R.id.btnChat:
-                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-//                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
-//                    startActivity(chat);
-
-                    //getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,new ChatFragment()).commit();
-
-                    Fragment fragment = new ChatFragment().newInstance(PUBLIC_CHAT);
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    if (chatOpen) {
-                        transaction.remove(fragment);
-                    }else{
-                        transaction.add(R.id.fragment_container, fragment);
-                    }
-
-                    transaction.commit();
-                    chatOpen = !chatOpen;
-                } else {
-                    updateStatus("You must be signed in to access this feature.");
-                }
-                break;
-            case R.id.testAR:
-                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    Intent unity = new Intent(getApplicationContext(), UnityPlayerActivity.class);
-                    startActivity(unity);
-                } else {
-                    updateStatus("You must be signed in to access this feature.");
-                }
-                break;
-
         }
     }
 
@@ -189,7 +167,6 @@ public class MainActivity extends AppCompatActivity
         TextView tvStat = (TextView) findViewById(R.id.tvStatus);
         tvStat.setText(stat);
     }
-
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -220,6 +197,18 @@ public class MainActivity extends AppCompatActivity
         } else {
             return true;
         }
+    }
+    public void showGameMenus(){
+        btnCreateLobby.setVisibility(View.VISIBLE);
+        btnFindLobby.setVisibility(View.VISIBLE);
+        btnCreateLobby.setVisibility(View.VISIBLE);
+        btnFindLobby.setVisibility(View.VISIBLE);
+        findViewById(R.id.gameButtonsTitle).setVisibility(View.VISIBLE);
+    }
+    public void hideGameMenus(){
+        findViewById(R.id.gameButtonsTitle).setVisibility(View.GONE);
+        btnCreateLobby.setVisibility(View.GONE);
+        btnFindLobby.setVisibility(View.GONE);
     }
 
 

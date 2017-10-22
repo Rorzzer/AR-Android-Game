@@ -1,7 +1,6 @@
 package com.unimelb.comp30022.itproject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -17,7 +16,7 @@ public class GameSession {
     public static final int EASY_CAPTURE_DISTANCE = 10;
     public static final int NUMBER_OF_FOOTSTEPS = 15;
     private static final double EARTH_RADIUS_M = 6372797.560;
-    private static final double RAD_TO_DEGREE = 0.017453292519943295769236907684886;
+    private static final double DEGREE_TO_RAD = 0.017453292519943295769236907684886;
     private String sessionId;
     private String startTimeString;
     private Long startTime;
@@ -67,12 +66,12 @@ public class GameSession {
         if (origin == null || dest == null) {
             return Double.MAX_VALUE;
         }
-        double dLat = (dest.getLatitude() - origin.getLatitude()) * RAD_TO_DEGREE;
-        double dLong = (dest.getLongitude() - origin.getLongitude()) * RAD_TO_DEGREE;
+        double dLat = (dest.getLatitude() - origin.getLatitude()) * DEGREE_TO_RAD;
+        double dLong = (dest.getLongitude() - origin.getLongitude()) * DEGREE_TO_RAD;
         double latL = Math.sin(dLat * 0.5) * Math.sin(dLat * 0.5);
         double longL = Math.sin(dLong * 0.5) * Math.sin(dLong * 0.5);
-        double tmp = Math.cos(dest.getLatitude() * RAD_TO_DEGREE) *
-                Math.cos(origin.getLatitude() * RAD_TO_DEGREE);
+        double tmp = Math.cos(dest.getLatitude() * DEGREE_TO_RAD) *
+                Math.cos(origin.getLatitude() * DEGREE_TO_RAD);
         double dist = EARTH_RADIUS_M * 2.0 * Math.asin(Math.sqrt(latL + tmp * longL));
         return dist;
     }
