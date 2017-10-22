@@ -6,6 +6,8 @@ This app was developed by House Targaryen to essentially be an enhanced version 
 This App is comprised of the following sections:
 1. The location of various classes, activities, services and fragments
 2. The unity Plugin which handles the state of the AR (Augmented Reality)
+3. The Layout XML files, corresponding to various activities
+4. The GoogleMaps API key files
 
 # Installation and Usage:
 1. Download and import into android studio
