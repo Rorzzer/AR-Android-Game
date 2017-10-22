@@ -129,7 +129,6 @@ public class AndroidToUnitySenderService extends Service {
                 myGameSession.updateRelativeLocations(currentLocation);
                 senderIntent.setAction(FILTER_GAME_SESSION_ITU).putExtra(Intent.EXTRA_TEXT, gson.toJson(myGameSession));
                 Log.d(LOG_TAG, "Sending to unity: "+gson.toJson(myGameSession));
-                //Log.d(LOG_TAG, "------------------ ");
                 for (Player player : myGameSession.allPlayerArrayLists()) {
                     if (player.getDisplayName() != null && player.getCoordinateLocation() != null && !player.getDisplayName().equals(currentPlayer.getDisplayName())) {
                         Log.d(LOG_TAG, player.getDisplayName() + " distance " + String.valueOf(GameSession.distanceBetweenTwoPlayers(myGameSession.getPlayerDetails(currentPlayer.getDisplayName()), player)));
@@ -585,7 +584,9 @@ public class AndroidToUnitySenderService extends Service {
                 updateServerGameSession(publicGameSession, UPDATING_CAPTURE);
                 myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
                 myCapturedList.add(closestPlayer.getDisplayName());
-                Toast.makeText(AndroidToUnitySenderService.this, R.string.player + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
+                Toast.makeText(AndroidToUnitySenderService.this, "Player " + currentPlayer.getDisplayName() + " has captured " + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
+
+                //Toast.makeText(AndroidToUnitySenderService.this, R.string.player + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
             }
         }
     }

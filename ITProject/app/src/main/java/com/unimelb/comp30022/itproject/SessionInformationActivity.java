@@ -538,10 +538,15 @@ public class SessionInformationActivity extends AppCompatActivity
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
         try {
-            addresses = geocoder.getFromLocation(publicGameSession.getLocation().getLatitude(),
-                    publicGameSession.getLocation().getLongitude(),1);
-            String addressText = addresses.get(0).getAddressLine(0) + "\n"+addresses.get(0).getLocality();
-            tvLocation.setText(addressText);
+            if(publicGameSession.getLocation()!= null){
+                addresses = geocoder.getFromLocation(publicGameSession.getLocation().getLatitude(),
+                        publicGameSession.getLocation().getLongitude(),1);
+                String addressText = addresses.get(0).getAddressLine(0) + "\n"+addresses.get(0).getLocality();
+                tvLocation.setText(addressText);
+            }
+            else{
+                tvLocation.setText("unspecified");
+            }
         } catch (IOException e) {
             tvLocation.setText(publicGameSession.getLocation().toString());
         }
