@@ -20,11 +20,6 @@ This App is comprised of the following sections:
 3. Create or login to a user profile.
 4. Create or Join a Lobby
 5. Launch the game
-
-#Testing GameComponents
-1.Navigate to the test directory in src
-2.Run unit tests for Gamesession and Team classes
-
-#viewing and testing Unity ARComponent
-1.open UnityFolders>assets>scripts> using unity and open the serviceListenerScript.cs to view how the AR components are drawn
+6. Navigate to test directory in src app directory and run gametests
+7. Open UnityFolders>assets>scripts> using unity and open the serviceListenerScript.cs to view how the AR elements are drawn
 
