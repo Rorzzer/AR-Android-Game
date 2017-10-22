@@ -403,6 +403,10 @@ public class CreateLobbyActivity extends AppCompatActivity
         if (authStateListener != null){
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
+        if(currentLocationReciever!= null){
+            unregisterReceiver(currentLocationReciever);
+        }
+
     }
 
     @Override
