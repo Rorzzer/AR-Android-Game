@@ -34,6 +34,7 @@ public class UserProfActivity extends AppCompatActivity
     private final String EMPTYLAST = "Enter Last name";
     private final String EMPTYUSERNAME = "Enter Username";
     private final String EMPTYEMAIL = "Enter Email";
+    private final String EMPTY = "";
     private String username;
     private String firstName;
     private String lastName;
@@ -65,6 +66,7 @@ public class UserProfActivity extends AppCompatActivity
         etLastname = (EditText)findViewById(R.id.etLast);
         etUsername = (EditText)findViewById(R.id.etUsername);
         etEmail = (EditText)findViewById(R.id.etEmail);
+        hideUserPage();
 
         //get a reference to the database
         mAuth = FirebaseAuth.getInstance();
@@ -104,9 +106,11 @@ public class UserProfActivity extends AppCompatActivity
 
                     if(userInfo != null) {
                         loadUserData();
+
                     } else {
                         userInfo = new User(EMPTYUSERNAME, EMPTYFIRST, EMPTYLAST, EMPTYEMAIL);
                     }
+                    showUserPage();
                     Log.d(TAG, "Value is: " + uID);
                 } else {
                     Log.d(TAG, "datasnapshot does not exist");
@@ -252,10 +256,44 @@ public class UserProfActivity extends AppCompatActivity
      */
     private void loadUserData(){
 
-        etUsername.setText(userInfo.getUsername());
-        etFirstname.setText(userInfo.getFirstname());
-        etLastname.setText(userInfo.getLastname());
+        //Fill the edit texts with the users information.
+        if(userInfo.getUsername().equals(EMPTY)){
+            etUsername.setHint(EMPTYUSERNAME);
+        }else{
+            etUsername.setText(userInfo.getUsername());
+        }
+        if(userInfo.getFirstname().equals(EMPTY)){
+            etFirstname.setHint(EMPTYFIRST);
+        }else{
+            etFirstname.setText(userInfo.getFirstname());
+        }
+        if(userInfo.getLastname().equals(EMPTY)){
+            etLastname.setHint(EMPTYLAST);
+        }else{
+            etLastname.setText(userInfo.getLastname());
+        }
         etEmail.setText(userInfo.getEmail());
+
     }
+    private void hideUserPage() {
+        findViewById(R.id.userProfProgressBar).setVisibility(View.VISIBLE);
+        findViewById(R.id.llUser).setVisibility(View.INVISIBLE);
+        findViewById(R.id.llFirst).setVisibility(View.INVISIBLE);
+        findViewById(R.id.llLast).setVisibility(View.INVISIBLE);
+        findViewById(R.id.llEmail).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnEnter).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnCancel).setVisibility(View.INVISIBLE);
+    }
+
+    private void showUserPage() {
+        findViewById(R.id.userProfProgressBar).setVisibility(View.GONE);
+        findViewById(R.id.llUser).setVisibility(View.VISIBLE);
+        findViewById(R.id.llFirst).setVisibility(View.VISIBLE);
+        findViewById(R.id.llLast).setVisibility(View.VISIBLE);
+        findViewById(R.id.llEmail).setVisibility(View.VISIBLE);
+        findViewById(R.id.btnEnter).setVisibility(View.VISIBLE);
+        findViewById(R.id.btnCancel).setVisibility(View.VISIBLE);
+    }
+
 
 }

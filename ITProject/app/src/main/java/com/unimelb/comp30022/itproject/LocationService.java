@@ -60,13 +60,12 @@ public class LocationService extends Service implements
     private float[] accelerometerReadings = new float[4];
     private boolean magnetometerReceived = false;
     private boolean accelerometerReceived = false;
-    private float cOrientation = 0f;
     private Float currentBearing;
     private Float prevBearing;
     private float[] orientationArray = new float[4];
     private float[] rotationMatrix = new float[9];
-    private float radAzimuth;
-    private float degAzimuth;
+    private float radAzimuth =0;
+    private float degAzimuth =0;
     private Bundle locationAndAzimuthOutputs = new Bundle();
     private GoogleApiClient mgoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -95,10 +94,11 @@ public class LocationService extends Service implements
     @Override
     public void onCreate() {
         super.onCreate();
-
-        Toast toast = Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT);
-        toast.show();
-
+        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         Log.d(TAG, "Started Location Service");
         setLocationUpdateSettings();
@@ -108,11 +108,8 @@ public class LocationService extends Service implements
                 .addOnConnectionFailedListener(this)
                 .build();
     }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast toast = Toast.makeText(getApplicationContext(), "omStartCommand", Toast.LENGTH_SHORT);
-        toast.show();
         Log.d(TAG, "location service started");
         if (mgoogleApiClient != null) {
             mgoogleApiClient.connect();
@@ -164,13 +161,13 @@ public class LocationService extends Service implements
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if (sensorEvent.sensor == accelerometerSensor) {
-            accelerometerReceived = true;
-            System.arraycopy(sensorEvent.values, 0, accelerometerReadings, 0, sensorEvent.values.length);
-        }
         if (sensorEvent.sensor == magnetometerSensor) {
             magnetometerReceived = true;
             System.arraycopy(sensorEvent.values, 0, magnetometerReadings, 0, sensorEvent.values.length);
+        }
+        if (sensorEvent.sensor == accelerometerSensor) {
+            accelerometerReceived = true;
+            System.arraycopy(sensorEvent.values, 0, accelerometerReadings, 0, sensorEvent.values.length);
         }
         //calculate rotation and reorientation and push to the calling activity
         if (magnetometerReceived && accelerometerReceived) {
@@ -188,9 +185,7 @@ public class LocationService extends Service implements
                 intent.putExtras(locationAndAzimuthOutputs);
                 sendBroadcast(intent);
             }
-
         }
-
     }
 
     @Override
@@ -210,6 +205,4 @@ public class LocationService extends Service implements
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setFastestInterval(FASTEST_LOCATION_UPDATE_INTERVAL);
     }
-
-
 }

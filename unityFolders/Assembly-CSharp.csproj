@@ -121,10 +121,10 @@
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="LitJson">
- <HintPath>C:/Users/Kiptenai/Desktop/android_studio/COMP30022/unityFolders/Assets/LitJson.dll</HintPath>
+ <HintPath>C:/Users/Kiptenai/Desktop/android_studio/COMP30022/HouseTargaryenFrontEnd/unityFolders/Assets/LitJson.dll</HintPath>
  </Reference>
  <Reference Include="Vuforia.UnityExtensions">
- <HintPath>C:/Users/Kiptenai/Desktop/android_studio/COMP30022/unityFolders/Assets/Vuforia/Scripts/Internal/Vuforia.UnityExtensions.dll</HintPath>
+ <HintPath>C:/Users/Kiptenai/Desktop/android_studio/COMP30022/HouseTargaryenFrontEnd/unityFolders/Assets/Vuforia/Scripts/Internal/Vuforia.UnityExtensions.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

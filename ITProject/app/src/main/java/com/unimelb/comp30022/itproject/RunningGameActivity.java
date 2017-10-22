@@ -455,7 +455,6 @@ public class RunningGameActivity extends AppCompatActivity implements
                     String input = intent.getStringExtra(KEY_GAMESESSION_DATA);
                     if (input != null) {
                         currentGameState = gson.fromJson(input, gameSessionType);
-                        //currentGameState.getTeamIndex(new Player(currentUser.getemail()));
                         Log.d(TAG, input);
                     }
                 }
@@ -488,7 +487,7 @@ public class RunningGameActivity extends AppCompatActivity implements
                 }
                 else{
                     getFragmentManager().beginTransaction().replace(R.id.FragContainer,new UnityPlayerFragment()).commit();
-                }     
+                }
             break;
             case R.id.btnChatFrag:
     ///            Opens fragment of map if there is none, closes it if there is

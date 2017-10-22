@@ -137,10 +137,14 @@ public class GameSessionTest {
         two.setDisplayName("two");
         three.setDisplayName("three");
         four.setDisplayName("four");
+        assertTrue(session.currentPlayerCount() == 0);
         session.addPlayerToCapturingTeam(one);
+        assertTrue(session.currentPlayerCount() == 1);
         session.addPlayerToCapturingTeam(two);
+        assertTrue(session.currentPlayerCount() == 2);
         session.addPlayerToEscapingTeam(three);
         session.addPlayerToEscapingTeam(four);
+        assertTrue(session.currentPlayerCount() == 4);
         assertEquals(session.getPlayersWithinDistance(one, dist).contains(one), true);
         assertEquals(session.getPlayersWithinDistance(one, dist).contains(two), true);
         assertEquals(session.getPlayersWithinDistance(one, dist).contains(three), false);

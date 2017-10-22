@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ public class SignInActivity extends AppCompatActivity
     private final String EMPTY = "Empty";
     private final String SIGN_OUT = "Signed Out";
 
+
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
@@ -44,6 +46,9 @@ public class SignInActivity extends AppCompatActivity
 
     private EditText etPass;
     private EditText etEmail;
+    private Button btnSignIn;
+    private Button btnSignOut;
+    private Button btnCreateAcc;
 
     /**
      * Standard Activity lifecycle methods
@@ -55,9 +60,15 @@ public class SignInActivity extends AppCompatActivity
         Context context = getApplicationContext();
 
         // Set up click handlers and view item references
+          btnSignIn = (Button)findViewById(R.id.btnSignInReg);
+          btnSignOut = (Button)findViewById(R.id.btnSignOut);
+          btnCreateAcc =  (Button)findViewById(R.id.btnCreate);
         findViewById(R.id.btnCreate).setOnClickListener(this);
         findViewById(R.id.btnSignInReg).setOnClickListener(this);
         findViewById(R.id.btnSignOut).setOnClickListener(this);
+        btnSignOut.setVisibility(View.GONE);
+        btnSignIn.setVisibility(View.GONE);
+        btnCreateAcc.setVisibility(View.GONE);
 
         etEmail = (EditText) findViewById(R.id.etEmailAddr);
         etPass = (EditText) findViewById(R.id.etPassword);
@@ -121,9 +132,12 @@ public class SignInActivity extends AppCompatActivity
 
                 signUserOut();
 
+                Toast.makeText(SignInActivity.this,R.string.user_successfuly_signed_out,Toast.LENGTH_SHORT).show();
+
                 //return to the main screen after signing out
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(i);
+
                 break;
         }
     }
@@ -162,6 +176,7 @@ public class SignInActivity extends AppCompatActivity
 
         if (user != null) {
             tvStat.setText("Signed in: " + user.getEmail());
+            showSignedInInterface();
         }
         else {
             tvStat.setText(SIGN_OUT);
@@ -198,6 +213,9 @@ public class SignInActivity extends AppCompatActivity
                         if (task.isSuccessful()){
                             Toast.makeText(SignInActivity.this, R.string.user_successfuly_signed_in,
                                     Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(i);
+
                         }
                         else {
                             Toast.makeText(SignInActivity.this, R.string.user_unsuccessfuly_signed_in,
@@ -289,6 +307,16 @@ public class SignInActivity extends AppCompatActivity
      */
     private boolean isEmailValid(String email) {
         return (email.contains("@") && email.endsWith("unimelb.edu.au"));
+    }
+    private void showSignedInInterface(){
+        btnSignOut.setVisibility(View.VISIBLE);
+        btnSignIn.setVisibility(View.GONE);
+        btnCreateAcc.setVisibility(View.GONE);
+    }
+    private void showSignedOutInterface(){
+        btnSignOut.setVisibility(View.GONE);
+        btnSignIn.setVisibility(View.VISIBLE);
+        btnCreateAcc.setVisibility(View.VISIBLE);
     }
 
 }

@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ARCamera.unity
+- path: Assets/displayScene.unity
   isLoaded: 1
   isActive: 1
