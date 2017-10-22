@@ -30,12 +30,10 @@ import java.util.Map;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ *Map fragment for in-game map functionality, ran from RunningGameSession activity
+ * when a user would like to use the map component of the game to track people down.
+ * Based off the Maps Activity
+ * Created by: Connor McLean
  */
 public class MapsFragment extends Fragment {
     private static String TAG = MapsFragment.class.getName();
@@ -59,21 +57,17 @@ public class MapsFragment extends Fragment {
         return fragment;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
 
-
         mMapView = rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
 
+        //Retrieves current state of game including other players locations
         currentGameState = ((RunningGameActivity)getActivity()).getCurrentGameState();
-        if(currentGameState == null){
-            Log.d(TAG, "Null gamestate");
-        }
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -81,7 +75,7 @@ public class MapsFragment extends Fragment {
             e.printStackTrace();
         }
 
-        //hashmap for key location pairs
+        //hashmap for key location pairs, users and corresponding keys for markers
         markers = new HashMap<String, Marker>();
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -89,14 +83,11 @@ public class MapsFragment extends Fragment {
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
-
                 // For showing a move to my location button
                 googleMap.setMyLocationEnabled(true);
-                Log.d(TAG, "Current player count ->" + currentGameState.currentPlayerCount());
                 for(int i=0; i < currentGameState.currentPlayerCount(); i++ ){
-                    Log.d(TAG, "Currently Player ->" + i);
 
-                   // if(currentGameState.allPlayerArrayLists().get(i).getDisplayName() != FirebaseAuth.getInstance().getCurrentUser().getDisplayName()){
+                   // Loops through all players in the game and then marks all player locations on map for user
                         Marker marker = markers.get(currentGameState.allPlayerArrayLists().get(i).getDisplayName());
                         if(marker != null){
                             marker.remove();
@@ -108,17 +99,7 @@ public class MapsFragment extends Fragment {
                 }
   //          }
         });
-
         return rootView;
-
-
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -138,18 +119,7 @@ public class MapsFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
