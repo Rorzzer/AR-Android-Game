@@ -9,10 +9,16 @@ import java.util.HashMap;
 
 /**
  * Created by Kiptenai on 19/09/2017.
+ * provides a simple methods determine if the service is running
  */
 
 public class ServiceTools {
 
+    /***
+     * determines whether an instance of the service is running
+     * @param context the currrent application context
+     * @param serviceClass the service to be checked
+     * */
     public static boolean isServiceRunning(Context context, Class<?> serviceClass){
 
         final ActivityManager manager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -27,15 +33,6 @@ public class ServiceTools {
         return false;
     }
 
-    public static boolean startNewService(Context context, Class<?> serviceClass,
-                                          HashMap<String, String> list) {
 
-        return false;
-    }
-
-    public static boolean stopRunningService(Context context, Class<?> serviceClass){
-        context.stopService(new Intent(context,serviceClass));
-        return false;
-    }
 
 }

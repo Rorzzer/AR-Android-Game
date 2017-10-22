@@ -10,8 +10,7 @@
         <FrameLayout
             android:id="@+id/unityFrameLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#ff90ff15"/>
+            android:layout_height="match_parent" />
     </FrameLayout>
 </LinearLayout>
 

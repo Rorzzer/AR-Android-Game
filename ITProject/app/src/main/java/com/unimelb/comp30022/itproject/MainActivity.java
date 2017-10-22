@@ -28,6 +28,7 @@ import android.support.fragment.BuildConfig;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.firebase.auth.FirebaseAuth;
+import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -198,6 +199,7 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
     }
+
     public void showGameMenus(){
         btnCreateLobby.setVisibility(View.VISIBLE);
         btnFindLobby.setVisibility(View.VISIBLE);
@@ -210,7 +212,5 @@ public class MainActivity extends AppCompatActivity
         btnCreateLobby.setVisibility(View.GONE);
         btnFindLobby.setVisibility(View.GONE);
     }
-
-
 }
 
