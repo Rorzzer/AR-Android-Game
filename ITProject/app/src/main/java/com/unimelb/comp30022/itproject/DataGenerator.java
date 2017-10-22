@@ -2,6 +2,9 @@ package com.unimelb.comp30022.itproject;
 
 /**
  * Created by Kiptenai on 21/09/2017.
+ * useful for generating dummy data to test the creation of gamesessions
+ * and the functionality of the team managment and player management systems
+ *
  */
 
 import java.util.Random;
@@ -39,11 +42,21 @@ public class DataGenerator {
         return gameSession;
 
     }
-
+    /**
+     * Generates a random gamesession with two teams, randomly named members, based on a given
+     * location
+     * @param  latLng location of the initiated gamesession
+     * */
     public GameSession generateRandomGameSession(LatLng latLng){
         return generateRandomGameSession(latLng,MAX_TEAM_CAP);
     }
-
+    /**
+     * Generates a random team with  randomly named members, based on a given
+     * location
+     * @param  latLng location of the initiated gamesession
+     * @param  maxMembers number of members in the gamesession
+     * @param isCapturing whether the generate team is an escaping or capturing team
+     * */
     public Team generateRandomTeam(LatLng latLng, int maxMembers, boolean isCapturing){
         Team team = new Team(new Integer(random.nextInt()).toString(), "team" + random.nextInt(), true, generateRandomPlayer(latLng).getDisplayName());
         team.setTeamImageUri("www.team"+random.nextInt()+".com");
@@ -53,6 +66,11 @@ public class DataGenerator {
         team.setActive(random.nextBoolean());
         return team;
     }
+    /**
+     * Generates a random player , based on a given
+     * location
+     * @param  latLng location of the initiated gamesession
+     * */
     public Player generateRandomPlayer(LatLng latLng){
         Player player = new Player("player" + String.valueOf(random.nextInt() % 100000));
         player.setActive(random.nextBoolean());
@@ -62,6 +80,9 @@ public class DataGenerator {
         player.setAbsLocation(nLatLng);
         return player;
     }
+    /**
+     * Generates a random location on the planet
+     * */
     public LatLng generateRandomLocation(){
         LatLng latLng = new LatLng(MIN_LAT + (MAX_LAT - MIN_LAT) * random.nextDouble(),
                 MIN_LONG + (MAX_LONG - MIN_LONG) * random.nextDouble(), 10);

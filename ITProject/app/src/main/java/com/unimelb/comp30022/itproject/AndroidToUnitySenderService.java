@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Created by Kiptenai on 14/09/2017.
- * class for handling messages to Unity Application
+ *Service class for handling messages to Unity Application
  * The class first initiates the game session
  * Authorize the current user, fetch the game sessionInformation of
  * the information added to the intent on creation, set the game as started and
@@ -63,11 +63,9 @@ public class AndroidToUnitySenderService extends Service {
     private final String FILTER_CAPTURING_SIGNAL = "com.unimelb.comp30022.ITProject.sendintent.CapturingSignal";
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_AZIMUTH_DATA = "azimuth";
-    private final String KEY_GAMESESSIONID_DATA = "gameSessionId";
     private final String KEY_GAMESESSION_DATA = "gameSession";
     private final String KEY_IS_CAPTURING = "capturing";
     private final Integer AR_FREQUENCY = 50;
-    private final Integer LATENCY = 500;
     private final int UPDATING_GAME_STARTED = 0;
     private final int UPDATING_LOCATION = 1;
     private final int UPDATING_CAPTURE = 2;

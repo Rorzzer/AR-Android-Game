@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Kiptenai on 20/09/2017.
+ * Holds and manages team and Player data for members in the current game
  */
 
 public class Team {
@@ -40,45 +41,13 @@ public class Team {
         playerArrayList = new ArrayList<Player>();
 
     }
-
+    //basic mutator and acessor methods
     public String getTeamId() {
         return teamId;
     }
 
     public void setTeamId(String teamId) {
         this.teamId = teamId;
-    }
-
-
-    //add players if space is available
-    public boolean addPlayer(Player player){
-        if (this.playerArrayList.contains(player)) {
-            return false;
-        }
-        this.playerArrayList.add(player);
-        this.numPlayers = new Integer(this.playerArrayList.size());
-        return true;
-    }
-
-    public int getTeamSize() {
-        return this.playerArrayList.size();
-    }
-
-    public Integer getNumPlayers() {
-        return numPlayers;
-    }
-
-    public void setNumPlayers(Integer numPlayers) {
-        this.numPlayers = numPlayers;
-    }
-
-    public boolean removePlayer(Player player){
-        if (this.playerArrayList.size() > 0 && this.playerArrayList.contains(player)) {
-            this.playerArrayList.remove(player);
-            this.numPlayers = new Integer(this.playerArrayList.size());
-            return true;
-        }
-        return false;
     }
 
     public boolean containsPlayer(Player player) {
@@ -140,6 +109,49 @@ public class Team {
     public void setCapturing(Boolean capturing) {
         isCapturing = capturing;
     }
+
+    public int getTeamSize() {
+        return this.playerArrayList.size();
+    }
+
+    public Integer getNumPlayers() {
+        return numPlayers;
+    }
+
+    public void setNumPlayers(Integer numPlayers) {
+        this.numPlayers = numPlayers;
+    }
+
+    /**
+     * add players if space is available
+     * @param player the individual to be added to the team
+     * @return whether the addition was successful or not
+     */
+
+    public boolean addPlayer(Player player){
+        if (this.playerArrayList.contains(player)) {
+            return false;
+        }
+        this.playerArrayList.add(player);
+        this.numPlayers = new Integer(this.playerArrayList.size());
+        return true;
+    }
+    /***
+     * removes an individual from the team
+     * @param player individual to be removed
+     * @return whether the removal was successful or not
+     * */
+
+    public boolean removePlayer(Player player){
+        if (this.playerArrayList.size() > 0 && this.playerArrayList.contains(player)) {
+            this.playerArrayList.remove(player);
+            this.numPlayers = new Integer(this.playerArrayList.size());
+            return true;
+        }
+        return false;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {

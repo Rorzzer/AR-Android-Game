@@ -12,6 +12,7 @@ import java.util.Calendar;
 
 /**
  * Created by Kiptenai on 4/10/2017.
+ * simple timepickerFragment to enable setting of game start time
  */
 
 public class SessionTimePicker extends DialogFragment

@@ -43,9 +43,10 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+/**Created by Kiptenai on 1/10/2017.
+ * displays the current game session through a map fragment, AR fragment and a chat fragment
+ * communicates with the android to unity sender service and recieves the current game state
+ * while sending the signal to capture players
  */
 public class RunningGameActivity extends AppCompatActivity implements
         View.OnClickListener, MapsFragment.OnFragmentInteractionListener {
@@ -187,23 +188,6 @@ public class RunningGameActivity extends AppCompatActivity implements
         findViewById(R.id.btnChatFrag).setOnClickListener(this);
         findViewById(R.id.btnAR).setOnClickListener(this);
 
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.setDisplayHomeAsUpEnabled(true);
-//        }
-
-//        mVisible = true;
-//        mControlsView = findViewById(R.id.fullscreen_content_controls);
-//        mContentView = findViewById(R.id.fullscreen_content);
-
-        // Set up the user interaction to manually show or hide the system UI.
-//        mContentView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                toggle();
-//            }
-//        });
-
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
@@ -223,28 +207,16 @@ public class RunningGameActivity extends AppCompatActivity implements
 
             if (getCurrentPermissions()) {
                 Log.d(TAG, "Has Google play installed ");
-               // createAndSpecifyLocationRequest();
                 ServiceTools serviceTools = new ServiceTools();
-
-//                textView = findViewById(R.id.fullscreen_content);
-
-               /* googleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
-                boolean isServiceRunning;
-                textView = (TextView) findViewById(R.id.fullscreen_content);*/
-
-
+                //start the android to unity sender and start the game session
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
                 startService(intent);
-
-               // isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-
                 caputringBtnPressed = true;
                 handler.removeCallbacks(capturingButtonListener);
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
                 receiveMyGameSessionBroadcasts();
                 Log.d(TAG, "Launching current game");
-//                launchCurrentGame();
             } else {
                 Log.d(TAG, "Doesn't have permission");
 
@@ -254,7 +226,6 @@ public class RunningGameActivity extends AppCompatActivity implements
         }
 
     }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -268,7 +239,6 @@ public class RunningGameActivity extends AppCompatActivity implements
         // are available.
         delayedHide(100);
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -281,7 +251,6 @@ public class RunningGameActivity extends AppCompatActivity implements
         }
 
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -300,7 +269,6 @@ public class RunningGameActivity extends AppCompatActivity implements
             show();
         }
     }
-
     private void hide() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
@@ -343,19 +311,6 @@ public class RunningGameActivity extends AppCompatActivity implements
         return hasFineLocationPermission;
     }
 
-    public void launchCurrentGame() {
-        ServiceTools serviceTools = new ServiceTools();
-        boolean isServiceRunning;
-//        textView = findViewById(R.id.fullscreen_content);
-        Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
-        startService(intent);
-        isServiceRunning = ServiceTools.isServiceRunning(RunningGameActivity.this, AndroidToUnitySenderService.class);
-        //Intent ar = new Intent(RunningGameActivity.this, UnityPlayerActivity.class);
-        //startActivity(ar);
-        Log.d(TAG, "launching Ar");
-    }
-
     //whether the applications should request for permisssions
     public boolean shouldRequestPermissions() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -388,7 +343,7 @@ public class RunningGameActivity extends AppCompatActivity implements
         canFetchLocations = true;
         return false;
     }
-
+    //Determine whether a rationale should be displayed regarding player location request
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -427,17 +382,8 @@ public class RunningGameActivity extends AppCompatActivity implements
 
     @SuppressWarnings("MissingPermission")
     private void startLocationUpdate() {
-
-
         Task<Void> pending =
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-    }
-
-    private void stopLocationUpdate() {
-        if (mGoogleAPIClient.isConnected()) {
-            //Permission required
-            //mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-        }
     }
 
     private void locationRequestRationaleSnackbar(String mainText, String actionText, View.OnClickListener listener) {
@@ -472,7 +418,6 @@ public class RunningGameActivity extends AppCompatActivity implements
                     if(mFrag != null){
                         getSupportFragmentManager().beginTransaction().remove(mFrag).commit();
                         getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
-
                     }
                     else{
                         getSupportFragmentManager().beginTransaction().add(R.id.FragContainer,new MapsFragment()).commit();
