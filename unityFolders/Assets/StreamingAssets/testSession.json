@@ -1,5 +1,5 @@
 {
-    "bearing": 77.0,    
+    "bearing": 45.0,    
     "creator": "tom@student.unimelb.edu.au",
     "description": "tg",
     "duration": 2880,
@@ -31,14 +31,14 @@
                     "capturedList": [],
                     "coordinateLocation": {
                         "accuracy": 15.0,
-                        "x": 60.0,
+                        "x": 10.0,
                         "y": 0.0,
-                        "z": 50.0
+                        "z": 0.0
                     },
-                    "displayName": "tom@student.unimelb.edu.au",
-                    "hasBeenCaptured": false,
+                    "displayName": "1234@student.unimelb.edu.au",
+                    "hasBeenCaptured": true,
                     "isActive": true,
-                    "isCapturing": false,
+                    "isCapturing": true,
                     "isLoggedOn": true,
                     "lastLoggedOn": 1508344572054,
                     "lastPing": 1508359820550,
@@ -68,15 +68,42 @@
                     "assignedTeamName": "team_1",
                     "capturedList": [],
                     "coordinateLocation": {
-                        "accuracy": 134.0,
-                        "x": 17.0,
+                        "accuracy": 15.0,
+                        "x": 20.0,
                         "y": 0.0,
-                        "z": 100.0
+                        "z": 20.0
                     },
                     "displayName": "tom@student.unimelb.edu.au",
                     "hasBeenCaptured": false,
                     "isActive": true,
-                    "isCapturing": true,
+                    "isCapturing": false,
+                    "isLoggedOn": true,
+                    "lastLoggedOn": 1508344572054,
+                    "lastPing": 1508359820550,
+                    "path": [],
+                    "relativePath": [],
+                    "score": 0,
+                    "skillLevel": 0,
+                    "teamId": "team_1"
+                },
+                {
+                    "absLocation": {
+                        "accuracy": 500.0,
+                        "latitude": -37.7996439,
+                        "longitude": 144.964109
+                    },
+                    "assignedTeamName": "team_1",
+                    "capturedList": [],
+                    "coordinateLocation": {
+                        "accuracy": 15.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "displayName": "kip@student.unimelb.edu.au",
+                    "hasBeenCaptured": false,
+                    "isActive": true,
+                    "isCapturing": false,
                     "isLoggedOn": true,
                     "lastLoggedOn": 1508344572054,
                     "lastPing": 1508359820550,

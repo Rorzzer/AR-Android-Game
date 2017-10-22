@@ -28,7 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class SignInActivity extends AppCompatActivity
     implements View.OnClickListener{
     private final String TAG = "FB_SIGNIN";
-    private final String EMPTY = "Empty";
+    private final String EMPTY = "";
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;

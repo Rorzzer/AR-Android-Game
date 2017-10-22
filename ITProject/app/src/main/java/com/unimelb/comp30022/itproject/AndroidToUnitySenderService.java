@@ -50,10 +50,16 @@ public class AndroidToUnitySenderService extends Service {
     //service handler executes periodically
     private final String LOG_TAG = AndroidToUnitySenderService.class.getName();
     private final int ACCURACY_TOLERANCE_FACTOR = 2;
+    //filter strings used to pass information between activities and services
+    //filter for passing information to unity plugin
     private final String FILTER_GAME_SESSION_ITU = "com.unimelb.comp30022.ITProject.sendintent.IntentToUnity";
+    //filter for  recieving the gamesession id
     private final String FILTER_GAME_SESSIONID_RTA = "com.unimelb.comp30022.ITProject.sendintent.GameSessionIdToAndroidToUnitySender";
+    //filter for recieving locaiton information from location service
     private final String FILTER_LOCATION = "com.unimelb.comp30022.ITProject.sendintent.LatLngFromLocationService";
+    //filter for passing the current gamestate to the running activity
     private final String FILTER_GAME_SESSION_ATR = "com.unimelb.comp30022.ITProject.sendintent.GameSessionToRunningGameActivity";
+    //filter on whether a signal to capture players is being sent
     private final String FILTER_CAPTURING_SIGNAL = "com.unimelb.comp30022.ITProject.sendintent.CapturingSignal";
     private final String KEY_LOCATION_DATA = "location";
     private final String KEY_AZIMUTH_DATA = "azimuth";
@@ -66,6 +72,7 @@ public class AndroidToUnitySenderService extends Service {
     private final int UPDATING_LOCATION = 1;
     private final int UPDATING_CAPTURE = 2;
     private final int FOOTSTEP_UPDATE_FREQUENCY = 5000;
+    private final int PLAYER_TIMEOUT = 30000;
     private final Handler handler = new Handler();
     private Bundle locationAndAzimuthInputs = new Bundle();
     private FirebaseAuth firebaseAuth;
@@ -79,7 +86,7 @@ public class AndroidToUnitySenderService extends Service {
     private boolean gameInitializing = true;
     private boolean caputringBtnPressed;
     private boolean gameRunning = true;
-
+    //variables describing current gamestate
     private String gameSessionId;
     private GameSession publicGameSession;
     private GameSession myGameSession;
@@ -106,10 +113,9 @@ public class AndroidToUnitySenderService extends Service {
     }.getType();
     private Type locationType = new TypeToken<Location>() {
     }.getType();
-    private Type playerType = new TypeToken<Player>() {
-    }.getType();
 
     //thread that handles passing information into the unityActivity that hosts the AR modules
+    //runs at a fixed interval specified by AR_FREQUENCY
     private Runnable sendData = new Runnable() {
         public void run() {
             Intent senderIntent = new Intent();
@@ -139,7 +145,7 @@ public class AndroidToUnitySenderService extends Service {
             handler.postDelayed(this, AR_FREQUENCY);
         }
     };
-
+    //thread that handles updating of footsteps as determined by the FOOTSTEP_UPDATE_FREQUENCY
     private Runnable updateFootsteps = new Runnable() {
         public void run() {
             if (currentLocation != null && myGameSession != null) {
@@ -162,15 +168,18 @@ public class AndroidToUnitySenderService extends Service {
     public void onStart(Intent intent, int startid) {
 
     }
-
+    //basic lifecycle methods for the service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getExtras() != null) {
+            //fetch the gamesession from calling activity
             gameSessionId = intent.getStringExtra(FILTER_GAME_SESSIONID_RTA);
             Context context = getApplicationContext();
+            //initialize firebase
             FirebaseApp.initializeApp(context);
             firebaseAuth = FirebaseAuth.getInstance();
             firebaseDatabase = FirebaseDatabase.getInstance();
+            //fetch reference for the user and gamesession databases
             userDbReference = firebaseDatabase.getReference("users");
             gameSessionDbReference = firebaseDatabase.getReference("gameSessions");
             fbuser = firebaseAuth.getCurrentUser();
@@ -179,7 +188,6 @@ public class AndroidToUnitySenderService extends Service {
             gameSessionId = intent.getStringExtra(FILTER_GAME_SESSIONID_RTA);
             Log.d(LOG_TAG, gameSessionId + " started launching Location Service");
             //start location updates from location Service
-
             Intent locationService = new Intent(AndroidToUnitySenderService.this, LocationService.class);
             locationService.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_NO_ANIMATION |
                     Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -219,7 +227,12 @@ public class AndroidToUnitySenderService extends Service {
             stopService(intent);
         }
     }
-
+    /**
+     * initiates the creation of a reciever that fetches
+     * the capture button signal from the fragments of the ongoing
+     * game session. This signal is used to determine whether
+     * the player is capturing another
+     */
     private void receiveCaptureButtonSignal() {
         if (captureButtonReciever == null) {
             captureButtonReciever = new BroadcastReceiver() {
@@ -236,7 +249,11 @@ public class AndroidToUnitySenderService extends Service {
         }
         registerReceiver(captureButtonReciever, new IntentFilter(FILTER_CAPTURING_SIGNAL));
     }
-
+    /**
+     * initiates the creation of a reciever that fetches
+     * the current user's location and azimuth data as broadcasted from
+     * the locationservice
+     */
     private void receiveLocationBroadcasts() {
         if (currentLocationReciever == null) {
             currentLocationReciever = new BroadcastReceiver() {
@@ -286,7 +303,8 @@ public class AndroidToUnitySenderService extends Service {
         registerReceiver(currentLocationReciever, new IntentFilter(FILTER_LOCATION));
     }
     /***
-     * Fetches the user information and calls the GetGameSessionServer info to fech the game information
+     * Fetches the user information and calls the GetGameSessionServer info to fetch the current
+     * game's information if the current user is successfully authenticated
      *
      */
 
@@ -314,9 +332,8 @@ public class AndroidToUnitySenderService extends Service {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     currentUserInfo = dataSnapshot.child(userId).getValue(User.class);
-                    Log.d(LOG_TAG, currentUserInfo.getEmail());
-                    getServerGameSessionObj(gameSessionId);
                     Log.d(LOG_TAG, "User Exists. Fetching game session Info");
+                    getServerGameSessionObj(gameSessionId);
 
                 } else {
                     Log.d(LOG_TAG, "User does not exist");
@@ -332,6 +349,11 @@ public class AndroidToUnitySenderService extends Service {
 
     /**
      * Fetch game sesion object if it already exists on the server
+     * assigns the fetched gamesesion to a local variable initiates the reception of signals
+     * from the location service as well as the capture button broadcaster.
+     * this method is asynchronous and only initiates the receivers after the gamesession has been
+     * fetched
+     * @param  gameSessionId  a string uniquely describing the gamesession
      */
     private void getServerGameSessionObj(final String gameSessionId) {
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSessionId);
@@ -345,12 +367,15 @@ public class AndroidToUnitySenderService extends Service {
                     //return null value
                     Log.d(LOG_TAG, "Game Session does not exist");
                 }
+                /**
+                 * user's game is starting, update database as gamestarted and update the latest
+                 * time of activity
+                 * */
                 if (gameInitializing) {
                     currentPlayer = publicGameSession.getPlayerDetails(currentUserInfo.getEmail());
                     publicGameSession.setGameStarted(true);
                     publicGameSession.getPlayerDetails(currentPlayer.getDisplayName()).setLastPing(System.currentTimeMillis());
                     myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
-                    Log.d(LOG_TAG, "Fetched fetchedServerObject " + gson.toJson(myGameSession));
                     receiveLocationBroadcasts();
                     receiveCaptureButtonSignal();
                     updateServerGameSession(publicGameSession, UPDATING_GAME_STARTED);
@@ -365,9 +390,16 @@ public class AndroidToUnitySenderService extends Service {
         });
     }
 
-    /***
+    /**
      * updates a game session information for a specific value from local device to server
-     * */
+     * method is asynchronous and
+     * @param  gameSession the location of the image, relative to the url argument
+     * @param  updateField the location in the user's database that needs to be updated
+     *         Ranges from GAME_STARTED, updated by the creator, UPDATING_LOCATION which is
+     *         the current user's location and UPDATING_CAPTURE which is when a user captures
+     *         another and updates the database to indicate such in both users' information
+
+     */
     private void updateServerGameSession(final GameSession gameSession, final int updateField) {
         if (gameSession == null) {
             return;
@@ -380,12 +412,11 @@ public class AndroidToUnitySenderService extends Service {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount() > 0) {
                     //update values
-                    //gameSessionDbReference.child(gameSessionId).setValue(gameSession);
                     Map<String, Object> pingUpdate = new HashMap<String, Object>();
                     pingUpdate.put("lastPing", System.currentTimeMillis());
                     int myTeamId = myGameSession.getTeamIndex(currentPlayer);
                     int myPlayerId = myGameSession.getPlayerIndexInTeam(currentPlayer);
-                    //update ping value to recent ping
+                    //update ping value to recent ping for all database updates
                     gameSessionDbReference
                             .child(gameSessionId)
                             .child("teamArrayList")
@@ -393,11 +424,13 @@ public class AndroidToUnitySenderService extends Service {
                             .child("playerArrayList")
                             .child(String.valueOf(myPlayerId))
                             .updateChildren(pingUpdate);
+                    // update the gameStarted attribute of the gamesession
                     if (updateField == UPDATING_GAME_STARTED) {
                         Map<String, Object> startedUpdate = new HashMap<String, Object>();
                         startedUpdate.put("gameStarted", true);
                         gameSessionDbReference.child(gameSessionId).updateChildren(startedUpdate);
                     }
+                    //update the location of the current user
                     if (updateField == UPDATING_LOCATION) {
                         Map<String, Object> locationUpdate = new HashMap<String, Object>();
                         locationUpdate.put("absLocation", currentLocation);
@@ -409,12 +442,20 @@ public class AndroidToUnitySenderService extends Service {
                                 .child(String.valueOf(myPlayerId))
                                 .updateChildren(locationUpdate);
                     }
+                    /**
+                     * update the captured state of the captured user, as well as the number of
+                     * captuerd individuals that the user currently has
+                     * */
                     if (updateField == UPDATING_CAPTURE) {
                         if (myCapturedList.size() > 0) {
                             Map<String, Object> capturingPlayerUpdate = new HashMap<String, Object>();
-                            myCapturedList = myGameSession.getTeamArrayList().get(myTeamId).getPlayerArrayList().get(myPlayerId).getPlayerCapturedList();
+                            myCapturedList = myGameSession.getTeamArrayList()
+                                    .get(myTeamId)
+                                    .getPlayerArrayList()
+                                    .get(myPlayerId)
+                                    .getPlayerCapturedList();
                             capturingPlayerUpdate.put("capturedList", myCapturedList);
-                            //update capturing
+                            //update capturing player's details(capured list)
                             gameSessionDbReference
                                     .child(gameSessionId)
                                     .child("teamArrayList")
@@ -429,6 +470,7 @@ public class AndroidToUnitySenderService extends Service {
                             Map<String, Object> capturedPlayerUpdate = new HashMap<String, Object>();
                             capturedPlayerUpdate.put("hasBeencaptured", true);
                             capturedPlayerUpdate.put("isCapturing", true);
+                            //update the captured player's details to is capturing and has been captured
                             gameSessionDbReference
                                     .child(gameSessionId)
                                     .child("teamArrayList")
@@ -454,7 +496,10 @@ public class AndroidToUnitySenderService extends Service {
 
         });
     }
-
+    /**
+     * Sets a database listener, for any changes in the current gamesesion and
+     * fetches the latest snapshot of the database
+     */
     public void listenToServerForGameSessionChanges() {
         Query gameSessionIdQuery = gameSessionDbReference.orderByChild("sessionId").equalTo(gameSessionId);
         gameSessionIdQuery.addChildEventListener(new ChildEventListener() {
@@ -467,13 +512,14 @@ public class AndroidToUnitySenderService extends Service {
                 publicGameSession = dataSnapshot.getValue(GameSession.class);
 
                 if (currentLocation != null && myGameSession != null) {
-                    //Log.d(LOG_TAG, " Recieved update from server");
-                    publicGameSession.refreshActivePlayers(System.currentTimeMillis(), 30000);
+                    //set the players that have been inactive for longer than the timeout period
+                    publicGameSession.refreshActivePlayers(System.currentTimeMillis(), PLAYER_TIMEOUT);
                     myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
                     myGameSession.updatePlayerLocation(currentPlayer, currentLocation);
                     myGameSession.setBearing(currentBearing);
                     myGameSession.updateRelativeLocations(currentLocation);
-                    ArrayList<Player> newCaptures = GameSession.determineIndividualsCapturedFromUpdate(myGameSession, publicGameSession);
+                    ArrayList<Player> newCaptures = GameSession
+                                    .determineIndividualsCapturedFromUpdate(myGameSession, publicGameSession);
                     if (newCaptures != null && newCaptures.size() > 0) {
                         for (Player player : newCaptures) {
                             displayCapturedMessge(player.getDisplayName());
@@ -487,20 +533,21 @@ public class AndroidToUnitySenderService extends Service {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
             }
-
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
 
     }
-
+    /**
+     * Runs when the capture button is pressed and determines the players
+     * within the current user's vicinity. Determines the closest and captures
+     * them if they are eligible for capture
+     */
     public void captureUpdate() {
         currentPlayer = myGameSession.getPlayerDetails(currentPlayer.getDisplayName());
         if (currentPlayer != null && currentPlayer.getCapturing() == true) {
@@ -542,13 +589,17 @@ public class AndroidToUnitySenderService extends Service {
             }
         }
     }
+    /* Notifies a player about a capture event
+     * @param  capturedName name of the player that has been captured
+
+      */
     public void displayCapturedMessge(String capturedName) {
         Toast.makeText(AndroidToUnitySenderService.this, R.string.player + capturedName + R.string.has_been_captured, Toast.LENGTH_SHORT).show();
     }
-    public void displayPoorSignalMessage() {
-        Toast.makeText(AndroidToUnitySenderService.this, R.string.poor_gps_signal, Toast.LENGTH_SHORT).show();
-    }
+    /* Converts multiple decinal values to one decimal.
+     * @param  f value with multiple decimals in the mantissa
 
+      */
     public float roundToOneDecimal(float f) {
         return (float) (Math.round(f * 100) / 100);
     }

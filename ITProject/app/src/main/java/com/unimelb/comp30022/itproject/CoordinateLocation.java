@@ -2,9 +2,17 @@ package com.unimelb.comp30022.itproject;
 
 /**
  * Created by Kiptenai on 1/10/2017.
+ * Class to store relative coordinate information obtained from
+ * Latitude and longitude computations.
+ * The x value represents difference in latitudes, while
+ * the z value represents difference in longitues
+ * the y Value is always equal to zero
+ * the accuracy is similar to the value extracted from the Latitude and longitudes
+ *
  */
 
 public class CoordinateLocation {
+    //x - coordinate, Y -coordinate z-coordinates and accuracy
     private double x;
     private double y;
     private double z;
@@ -19,6 +27,7 @@ public class CoordinateLocation {
     public CoordinateLocation(){
 
     }
+    // Mutator methods and accessor methods
     public double getX() {
         return x;
     }
@@ -42,13 +51,9 @@ public class CoordinateLocation {
     public void setZ(double z) {
         this.z = z;
     }
-    public CoordinateLocation diff(CoordinateLocation location){
-        CoordinateLocation result = new CoordinateLocation();
-        result.setX(this.x-location.getX());
-        result.setY(this.y-location.getY());
-        result.setZ(this.z-location.getZ());
-        return result;
-    }
+    /* String conversion method for coordinate location object
+     *
+      */
     public final String toString() {
         double var1 = this.x;
         double var2 = this.y;
@@ -57,6 +62,9 @@ public class CoordinateLocation {
 
         return (new StringBuilder(60)).append("x,y,z +-accuracy: (").append(var1).append(",").append(var2).append(",").append(var3).append("+-").append(var4).append(")").toString();
     }
+    /* Equality test for coordinateLocation objects
+     * @param  location value to be compared with
+      */
     public  boolean equals(Object location){
         if(this == location){
             //same obj

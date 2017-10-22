@@ -7,20 +7,24 @@ using LitJson;
 using UnityEngine;
 using UnityEngine.UI;
 public class ServiceListenerScript : MonoBehaviour {
+    //json parser for data recieved from android modules
+    public JsonData playerData;
 
     //set initial team positions
     public static int CAPTURING_TEAM = 0;
     public static int ESCAPING_TEAM = 1;
+    private static float RAD_TO_DEGREE = 57.2958f;
+
     public bool gameStarted = false;
     public bool displayingSessionInfo = true;
     //public JsonData playerData;
     float counter = 10;
 
-    public JsonData playerData;
+    float x, y, z, a ;
 
-    float x, y, z, a;
+    int max, capturedCount;
     string name;
-
+    //strings describing keys in the recieved json file
     private string xPos = "x";
     private string yPos = "y";
     private string zPos = "z";
@@ -67,81 +71,95 @@ public class ServiceListenerScript : MonoBehaviour {
 
     private string endTime = "endTime";
 
-    public CoordinateLocation cPos;
-
-    public float largestObjectSize = 15;
-    public float smallestObjectsSize = 5;
+    private string hasBeenCaptured = "hasBeenCaptured";
+    
+    //dimension specification of gameobjects
+    public float largestObjectSize = 20;
+    public float smallestObjectsSize = 10;
+    //default bearing before the AR activity is started
+    public float initialBearing =0.0f;
+    //prefabs of the player objects
     public Transform escapingMember;
     public Transform capturingMember;
+    //list containing all of the spawned members
     public List<PlayerObject> players = new List<PlayerObject> ();
-    public GameObject teamName;
-    public GameObject remainingTime;
+    //Ui elements that display status, remaining members, bearing and closest individuals
     public GameObject currentStatus;
-    public GameObject compassBearing;
+    public GameObject compassReading;
 
     public GameObject capturedProgress;
 
+    public GameObject closestEscapername;
+    //direcion pointer of nearest escaping member and surrounding constants
     public GameObject dirPointer;
+    public GameObject pointerInstance;
 
-    private Vector3 newPos = new Vector3 (17, 0, 50);
+    public int pointerDist = 3;
+    public Vector3 pointerDisplacement = new Vector3 (0, -1, 0);
 
     string displayString = "";
     string jsonPath;
     string currentPlayerName;
-    public string receiverMessage = "Uninitiated";
+    public string receiverMessage = "";
 
-    float count = 0.0f;
     AndroidJavaClass javaClass;
     //set initialization parameters
     void Start () {
         /**
-        	preliminary tests	
-         */
-        teamName = GameObject.FindGameObjectWithTag ("teamNameText");
-        remainingTime = GameObject.FindGameObjectWithTag ("remainingTimeText");
+        preliminary tests with sample json file of a simple game state
+            jsonPath = Application.streamingAssetsPath + "/testSession.json";
+            receiverMessage = File.ReadAllText (jsonPath);
+        */
+         //assignment of ui elements
+         
+        closestEscapername = GameObject.FindGameObjectWithTag ("closestEscaperName");
         currentStatus = GameObject.FindGameObjectWithTag ("currentStatusText");
-        compassBearing = GameObject.FindGameObjectWithTag ("bearingText");
+        compassReading = GameObject.FindGameObjectWithTag ("bearingText");
         capturedProgress = GameObject.FindGameObjectWithTag ("capturedText");
-        //jsonPath = Application.streamingAssetsPath + "/testSession.json";
-        //receiverMessage = File.ReadAllText (jsonPath);
+        //pointer instatiation
+        pointerInstance = Instantiate (dirPointer, Camera.main.transform.position +
+            (Camera.main.transform.forward) * pointerDist + pointerDisplacement, Quaternion.identity);
+        //declaration of android receiver that fetches json on all player states from android to unity sender service
         javaClass = new AndroidJavaClass ("com.unimelb.comp30022.receiver.UnityReceiver");
         javaClass.CallStatic ("createInstance");
         //spawn all players
-
     }
 
     // Update is called once per frame
     public void Update () {
         receiverMessage = javaClass.GetStatic<string> ("text");
         if (gameStarted != true) {
-            generatePlayers(receiverMessage);
-            rotatePlayersByBearing (players, (float) (double) playerData[bearing]);
+            //generate and displace players depending on the users current bearing
+            initialBearing = getBearing(receiverMessage);
+            generatePlayers (receiverMessage);
+            rotatePlayersByBearing (players,initialBearing);
             gameStarted = true;
         }
-        compassBearing.GetComponent<Text> ().text = "Bearing: " + getBearing (receiverMessage).ToString ();
-        if (displayingSessionInfo && counter > 0) {
-            counter -= Time.fixedDeltaTime;
-        } else {
-            displayingSessionInfo = false;
-        }
-
-        updatePlayerLocations (receiverMessage);
-        updatePlayerCapturedNumbers (receiverMessage);
-        getRemainingTime (receiverMessage);
-        getClosestEscaper (receiverMessage);
-    }
-
     
+        compassReading.GetComponent<Text> ().text = "Bearing: " + getBearing (receiverMessage).ToString ();
+        updatePlayerLocations (receiverMessage);
+        capturedCount =  updatePlayerCapturedNumbers (receiverMessage);
+        max = (int) playerData[maximumPlayers];
+        capturedProgress.GetComponent<Text> ().text = "Remaining: " + (max / 2 - capturedCount);
+        //fetch and point at the closest escaping member
+        PlayerObject closestTarget = getClosestEscaper (receiverMessage);
+        pointerInstance.transform.position = Camera.main.transform.position + (Camera.main.transform.forward) * pointerDist + pointerDisplacement;
+        pointerInstance.transform.LookAt (closestTarget.gameModel.transform);
+        closestEscapername.GetComponent<Text> ().text = ((string) closestTarget.id).ToString ();
+    }
+    //generate gameObjects for both teams and identify current player
+    /**
+    @param gamestring json string containing all player positions
+
+     */
     public void generatePlayers (string gameString) {
         //iterate and spawn all objects at relative position
         playerData = gameStateFromJson (gameString);
         if (playerData == null) {
             return;
         }
-
-        int count = 0;
+        //iterate through the gamesession information and determine the current player(coordinate 0,0,0)
         for (int teamIdx = 0; teamIdx < (int) playerData[teamList].Count; teamIdx++) {
-            // Debug.Log(playerData[teamList][teamIdx]["startTime"].ToString());
             for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
                 if (!idInPlayerList (players, playerData[teamList][teamIdx][playerList][playerIdx][id].ToString ())) {
                     //spawn
@@ -149,16 +167,15 @@ public class ServiceListenerScript : MonoBehaviour {
                     PlayerObject play;
                     if (pos.x == 0.0 && pos.y == 0.0 && pos.z == 0.0) {
                         currentPlayerName = getDisplayName (teamIdx, playerIdx);
-                        teamName.GetComponent<Text> ().text = (string) playerData[teamList][teamIdx][teamID];
-                        if(getCapturing(teamIdx,playerIdx)){
-                            setCapturingState(true);
-                        }
-                        else{
-                            setCapturingState(false);
+                        if (getCapturing (teamIdx, playerIdx)) {
+                            setCapturingState (true);
+                        } else {
+                            setCapturingState (false);
                         }
                     }
+                    //spawn the remainder of the players depending on their team and store their data in the PlayerObject
                     if (getCapturing (teamIdx, playerIdx)) {
-                        //spawn chasers
+                        //spawn chasers 
                         Debug.Log ("Spawning chaser");
                         play = new PlayerObject (Instantiate (capturingMember, pos, Quaternion.identity));
                         play.id = getDisplayName (teamIdx, playerIdx);
@@ -169,7 +186,7 @@ public class ServiceListenerScript : MonoBehaviour {
                         players.Add (play);
 
                     } else if (!getCapturing (teamIdx, playerIdx)) {
-                        //spawn runners
+                        //spawn runners and assign the relevant playerObjects their data
                         Debug.Log ("Spawning Runner");
                         play = new PlayerObject (Instantiate (escapingMember, pos, Quaternion.identity));
                         play.id = getDisplayName (teamIdx, playerIdx);
@@ -187,41 +204,48 @@ public class ServiceListenerScript : MonoBehaviour {
         }
 
     }
+    //fetches the matching player data from the json input for each playerObject and updates the relative position 
+    // and capture states
+    /**
+    @param gamestring json string contatining updated player positions
+     */
     public void updatePlayerLocations (string gameString) {
         playerData = gameStateFromJson (gameString);
         if (playerData == null) {
             return;
         }
-        float timeSinceStarted = 0.0f;
+        //for each player object, find the matching data from the json file 
         for (int teamIdx = 0; teamIdx < (int) playerData[teamList].Count; teamIdx++) {
             for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
                 Vector3 target = GetCoordinate (teamIdx, playerIdx);
-                target = rotateVectorAroundPivot (target, Vector3.up, new Vector3 (0.0f, getBearing (gameString), 0.0f));
+                target = rotateVectorAroundPivot (target, Vector3.up, new Vector3 (0.0f, -initialBearing, 0.0f));
                 for (int i = 0; i < players.Count; i++) {
                     if (players[i].id == getDisplayName (teamIdx, playerIdx)) {
+                        //update the capture state of the current player on the user interface
                         if (players[i].id == currentPlayerName) {
                             setCapturingState (getCapturing (teamIdx, playerIdx));
                         }
-                        Debug.Log ("players.gameModel.position");
                         Vector3 diff = target - players[i].gameModel.position;
                         float distance = Mathf.Sqrt (diff.sqrMagnitude);
                         long timeDiff = getPing (teamIdx, playerIdx) - players[i].lastPing;
+                        //move it to the new position at a speed described by the difference in the last ping update
                         if (timeDiff != 0) {
                             players[i].speed = (float) distance / timeDiff;
                             players[i].gameModel.position = Vector3.MoveTowards (players[i].gameModel.position, target, players[i].speed * Time.deltaTime);
                         } else {
                             players[i].gameModel.position = target;
                         }
-                        if (getActive (teamIdx, playerIdx)) {
-                            if (getCapturing (teamIdx, playerIdx) == true) {
-                                colorCapturing (players[i]);
-                            } else {
-                                colorEscaping (players[i]);
-                            }
+                        //update their capturing states of every other player
+                        if (getCapturing (teamIdx, playerIdx) == true) {
+                            colorCapturing (players[i]);
                         } else {
+                            colorEscaping (players[i]);
+                        }
+                        if (!getActive (teamIdx, playerIdx)) {
                             colorInactive (players[i]);
                         }
-                        resize (players[i], a);
+                        //resize according to the number of captured members
+                        resize (players[i], getCapturedListLength(teamIdx,playerIdx));
                         players[i].lastPing = getPing (teamIdx, playerIdx);
 
                     }
@@ -230,7 +254,10 @@ public class ServiceListenerScript : MonoBehaviour {
             }
         }
     }
-
+    //fetches the closest player in the json input and returns a Player object identifying the stated player
+    /**
+    @param gamestring json string containing all player positions
+     */
     public PlayerObject getClosestEscaper (string gameString) {
         playerData = gameStateFromJson (gameString);
         if (playerData == null) {
@@ -244,9 +271,10 @@ public class ServiceListenerScript : MonoBehaviour {
             for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
                 Vector3 target = GetCoordinate (teamIdx, playerIdx);
                 for (int i = 0; i < players.Count; i++) {
+                    //Get the matching player object 
                     if (players[i].id == getDisplayName (teamIdx, playerIdx)) {
-                        if (!getCapturing (teamIdx, playerIdx)) {
-                            Debug.Log ("players.gameModel.position");
+                        //among the escaping members, if they are closer than the previous, assign them as the closest
+                        if (!getCapturing (teamIdx, playerIdx) && !target.Equals(Vector3.zero)) {
                             Vector3 diff = target - Vector3.zero;
                             distance = (int) Mathf.Sqrt (diff.sqrMagnitude);
                             if (distance < closestDistance) {
@@ -258,14 +286,24 @@ public class ServiceListenerScript : MonoBehaviour {
                 }
             }
         }
-        float speed = 0.1f;
+
         return closest;
     }
-
+    //rotates vectors according to bearinginformation to provide the matching coordinate in the real world
+    /**
+    @param point to be rotated
+    @param pivot center of rotation
+    @param angle angle swept by rotation transformation
+     */
     public Vector3 rotateVectorAroundPivot (Vector3 point, Vector3 pivot, Vector3 angle) {
         Vector3 diff = (point - pivot);
         return Quaternion.Euler (angle) * diff + pivot;
     }
+    //determines if the current player name is in the list of all players generated
+    /**
+    @param players list of PlayerObjects that contains the names, status and positions of generated players
+    @param id name of player to be searched
+     */
     public bool idInPlayerList (List<PlayerObject> players, string id) {
         for (int i = 0; i < players.Count; i++) {
             if (players[i].id == id) {
@@ -274,49 +312,93 @@ public class ServiceListenerScript : MonoBehaviour {
         }
         return false;
     }
+    //parses a string using Litjon library to get a structure that can be keyed to fetch relevant game info
+    /**
+    @param gamestring json string containing all player positions
+     */
     public JsonData gameStateFromJson (string gameString) {
         return JsonMapper.ToObject (gameString);
     }
-
+    //fetches the displayname of the player from the Parsed json file
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public string getDisplayName (int teamIdx, int playerIdx) {
         return (string) playerData[teamList][teamIdx][playerList][playerIdx][id];
     }
+    //fetches the position as a Vector for the current player in the json structure
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public Vector3 GetCoordinate (int teamIdx, int playerIdx) {
         return new Vector3 (
             (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][xPos],
             (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][yPos],
             (float) (double) playerData[teamList][teamIdx][playerList][playerIdx][coordinate][zPos]);
     }
+    //fetches the bearing of the gamestate from the android broadcast
+    /**
+    @param gamestring json string containing all player positions
+     */
     public float getBearing (string gameString) {
         playerData = gameStateFromJson (gameString);
         return (float) (double) playerData[bearing];
     }
 
+    //fetches the activity state of players
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public bool getActive (int teamIdx, int playerIdx) {
         return (bool) playerData[teamList][teamIdx][playerList][playerIdx][isActive];
     }
+    //fetches whether players are capturing or being captured
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public bool getCapturing (int teamIdx, int playerIdx) {
         return (bool) playerData[teamList][teamIdx][playerList][playerIdx][capt];
     }
+    //fetches whether a player has been captured
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
+    public bool getHasBeenCaptured (int teamIdx, int playerIdx) {
+        return (bool) playerData[teamList][teamIdx][playerList][playerIdx][hasBeenCaptured];
+    }
+    //fetches the most frequent ping value in epoch time
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public long getPing (int teamIdx, int playerIdx) {
         return (long) playerData[teamList][teamIdx][playerList][playerIdx][ping];
     }
-    public void getRemainingTime (string gameString) {
-        playerData = gameStateFromJson (gameString);
-        long epoch = (long) (System.DateTime.Now - new System.DateTime (1970, 1, 1)).TotalSeconds;
-        remainingTime.GetComponent<Text> ().text = "Time left(s): " + (((long) playerData[endTime] - epoch) / 1000).ToString ();
-
-    }
+    //sets the UI depending on whether the current player is escaping or capturing other players
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public void setCapturingState (bool capturing) {
         if (capturing) {
-            currentStatus.GetComponent<Text> ().text = "Capturing";
+            currentStatus.GetComponent<Text> ().text = "Currently Capturing";
 
         } else {
-            currentStatus.GetComponent<Text> ().text = "Escaping";
+            currentStatus.GetComponent<Text> ().text = "Currently Escaping";
 
         }
 
     }
+    //fetches the path of the player as a list of vectors
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public List<CoordinateLocation> getRelPath (int teamIdx, int playerIdx) {
         List<CoordinateLocation> lst = new List<CoordinateLocation> ();
         for (int i = 0; i < (int) playerData[teamList][teamIdx][playerList][path].Count; i++) {
@@ -327,58 +409,77 @@ public class ServiceListenerScript : MonoBehaviour {
         }
         return lst;
     }
-
+    //fetches the length of the player's list of captured members
+    /**
+    @param teamIdx index of the team being queried
+    @param playerIdx index of the player in the team being queried
+     */
     public int getCapturedListLength (int teamIdx, int playerIdx) {
-        return (int) playerData[teamList][teamIdx][playerList][playerIdx][captured];
+        return (int) playerData[teamList][teamIdx][playerList][playerIdx][captured].Count;
     }
-
+    //rotates the coorinates of the players so as to match the real world coordinates, using the inital bearing
+    /**
+    @param players list of all the players generated from the input json string
+    @param bearing orientation from magnetic north of the current player on AR initialisation
+     */
     public void rotatePlayersByBearing (List<PlayerObject> players, float bearing) {
         Debug.Log ("rotating around" + bearing.ToString ());
         for (int i = 0; i < players.Count; i++) {
             players[i].gameModel.transform.position =
-             rotateVectorAroundPivot(players[i].gameModel.transform.position,Vector3.zero,new Vector3(0,-bearing,0));
+                rotateVectorAroundPivot (players[i].gameModel.transform.position, Vector3.zero, new Vector3 (0, -bearing, 0));
         }
     }
-
-    public void updatePlayerCapturedNumbers (string gameString) {
+    //fetches the latest number of captured individuals 
+    /**
+    @param gamestring json string containing all player positions
+     */
+    public int updatePlayerCapturedNumbers (string gameString) {
         playerData = gameStateFromJson (gameString);
         if (playerData == null) {
-            return;
+            return 0;
         }
-        int max = (int) playerData[maximumPlayers];
+        
         int capturedCount = 0;
         for (int teamIdx = 0; teamIdx < (int) playerData[teamList].Count; teamIdx++) {
             for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
                 for (int i = 0; i < players.Count; i++) {
                     if (players[i].id == getDisplayName (teamIdx, playerIdx)) {
-                        capturedCount++;
-                        if (getCapturing (teamIdx, playerIdx) == true) {
+                        if (getCapturing (teamIdx, playerIdx) == true && getHasBeenCaptured (teamIdx, playerIdx) == true) {
                             capturedCount++;
                         }
                     }
                 }
             }
         }
-        capturedProgress.GetComponent<Text> ().text = "Remaining: " + (max/2 - capturedCount);
-
-    }
-    public void updatefootprintlocations () {
-
+        return capturedCount;
     }
 
-    public void updatePointer () {
-
-    }
-
+    //colors the playerObject instance
+    /**
+    @param player object containing identifying info and coordinate position
+     */
     public void colorEscaping (PlayerObject player) {
         player.gameModel.GetComponent<MeshRenderer> ().material.SetColor ("_Color", Color.green);
     }
+    //colors the playerObject instance
+    /**
+    @param player object containing identifying info and coordinate position
+     */
     public void colorInactive (PlayerObject player) {
         player.gameModel.GetComponent<MeshRenderer> ().material.SetColor ("_Color", Color.grey);
     }
+    //colors the playerObject instance
+    /**
+    @param player object containing identifying info and coordinate position
+     */
     public void colorCapturing (PlayerObject player) {
         player.gameModel.GetComponent<MeshRenderer> ().material.SetColor ("_Color", Color.red);
     }
+    //resizes the playerObject instance
+    /**
+    @param player object containing identifying info and coordinate position
+    @param size new size of the player's model
+     */
     public void resize (PlayerObject player, float size) {
         if (size > largestObjectSize) {
             size = largestObjectSize;
@@ -387,16 +488,6 @@ public class ServiceListenerScript : MonoBehaviour {
             size = smallestObjectsSize;
         }
         player.gameModel.transform.localScale = new Vector3 (size, size, size);
-    }
-
-    public void animateHasCaptured () {
-
-    }
-    public void startGameSequence () {
-
-    }
-    public void endGameSequence () {
-
     }
 
 }

@@ -107,7 +107,8 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value=" AIzaSyArSQMHq9yhPMLYrori8Pitazai-qRoKls"/>
+            <!--android:value="@string/google_maps_key" -->
 
         <!-- Activity for maps activity -->
         <activity
@@ -144,7 +145,6 @@
             android:name="com.osterhoutgroup.api.ext"
             android:required="false" />
 
-        <activity android:name=".TestPermissions"></activity>
     </application>
 
 </manifest>
