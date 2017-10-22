@@ -16,7 +16,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -36,7 +35,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 //import com.unimelb.comp30022.itproject.arcamera.UnityPlayerActivity;
@@ -117,7 +115,7 @@ public class RunningGameActivity extends AppCompatActivity implements
     private GameSession currentGameState;
     private boolean hasFineLocationPermission;
     private Boolean canFetchLocations;
-    private boolean caputringBtnPressed;
+    private boolean capturingBtnPressed;
     private String gameSessionId;
     private GoogleApiClient mGoogleAPIClient;
     private Gson gson = new Gson();
@@ -127,7 +125,7 @@ public class RunningGameActivity extends AppCompatActivity implements
         public void run() {
             Intent senderIntent = new Intent();
             //while the individual does not press "capture" the broadcaster does not send out a capture signal
-            if (caputringBtnPressed) {
+            if (capturingBtnPressed) {
                 Log.d(TAG, "capturing button being pressed");
                 Intent intent = new Intent(FILTER_CAPTURING_SIGNAL);
                 intent.putExtra(KEY_IS_CAPTURING, "true");
@@ -187,6 +185,17 @@ public class RunningGameActivity extends AppCompatActivity implements
         findViewById(R.id.btnMapFrag).setOnClickListener(this);
         findViewById(R.id.btnChatFrag).setOnClickListener(this);
         findViewById(R.id.btnAR).setOnClickListener(this);
+        findViewById(R.id.btnCapture).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    capturingBtnPressed = true;
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    capturingBtnPressed = false;
+                }
+                return false;
+            }
+        });
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
@@ -212,7 +221,6 @@ public class RunningGameActivity extends AppCompatActivity implements
                 Intent intent = new Intent(RunningGameActivity.this, AndroidToUnitySenderService.class);
                 intent.putExtra(FILTER_GAME_SESSIONID_RTA, gameSessionId);
                 startService(intent);
-                caputringBtnPressed = true;
                 handler.removeCallbacks(capturingButtonListener);
                 handler.postDelayed(capturingButtonListener, CAPTURING_LATENCY);
                 receiveMyGameSessionBroadcasts();

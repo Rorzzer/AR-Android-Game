@@ -579,11 +579,11 @@ public class AndroidToUnitySenderService extends Service {
             }
             //has found the closest player
             if (closestPlayer != null) {
+                myCapturedList.add(closestPlayer.getDisplayName());
                 publicGameSession.capturePlayer(currentPlayer, closestPlayer);
                 updateServerGameSession(publicGameSession, UPDATING_CAPTURE);
                 myGameSession = gson.fromJson(gson.toJson(publicGameSession), gameSessionType);
-                myCapturedList.add(closestPlayer.getDisplayName());
-                Toast.makeText(AndroidToUnitySenderService.this, R.string.player + currentPlayer.getDisplayName() + R.string.has_captured + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
+                Toast.makeText(AndroidToUnitySenderService.this, "Playerm" + currentPlayer.getDisplayName() +" has capturedm" + closestPlayer.getDisplayName(), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -592,7 +592,7 @@ public class AndroidToUnitySenderService extends Service {
 
       */
     public void displayCapturedMessge(String capturedName) {
-        Toast.makeText(AndroidToUnitySenderService.this, R.string.player + capturedName + R.string.has_been_captured, Toast.LENGTH_SHORT).show();
+        Toast.makeText(AndroidToUnitySenderService.this, "Playerm" + capturedName + " has been capturedm", Toast.LENGTH_SHORT).show();
     }
     /* Converts multiple decinal values to one decimal.
      * @param  f value with multiple decimals in the mantissa
