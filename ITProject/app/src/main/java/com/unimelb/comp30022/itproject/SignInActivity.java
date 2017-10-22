@@ -179,6 +179,7 @@ public class SignInActivity extends AppCompatActivity
             showSignedInInterface();
         }
         else {
+            showSignedOutInterface();
             tvStat.setText(SIGN_OUT);
         }
     }
