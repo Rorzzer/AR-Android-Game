@@ -22,7 +22,7 @@
     <string name="user_successfuly_signed_out">Signed out</string>
 
     <string name="user_unsuccessfuly_signed_in">Sign in failed</string>
-    <string name="requires_unimelb_email">Must be a Unimelb Email</string>
+    <string name="requires_unimelb_email">Must be a valid Unimelb Email address</string>
     <string name="username_already_used">Username already in use.</string>
     <string name="successfuly_updated_details">Details updated</string>
     <string name="names_at_least_three">Names must be at least 3 characters long</string>

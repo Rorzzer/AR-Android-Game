@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -25,16 +24,24 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+/**
+ * Created by RoryPowell.
+ * This class manages signing in and out of firebase and account creation
+ * it also handles validation of details
+ */
+
 public class SignInActivity extends AppCompatActivity
     implements View.OnClickListener{
-    private final String TAG = "FB_SIGNIN";
-    private final String EMPTY = "";
+
+    private final String TAG = SignInActivity.class.getName();
+    private final String EMPTY = "Empty";
+    private final String SIGN_OUT = "Signed Out";
+
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
     private FirebaseDatabase database;
-
     private FirebaseUser user = null;
 
     private EditText etPass;
@@ -51,7 +58,7 @@ public class SignInActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         Context context = getApplicationContext();
-        //FirebaseApp.initializeApp(context);
+
         // Set up click handlers and view item references
           btnSignIn = (Button)findViewById(R.id.btnSignInReg);
           btnSignOut = (Button)findViewById(R.id.btnSignOut);
@@ -65,7 +72,6 @@ public class SignInActivity extends AppCompatActivity
 
         etEmail = (EditText) findViewById(R.id.etEmailAddr);
         etPass = (EditText) findViewById(R.id.etPassword);
-
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -84,9 +90,6 @@ public class SignInActivity extends AppCompatActivity
                 }
             }
         };
-
-
-
         updateStatus();
     }
 
@@ -98,7 +101,6 @@ public class SignInActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-
     }
 
     @Override
@@ -107,9 +109,11 @@ public class SignInActivity extends AppCompatActivity
         if (mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
         }
-
     }
 
+    /**
+     * Button click logic
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -120,7 +124,6 @@ public class SignInActivity extends AppCompatActivity
 
             case R.id.btnCreate:
                 Log.d(TAG, "Create button pressed");
-
                 createUserAccount();
                 break;
 
@@ -128,11 +131,20 @@ public class SignInActivity extends AppCompatActivity
                 Log.d(TAG, "Sign Out button pressed");
 
                 signUserOut();
+
                 Toast.makeText(SignInActivity.this,R.string.user_successfuly_signed_out,Toast.LENGTH_SHORT).show();
+
+                //return to the main screen after signing out
+                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(i);
+
                 break;
         }
     }
 
+    /**
+     * check all text entries are valid
+     */
     private boolean checkFormFields() {
         String email, password;
 
@@ -151,10 +163,12 @@ public class SignInActivity extends AppCompatActivity
             etPass.setError("Password Required");
             return false;
         }
-
         return true;
     }
 
+    /**
+     * Update the text on screen with the error
+     */
     private void updateStatus() {
         TextView tvStat = findViewById(R.id.tvSignInStatus);
 
@@ -165,23 +179,27 @@ public class SignInActivity extends AppCompatActivity
             showSignedInInterface();
         }
         else {
-            tvStat.setText("Signed Out");
-            showSignedOutInterface();
+            tvStat.setText(SIGN_OUT);
         }
-
     }
 
+    /**
+     * Update the text on screen with the error message passed in
+     */
     private void updateStatus(String stat) {
         TextView tvStat = findViewById(R.id.tvSignInStatus);
         tvStat.setText(stat);
     }
 
+    /**
+     * Sign the user into the firebase auth
+     */
     private void signUserIn() {
         if (!checkFormFields()){
             Log.d(TAG, "Form Fields false");
-
             return;
         }
+
         String email = etEmail.getText().toString();
         String password = etPass.getText().toString();
 
@@ -225,11 +243,17 @@ public class SignInActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Sign the user out of firebase
+     */
     private void signUserOut() {
         mAuth.signOut();
         updateStatus();
     }
 
+    /**
+     * Create a user in firebase
+     */
     private void createUserAccount() {
         if (!checkFormFields()) {
             return;
@@ -247,13 +271,14 @@ public class SignInActivity extends AppCompatActivity
                                 public void onComplete(@NonNull Task<AuthResult>
                                                                task) {
                                     if (task.isSuccessful()){
-                                        //write blank user data to database
+
+                                        //write blank user data placeholder in the database
                                         User newUser = new User(EMPTY, EMPTY, EMPTY, user.getEmail());
                                         mDatabase.child(user.getUid()).setValue(newUser);
 
                                         Toast.makeText(SignInActivity.this, R.string.user_successfully_created,
                                                 Toast.LENGTH_SHORT).show();
-                                        updateStatus("User created, now login");
+                                        updateStatus("User created, now login then create a user profile.");
                                     }else{
                                         Toast.makeText(SignInActivity.this, R.string.account_creation_failed,
                                                 Toast.LENGTH_SHORT).show();
@@ -271,15 +296,16 @@ public class SignInActivity extends AppCompatActivity
                         }
                     });
         } else {
-            //
             updateStatus("Must be a valid University of Melbourne email address");
             Toast.makeText(SignInActivity.this, R.string.account_creation_failed,
                     Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Check if the user has a university of melbourne email address and is a valid email
+     */
     private boolean isEmailValid(String email) {
-        // validation rules
         return (email.contains("@") && email.endsWith("unimelb.edu.au"));
     }
     private void showSignedInInterface(){
