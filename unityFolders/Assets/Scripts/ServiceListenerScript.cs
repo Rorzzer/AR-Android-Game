@@ -111,7 +111,6 @@ public class ServiceListenerScript : MonoBehaviour {
             receiverMessage = File.ReadAllText (jsonPath);
         */
          //assignment of ui elements
-         
         closestEscapername = GameObject.FindGameObjectWithTag ("closestEscaperName");
         currentStatus = GameObject.FindGameObjectWithTag ("currentStatusText");
         compassReading = GameObject.FindGameObjectWithTag ("bearingText");
@@ -138,14 +137,21 @@ public class ServiceListenerScript : MonoBehaviour {
     
         compassReading.GetComponent<Text> ().text = "Bearing: " + getBearing (receiverMessage).ToString ();
         updatePlayerLocations (receiverMessage);
+        rotatePlayersByBearing (players,initialBearing);
         capturedCount =  updatePlayerCapturedNumbers (receiverMessage);
         max = (int) playerData[maximumPlayers];
         capturedProgress.GetComponent<Text> ().text = "Remaining: " + (max / 2 - capturedCount);
         //fetch and point at the closest escaping member
         PlayerObject closestTarget = getClosestEscaper (receiverMessage);
+        if(closestTarget == null){
+            closestEscapername.GetComponent<Text> ().text = "Unavailable";
+        }
+        else{
+            closestEscapername.GetComponent<Text> ().text = ((string) closestTarget.id).ToString ();
+            pointerInstance.transform.LookAt (closestTarget.gameModel.transform);
+
+        }
         pointerInstance.transform.position = Camera.main.transform.position + (Camera.main.transform.forward) * pointerDist + pointerDisplacement;
-        pointerInstance.transform.LookAt (closestTarget.gameModel.transform);
-        closestEscapername.GetComponent<Text> ().text = ((string) closestTarget.id).ToString ();
     }
     //generate gameObjects for both teams and identify current player
     /**
@@ -218,35 +224,21 @@ public class ServiceListenerScript : MonoBehaviour {
         for (int teamIdx = 0; teamIdx < (int) playerData[teamList].Count; teamIdx++) {
             for (int playerIdx = 0; playerIdx < (int) playerData[teamList][teamIdx][playerList].Count; playerIdx++) {
                 Vector3 target = GetCoordinate (teamIdx, playerIdx);
-                target = rotateVectorAroundPivot (target, Vector3.up, new Vector3 (0.0f, -initialBearing, 0.0f));
                 for (int i = 0; i < players.Count; i++) {
                     if (players[i].id == getDisplayName (teamIdx, playerIdx)) {
                         //update the capture state of the current player on the user interface
                         if (players[i].id == currentPlayerName) {
                             setCapturingState (getCapturing (teamIdx, playerIdx));
                         }
-                        Vector3 diff = target - players[i].gameModel.position;
-                        float distance = Mathf.Sqrt (diff.sqrMagnitude);
-                        long timeDiff = getPing (teamIdx, playerIdx) - players[i].lastPing;
-                        //move it to the new position at a speed described by the difference in the last ping update
-                        if (timeDiff != 0) {
-                            players[i].speed = (float) distance / timeDiff;
-                            players[i].gameModel.position = Vector3.MoveTowards (players[i].gameModel.position, target, players[i].speed * Time.deltaTime);
-                        } else {
-                            players[i].gameModel.position = target;
-                        }
+                        players[i].gameModel.position = target;
                         //update their capturing states of every other player
                         if (getCapturing (teamIdx, playerIdx) == true) {
                             colorCapturing (players[i]);
                         } else {
                             colorEscaping (players[i]);
                         }
-                        if (!getActive (teamIdx, playerIdx)) {
-                            colorInactive (players[i]);
-                        }
                         //resize according to the number of captured members
                         resize (players[i], getCapturedListLength(teamIdx,playerIdx));
-                        players[i].lastPing = getPing (teamIdx, playerIdx);
 
                     }
                 }
@@ -458,6 +450,7 @@ public class ServiceListenerScript : MonoBehaviour {
     /**
     @param player object containing identifying info and coordinate position
      */
+
     public void colorEscaping (PlayerObject player) {
         player.gameModel.GetComponent<MeshRenderer> ().material.SetColor ("_Color", Color.green);
     }

@@ -403,6 +403,10 @@ public class CreateLobbyActivity extends AppCompatActivity
         if (authStateListener != null){
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
+        if(currentLocationReciever!= null){
+            unregisterReceiver(currentLocationReciever);
+        }
+
     }
 
     @Override
@@ -533,7 +537,7 @@ public class CreateLobbyActivity extends AppCompatActivity
     }
     /**
      * Uploads an image given a Uri of the image
-     * @param  Uri resource locator for the photo that has been taken by the camera
+     * @param uri resource locator for the photo that has been taken by the camera
      * */
     private void uploadImage(Uri uri) {
         if (uri != null) {
@@ -722,6 +726,7 @@ public class CreateLobbyActivity extends AppCompatActivity
         Intent sessionInformation = new Intent(CreateLobbyActivity.this, SessionInformationActivity.class);
         sessionInformation.putExtra(KEY_GAMESESSIONID_DATA, gameSessionId);
         startActivity(sessionInformation);
+        finish();
     }
 
     /**
