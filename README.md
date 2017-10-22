@@ -1,4 +1,4 @@
-# House Targaryen's IT project
+# COMP30022 - House Targaryen's IT project
 Code Repository for the It Project app by group: House Targaryen
 
 This app was developed by House Targaryen to essentially be an enhanced version of the game knwon to many as Tag. The game uses AR (Augmented Reality) and realtime location updates to enable players to find each other, setup a game and hunt down each other once the game has begun.
