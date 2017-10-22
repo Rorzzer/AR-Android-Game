@@ -17,9 +17,11 @@ This App is comprised of the following sections:
 # Installation and Usage:
 1. Download and import into android studio
 2. Run gradle build and install onto devices as required
-3. Create or login to a user profile.
-4. Create or Join a Lobby
-5. Launch the game
-6. Navigate to test directory in src app directory and run gametests
-7. Open UnityFolders>assets>scripts> using unity and open the serviceListenerScript.cs to view how the AR elements are drawn
+3. Go to Google maps API and generate a key for your device(https://developers.google.com/maps/documentation/android-api/)
+4. Insert the key in the AndroidManifest in the app folder under the <meta-data android:name="com.google.android.geo.API_KEY"> tag as well as in the app\src\release\res\values\google_maps+api.xml and remove the old keys
+5. Create or login to a user profile.
+6. Create or Join a Lobby
+7. Launch the game
+8. Navigate to test directory in src app directory and run gametests
+9. Open UnityFolders>assets>scripts> using unity and open the serviceListenerScript.cs to view how the AR elements are drawn
 
