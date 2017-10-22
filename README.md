@@ -3,11 +3,16 @@ Code Repository for the It Project app by group: House Targaryen
 
 This app was developed by House Targaryen to essentially be an enhanced version of the game knwon to many as Tag. The game uses AR (Augmented Reality) and realtime location updates to enable players to find each other, setup a game and hunt down each other once the game has begun.
 
+The repository contains several directories that hold the following Content
+1.ITproject: android studio project comprising of the App folders
+2.UnityFolder: unity C# project that parses data from the App and draws assets using vuforia plugin and was exported back to the android app.
+
 This App is comprised of the following sections:
 1. The location of various classes, activities, services and fragments
 2. The unity Plugin which handles the state of the AR (Augmented Reality)
 3. The Layout XML files, corresponding to various activities
 4. The GoogleMaps API key files
+5. Testcases for game Events.
 
 # Installation and Usage:
 1. Download and import into android studio
@@ -15,3 +20,11 @@ This App is comprised of the following sections:
 3. Create or login to a user profile.
 4. Create or Join a Lobby
 5. Launch the game
+
+#Testing GameComponents
+1.Navigate to the test directory in src
+2.Run unit tests for Gamesession and Team classes
+
+#viewing and testing Unity ARComponent
+1.open UnityFolders>assets>scripts> using unity and open the serviceListenerScript.cs to view how the AR components are drawn
+
